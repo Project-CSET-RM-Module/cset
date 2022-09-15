@@ -96,6 +96,13 @@ ngOnInit(): void {
 	// return outputData;
 }
 
+public setWidths(width: string) {
+  //const docStyle = document.documentElement.style;
+  //docStyle.setProperty('--achievedwidthvariable');
+  //etc
+  //docStyle not being recognized. JS?
+}
+
 //answer data distributed by sections
 // statsByCategory(data) {
 // 	let outputData = data.filter(obj => obj.modelLevel != "Aggregate");
