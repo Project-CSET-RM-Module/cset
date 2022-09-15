@@ -2,22 +2,27 @@
     /* derived from a ww2schools example */
     /* Make sure that padding behaves as expected */
     * {box-sizing:border-box}
+
+    .container {
+      padding: 50px;
+    }
     
     /* Container is for skill bars */
-    .container {
+    .containerbar {
       width: 100%; /* full width */
       background-color: #ddd; /* grey background */
     }
     
     .skillstypebar {
       text-align: right; /* text to the right within the bar */
-      padding-top: 20px; /* */
-      padding-bottom: 20px; /* */
+      padding-top: 10px; /* */
+      padding-bottom: 10px; /* */
       color: white; /* visible text foreground*/
     }
     
     /* width of achieved level bar*/
-    .achievedwidth {width: 60%;}
+    .achievedwidth {width: 40%; background-color: blue;}
+    .achievedcontainer {display: flex; justify-content: center;}
     /* width replaced with data call to maturity level or min[scores by domain/level] */
     /* width = mat score with text label x out of 5 above, right side */
     .assetmanagement {width: 80%; background-color: #2196F3;} 
@@ -32,11 +37,13 @@
     .supplychainriskmanagement {width: 60%; background-color: #2196F3;} 
 </style>
     
+<div class="container">
 
 <div style="text-align: center;">
     <h2>VBOS Results</h2>
 </div>
 
+<div class="achievedcontainer">
 <div class="card" style="width: 27%;">
     <h3>Achieved Level </h3>
         <div class="card-body">
@@ -44,63 +51,66 @@
             <p> Achieved Level = 3</p>
             {{achievedLevelList}}
             <!-- {{achievedLevel()}}  -->
-            <div class="container">
+            <div class="containerbar">
               <div class="skillstypebar achievedwidth"></div>
             </div>
         </div>
 </div>
+</div>
 
-<div>
+<div class="container">
 
-    <p>Asset Management <span style="text-align: right">Level 4 of 5</span></p>
-      <div class="container">
+    <p>Asset Management <span style="text-align: right">Max. 5</span></p>
+      <div class="containerbar">
         <div class="skillstypebar assetmanagement"></div>
       </div>
 
-    <p>Configuration Management <span style="text-align: right">Level 4 of 5</span></p>
-      <div class="container">
+    <p>Configuration Management <span style="text-align: right">Max. 5</span></p>
+      <div class="containerbar">
         <div class="skillstypebar configurationmanagement"></div>
       </div>
 
-    <p>Access Control <span style="text-align: right">Level 4 of 5</span></p>
-      <div class="container">
+    <p>Access Control <span style="text-align: right">Max. 5</span></p>
+      <div class="containerbar">
         <div class="skillstypebar accesscontrol"></div>
       </div>
 
-    <p>Flaw Remediation <span style="text-align: right">Level 4 of 5</span></p>
-      <div class="container">
+    <p>Flaw Remediation <span style="text-align: right">Max. 5</span></p>
+      <div class="containerbar">
         <div class="skillstypebar flawremediation"></div>
       </div>
 
-    <p>Malicious Code Detection <span style="text-align: right">Level 4 of 5</span></p>
-      <div class="container">
+    <p>Malicious Code Detection <span style="text-align: right">Max. 5</span></p>
+      <div class="containerbar">
         <div class="skillstypebar maliciouscodedetection"></div>
       </div>
 
-    <p>System Integrity <span style="text-align: right">Level 4 of 5</span></p>
-      <div class="container">
+    <p>System Integrity <span style="text-align: right">Max. 5</span></p>
+      <div class="containerbar">
         <div class="skillstypebar systemintegrity"></div>
       </div>
 
-    <p>Continuous Monitoring <span style="text-align: right">Level 4 of 5</span></p>
-      <div class="container">
+    <p>Continuous Monitoring <span style="text-align: right">Max. 5</span></p>
+      <div class="containerbar">
         <div class="skillstypebar continuousmonitoring"></div>
       </div>
 
-    <p>Incident Response and Recovery Planning <span style="text-align: right">Level 4 of 5</span></p>
-      <div class="container">
+    <p>Incident Response and Recovery Planning <span style="text-align: right">Max. 5</span></p>
+      <div class="containerbar">
         <div class="skillstypebar incidentresponseandrecoveryplanning"></div>
       </div>
 
-    <p>Architecture and Development <span style="text-align: right">Level 4 of 5</span></p>
-      <div class="container">
+    <p>Architecture and Development <span style="text-align: right">Max. 5</span></p>
+      <div class="containerbar">
         <div class="skillstypebar architectureanddevelopment"></div>
       </div>
 
-    <p>Supply Chain Risk Management <span style="text-align: right">Level 4 of 5</span></p>
-      <div class="container">
+    <p>Supply Chain Risk Management <span style="text-align: right">Max. 5</span></p>
+      <div class="containerbar">
         <div class="skillstypebar supplychainriskmanagement"></div>
       </div>
+
+</div>
 
 </div>
 

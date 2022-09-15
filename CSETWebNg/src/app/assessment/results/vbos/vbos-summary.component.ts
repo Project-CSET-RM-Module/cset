@@ -97,21 +97,21 @@ ngOnInit(): void {
 }
 
 //answer data distributed by sections
-statsByCategory(data) {
-	let outputData = data.filter(obj => obj.modelLevel != "Aggregate");
-    outputData.sort((a, b) => (a.modelLevel > b.modelLevel) ? 1 : -1);
-    let categoryList = [];
+// statsByCategory(data) {
+// 	let outputData = data.filter(obj => obj.modelLevel != "Aggregate");
+//     outputData.sort((a, b) => (a.modelLevel > b.modelLevel) ? 1 : -1);
+//     let categoryList = [];
     
-    // Check Hardcoded Array in vbos data service
+//     // Check Hardcoded Array in vbos data service
 
-	return outputData;	
-}
+// 	return outputData;	
+// }
 
 //secondary data objectives
-categoryCounts(data) {
-	let outputData = [];	
-	return outputData;
-}
+// categoryCounts(data) {
+// 	let outputData = [];	
+// 	return outputData;
+// }
 
 
 }
