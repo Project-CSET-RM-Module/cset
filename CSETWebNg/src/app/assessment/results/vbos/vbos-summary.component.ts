@@ -21,44 +21,12 @@ export class VbosSummaryComponent implements OnInit {
   initialized = false;
 	dataError = false;
 
-  answerCountsByLevel = [];
   maxLevel = [];
   achievedLevelList = [];
 	statsByCategoryList = [];
   categoriesList = ["Asset Management", "Configuration Management", "Access Control", "Flaw Remediation", "Malicious Code Detection", "System Integrity",
   "Continuous Monitoring", "Incident Response and Recovery Planning", "Architecture and Development", "Supply Chain Risk Management"];
 
-  chartItems =
-  {
-    "labels": [
-      "Asset Management",
-      "Configuration Management",
-      "Access Control",
-      "Flaw Remediation",
-      "Malicious Code Detection",
-      "System Integrity",
-      "Continuous Monitoring",
-      "Incident Response and Recovery Planning",
-      "Architecture and Development",
-      "Supply Chain Risk Management"
-    ],
-    "data": [
-      3,
-      2,
-      2,
-      1,
-      3,
-      2,
-      3,
-      1,
-      2,
-      1
-    ]
-  }
-
-  //secondary data objectives
-  categoryCountsList;
-  statsByLevelList;
 
 constructor(
   public maturitySvc: MaturityService, 
@@ -75,7 +43,6 @@ ngOnInit(): void {
     });
   }
 
-
   //main data objective
   achievedLevel(data) {
 	let outputData = data.filter(obj => obj.modelLevel != "Aggregate");
@@ -83,7 +50,6 @@ ngOnInit(): void {
 
     let levels: number[] = [];
     outputData.forEach(o => levels.push(o.level)); 
-
     // Minimum of Entire Data-Set Function
     // this.achievedLevelList = [];
     let achievedLevel = Math.min(...levels);
@@ -96,25 +62,34 @@ ngOnInit(): void {
 	// return outputData;
 }
 
-//answer data distributed by sections
-statsByCategory(data) {
-	let outputData = data.filter(obj => obj.modelLevel != "Aggregate");
-    outputData.sort((a, b) => (a.modelLevel > b.modelLevel) ? 1 : -1);
-    let categoryList = [];
-    
-    // Check Hardcoded Array in vbos data service
-
-	return outputData;	
+public setWidths(width: string) {
+  //const docStyle = document.documentElement.style;
+  //docStyle.setProperty('--achievedwidthvariable');
+  //etc
+  //docStyle not being recognized. JS?
 }
+
+}
+
+
+//DOCUMENTATION and ATTEMPTS
+
+//answer data distributed by sections
+// statsByCategory(data) {
+// 	let outputData = data.filter(obj => obj.modelLevel != "Aggregate");
+//     outputData.sort((a, b) => (a.modelLevel > b.modelLevel) ? 1 : -1);
+//     let categoryList = [];
+    
+//     // Check Hardcoded Array in vbos data service
+
+// 	return outputData;	
+// }
 
 //secondary data objectives
-categoryCounts(data) {
-	let outputData = [];	
-	return outputData;
-}
-
-
-}
+// categoryCounts(data) {
+// 	let outputData = [];	
+// 	return outputData;
+// }
 
 // Previous TS attempt 
 
