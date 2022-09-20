@@ -131,17 +131,12 @@
 </div>
 
 
-
-
-
-
 <!--
 <h3>Examples</h3>
 
 	<div>
 		<canvas id="bar-chart-horizontal" class="chart-base" chart-type="type" chart-data="data" chart-labels="labels" chart-legend="false"></canvas>
 	</div>
-
 
 	<div>
 		<canvas id="bar-chart-horizontal" chart-labels="labels" width="800" height="500"></canvas>
@@ -219,39 +214,6 @@
         <h3>#4</h3>
     -->
 
-    <!-- <div class="d-flex flex-column flex-11a" [class.d-none]="!initialized">
-        <div clas="container">
-            <div class="row mb-5">
-                <div class="col-12">
-                    <h5>VBOS Performance by Goal</h5>
-                    <div style="width: 100%; max-height: 20rem" class="d-block mb-5">
-                        <ngx-charts-bar-horizontal-stacked [results]="answerCountsByLevel" [yAxis]="'true'" [xAxis]="'true'"
-                            [trimYAxisTicks]="'false'" [maxYAxisTickLength]="maxLevel" [xAxisTicks]="sAxisTicks" [legend]="'true'"
-                            [legendPosition]="'below'" [scheme]="answerDistribColorScheme" [showDataLabel]="'true'" >
-                        </ngx-charts-bar-horizontal-stacked>
-                	</div>            
-            	</div>
-            </div>
-        </div>
-    </div> -->
-
-    <!--
-	<hr>
-	<h3>#5</h3>
-    -->
-
-    <!-- <div>
-        <ngx-charts-bar-horizontal [results]="answerCountsByLevel" [yAxis]="'true'" [xAxis]="'true'"
-        [trimYAxisTicks]="'false'" [maxYAxisTickLength]="100" [xAxisTicks]="xAxisTicks" [xScaleMax]="100"
-        [xAxisTickFormatting]="formatPercent" [scheme]="colorScheme1">
-	        <ng-template #tooltipTemplate let-model="model">
-	            <div class="p-1">
-	                {{model.value}}
-	            </div>
-	        </ng-template>
-    	</ngx-charts-bar-horizontal>
-    </div>  -->
-
     <!--OLD HTML-->
     <!--
     <div>
@@ -275,35 +237,4 @@
 
 <script type="text/javascript">
 // transfer to .ts file
-	var chartItems =
-{
-	"labels": [
-		"Asset Management", 
-		"Configuration Management", 
-		"Access Control", 
-		"Flaw Remediation", 
-		"Malicious Code Detection", 
-		"System Integrity",
-		"Continuous Monitoring", 
-		"Incident Response and Recovery Planning", 
-		"Architecture and Development", 
-		"Supply Chain Risk Management"
-	],
-	"data": [
-		3,
-		2,
-		2,
-		1,
-		3,
-		2,
-		3,
-		1,
-		2,
-		1
-	]
-} 
-
-var categories = ["Asset Management", "Configuration Management", "Access Control", "Flaw Remediation", "Malicious Code Detection", "System Integrity",
-"Continuous Monitoring", "Incident Response and Recovery Planning", "Architecture and Development", "Supply Chain Risk Management"]
-
 </script>

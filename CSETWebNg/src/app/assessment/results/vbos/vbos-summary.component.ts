@@ -21,12 +21,9 @@ export class VbosSummaryComponent implements OnInit {
   initialized = false;
 	dataError = false;
 
-  maxLevel = [];
   achievedLevelList = [];
 	statsByCategoryList = [];
-  categoriesList = ["Asset Management", "Configuration Management", "Access Control", "Flaw Remediation", "Malicious Code Detection", "System Integrity",
-  "Continuous Monitoring", "Incident Response and Recovery Planning", "Architecture and Development", "Supply Chain Risk Management"];
-
+  
 
 constructor(
   public maturitySvc: MaturityService, 
