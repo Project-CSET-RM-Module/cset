@@ -47,10 +47,17 @@ ngOnInit(): void {
     console.log(r);
     });
 
-
+    this.archdevwidthvariable = displayPercent(33);
+    this.assetmwidthvariable = displayPercent(66);
+    this.configmanwidthvariable = displayPercent(33);
+    this.accesscwidthvariable = displayPercent(33);
+    this.flawremwidthvariable = displayPercent(66);
+    this.malcodewidthvariable = displayPercent(33);
+    this.sysintwidthvariable = displayPercent(33);
+    this.continmonwidthvariable = displayPercent(99);
     this.indidrespwidthvariable = displayPercent(33);
-    this.archdevwidthvariable = 33;
-    this.supplymanwidthvariable = 66;
+    this.archdevwidthvariable = displayPercent(33);
+    this.supplymanwidthvariable = displayPercent(66);
     
   }
 
