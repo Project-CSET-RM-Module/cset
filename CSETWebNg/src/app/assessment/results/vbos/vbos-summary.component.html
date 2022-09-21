@@ -21,32 +21,32 @@
     }
     
     /* width of achieved level bar*/
-    .achievedwidth {width: 40%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;}
+    .achievedwidth {width: 40%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
     /* variable width of achieved level bar*/
     /*.achievedwidth {width: var(--achievedwidthvariable)*/
     .achievedcontainer {display: flex; justify-content: center;}
     
     /* width replaced with data call to maturity level or min[scores by domain/level] */
     /* width = mat score with text label x out of 5 above, right side */
-    .assetmanagement {width: 80%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;}
+    .assetmanagement {width: 80%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
       /*width: var(--assetmwidthvariable)*/
-    .configurationmanagement {width: 40%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;} 
+    .configurationmanagement {width: 40%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;} 
       /*width: var(--configmanwidthvariable)*/
-    .accesscontrol {width: 20%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;}
+    .accesscontrol {width: 20%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
       /*width: var(--accesscwidthvariable)*/ 
-    .flawremediation {width: 60%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;}
+    .flawremediation {width: 60%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
       /*width: var(--flawremwidthvariable)*/
-    .maliciouscodedetection {width: 60%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;}
+    .maliciouscodedetection {width: 60%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
       /*width: var(--malcodewidthvariable)*/
-    .systemintegrity {width: 60%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;} 
+    .systemintegrity {width: 60%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;} 
       /*width: var(--sysintwidthvariable)*/
-    .continuousmonitoring {width: var(--continmonwidthvariable); background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;} 
+    .continuousmonitoring {width: var(--continmonwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;} 
       /*width: var(--continmonwidthvariable)*/
-    .incidentresponseandrecoveryplanning {width: var(--indidrespwidthvariable); background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;} 
+    .incidentresponseandrecoveryplanning {width: var(--indidrespwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;} 
       /*width: var(--indidrespwidthvariable)*/
-    .architectureanddevelopment {width: var(--archdevwidthvariable); background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;} 
+    .architectureanddevelopment {width: var(--archdevwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;} 
       /*width: var(--archdevwidthvariable)*/
-    .supplychainriskmanagement {width: var(--supplymanwidthvariable); background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;} 
+    .supplychainriskmanagement {width: var(--supplymanwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;} 
       /*width: var(--supplymanwidthvariable) width: 40%*/
 </style>
     
@@ -76,52 +76,52 @@
 
 <div class="container">
 
-    <p>Asset Management <span style="text-align: right">Max. 5</span></p>
+    <p><strong>Asset Management</strong></p>
       <div class="containerbar">
         <div class="skillstypebar assetmanagement"></div>
       </div>
 
-    <p>Configuration Management <span style="text-align: right">Max. 5</span></p>
+    <p><strong>Configuration Management</strong></p>
       <div class="containerbar">
         <div class="skillstypebar configurationmanagement"></div>
       </div>
 
-    <p>Access Control <span style="text-align: right">Max. 5</span></p>
+    <p><strong>Access Control</strong></p>
       <div class="containerbar">
         <div class="skillstypebar accesscontrol"></div>
       </div>
 
-    <p>Flaw Remediation <span style="text-align: right">Max. 5</span></p>
+    <p><strong>Flaw Remediation</strong></p>
       <div class="containerbar">
         <div class="skillstypebar flawremediation"></div>
       </div>
 
-    <p>Malicious Code Detection <span style="text-align: right">Max. 5</span></p>
+    <p><strong>Malicious Code Detection</strong></p>
       <div class="containerbar">
         <div class="skillstypebar maliciouscodedetection"></div>
       </div>
 
-    <p>System Integrity <span style="text-align: right">Max. 5</span></p>
+    <p><strong>System Integrity</strong></p>
       <div class="containerbar">
         <div class="skillstypebar systemintegrity"></div>
       </div>
 
-    <p>Continuous Monitoring <span style="text-align: right">Max. 5</span></p>
+    <p><strong>Continuous Monitoring</strong></p>
       <div class="containerbar">
         <div class="skillstypebar continuousmonitoring"></div>
       </div>
 
-    <p>Incident Response and Recovery Planning <span style="text-align: right">Max. 5</span></p>
+    <p><strong>Incident Response and Recovery Planning</strong></p>
       <div class="containerbar">
         <div class="skillstypebar incidentresponseandrecoveryplanning"></div>
       </div>
 
-    <p>Architecture and Development <span style="text-align: right">Max. 5</span></p>
+    <p><strong>Architecture and Development</strong></p>
       <div class="containerbar">
         <div class="skillstypebar architectureanddevelopment"></div>
       </div>
 
-    <p>Supply Chain Risk Management <span style="text-align: right">Max. 5</span></p>
+    <p><strong>Supply Chain Risk Management</strong></p>
       <div class="containerbar">
         <div class="skillstypebar supplychainriskmanagement"></div>
       </div>
