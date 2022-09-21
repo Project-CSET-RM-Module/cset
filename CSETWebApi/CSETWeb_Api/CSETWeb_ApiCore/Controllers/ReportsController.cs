@@ -230,7 +230,7 @@ namespace CSETWebCore.Api.Controllers
         // CRMP Controllers
         //--------------------------------      
         [HttpGet]
-        [Route("api/results/crmpSiteSummary")]
+        [Route("api/reports/crmpSiteSummary")]
         public IActionResult GetCRMPDetailReport()
         {
             int assessmentId = _token.AssessmentForUser();
@@ -238,10 +238,10 @@ namespace CSETWebCore.Api.Controllers
             _context.FillEmptyMaturityQuestionsForAnalysis(assessmentId);
 
             CrmpSummary summary = new CrmpSummary(_context);
-            MaturityReportDetailData data = new MaturityReportDetailData();
+           // MaturityReportDetailData data = new MaturityReportDetailData();
             
-            data.CrmpSummary = summary.GetCrmpSummary(assessmentId);
-            return Ok(data);
+           // data.CrmpSummary = summary.GetCrmpSummary(assessmentId);
+            return Ok(summary.GetCrmpSummary(assessmentId));
         }
         //--------------------------------
         // VBOS Controllers
