@@ -25,6 +25,10 @@ export class CrmpSummaryComponent implements OnInit {
   achievedLevelList = [];
 	statsByCategoryList = [];
 
+  riskfwidthvariable;
+  riskawidthvariable;
+  riskrwidthvariable;
+  riskmwidthvariable;
   
   crmpModel;
   // response;
@@ -68,6 +72,10 @@ export class CrmpSummaryComponent implements OnInit {
       console.log(r)
     });
     
+    this.riskfwidthvariable = this.displayPercent(66);
+    this.riskawidthvariable = this.displayPercent(33);
+    this.riskrwidthvariable = this.displayPercent(66);
+    this.riskmwidthvariable = this.displayPercent(99);
     
     // this.CrmpDataSvc.getCRMPDetail().subscribe((r: any) => {
     //   this.createAnswerCountsByLevel(r);
@@ -127,6 +135,12 @@ export class CrmpSummaryComponent implements OnInit {
         // });
       // return outputData;
     }
+
+
+
+    //call each part by title for level
+
+
   // createAnswerCountsByLevel(r: any) {
   //   let levelList = [];
 
@@ -232,6 +246,10 @@ export class CrmpSummaryComponent implements OnInit {
   //   return x + '%';
   // }
 
-  
+  displayPercent = (percent: number) => 
+'${(percent * 100).toFixed(2)}%';
 
 }
+
+// const displayPercent = (percent: number) => 
+// '${(percent * 100).toFixed(2)}%';
