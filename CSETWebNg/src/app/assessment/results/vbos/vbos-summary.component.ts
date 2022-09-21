@@ -6,6 +6,7 @@ import { ReportAnalysisService } from '../../../services/report-analysis.service
 import { ReportService } from '../../../services/report.service';
 import { VbosDataService } from '../../../services/vbos-data.service';
 import * as $ from 'jquery';
+import { formatPercent } from '@angular/common';
 
 
 
@@ -23,7 +24,17 @@ export class VbosSummaryComponent implements OnInit {
 
   achievedLevelList = [];
 	statsByCategoryList = [];
-  
+
+  assetmwidthvariable;
+  configmanwidthvariable;
+  accesscwidthvariable;
+  flawremwidthvariable;
+  malcodewidthvariable;
+  sysintwidthvariable;
+  continmonwidthvariable;
+  indidrespwidthvariable;
+  archdevwidthvariable;
+  supplymanwidthvariable;
 
 constructor(
   public maturitySvc: MaturityService, 
@@ -33,11 +44,21 @@ constructor(
 
 ngOnInit(): void {
   this.maturitySvc.getResultsData('vbosSiteSummary').subscribe((r: any) => {
-    
     console.log(r);
-    // this.achievedLevel(r);
-    // this.statsByCategory(r);
     });
+
+    this.archdevwidthvariable = displayPercent(33);
+    this.assetmwidthvariable = displayPercent(66);
+    this.configmanwidthvariable = displayPercent(33);
+    this.accesscwidthvariable = displayPercent(33);
+    this.flawremwidthvariable = displayPercent(66);
+    this.malcodewidthvariable = displayPercent(33);
+    this.sysintwidthvariable = displayPercent(33);
+    this.continmonwidthvariable = displayPercent(99);
+    this.indidrespwidthvariable = displayPercent(33);
+    this.archdevwidthvariable = displayPercent(33);
+    this.supplymanwidthvariable = displayPercent(66);
+    
   }
 
   //main data objective
@@ -59,15 +80,17 @@ ngOnInit(): void {
 	// return outputData;
 }
 
-public setWidths(width: string) {
-  //const docStyle = document.documentElement.style;
-  //docStyle.setProperty('--achievedwidthvariable');
-  //etc
-  //docStyle not being recognized. JS?
-}
+// public setWidths(width: string) {
+//   //const docStyle = document.documentElement.style;
+//   //docStyle.setProperty('--achievedwidthvariable');
+//   //etc
+//   //docStyle not being recognized. JS?
+// }
 
 }
 
+const displayPercent = (percent: number) => 
+'${(percent * 100).toFixed(2)}%';
 
 //DOCUMENTATION and ATTEMPTS
 
@@ -186,9 +209,11 @@ public setWidths(width: string) {
 //     this.answerDistribByLevel = levelList;
 //   }
 
-//   formatPercent(x: any) {
-//     return x + '.0';
-//   }
+  // formatPercent(x: any) {
+  //   return x + '.0';
+  // }
+
+
 
 // }
 // }

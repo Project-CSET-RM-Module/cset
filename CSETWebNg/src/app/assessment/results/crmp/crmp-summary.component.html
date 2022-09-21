@@ -21,21 +21,26 @@
     }
     
     /* width of achieved level bar*/
-    .achievedwidth {width: 40%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;}
+    .achievedwidth {width: 40%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
     /* variable width of achieved level bar*/
     /*.achievedwidth {width: var(--achievedwidthvariable)*/
     .achievedcontainer {display: flex; justify-content: center;}
     
     /* width replaced with data call to maturity level or min[scores by domain/level] */
     /* width = mat score with text label x out of 5 above, right side */
-    .riskframing {width: 80%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;}
-      /*width: var(--assetmwidthvariable)*/
-    .riskassessment {width: 40%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;} 
-      /*width: var(--configmanwidthvariable)*/
-    .riskresponse {width: 20%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;}
-      /*width: var(--accesscwidthvariable)*/ 
-    .riskmonitoring {width: 60%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;}
-      /*width: var(--flawremwidthvariable)*/
+    .riskframing {width: 80%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
+      /*width: var(--riskfwidthvariable)*/
+    .riskassessment {width: 40%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;} 
+      /*width: var(--riskawidthvariable)*/
+    .riskresponse {width: 20%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
+      /*width: var(--riskrwidthvariable)*/ 
+    .riskmonitoring {
+        /*width: 60%;*/
+        width: var(--riskmwidthvariable);
+        background-color: #007bff;
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;}
+      /**/
     
 </style>
 
@@ -64,22 +69,22 @@
     
     <div class="container">
     
-        <p>Part 1: Risk Framing</p>
+        <p><strong>Part 1: Risk Framing</strong></p>
           <div class="containerbar">
             <div class="skillstypebar riskframing"></div>
           </div>
     
-        <p>Part 2: Risk Assessment</p>
+        <p><strong>Part 2: Risk Assessment</strong></p>
           <div class="containerbar">
             <div class="skillstypebar riskassessment"></div>
           </div>
     
-        <p>Part 3: Risk Response</p>
+        <p><strong>Part 3: Risk Response</strong></p>
           <div class="containerbar">
             <div class="skillstypebar riskresponse"></div>
           </div>
     
-        <p>Part 4: Risk Monitoring</p>
+        <p><strong>Part 4: Risk Monitoring</strong></p>
           <div class="containerbar">
             <div class="skillstypebar riskmonitoring"></div>
           </div>
