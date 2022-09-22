@@ -79,10 +79,19 @@ export class CrmpSummaryComponent implements OnInit {
       r.Grouping_Id;
       console.log(r.Grouping_Id);
 
+      this.riskfscore = 1;
+
+      if (r.maturityModels) {
+        r.maturityModels.forEach(model => {
+          if (model.maturityModelName === 'CRMP') {
+            //this.achievedLevel = achievedLevel;
+            }
+        });
+      }
       // this.riskascore = data.arguments.element.achievedLevel.vbosSiteSummary.vbosSiteSummary;
       // let level = levelItem.find(x => x.name == element.level_Name);
       // levelItem.find(x => x.Grouping_Id == element.Grouping_Id);
-    });
+      });
     
     this.riskfwidthvariable = this.displayPercent(66);
     this.riskawidthvariable = this.displayPercent(33);
@@ -131,10 +140,12 @@ export class CrmpSummaryComponent implements OnInit {
     // this.columnWidthEmitter.subscribe(item => {
     //   $(".gridCell").css("width", `${item}px`)
     // })
+
   }
 
+
     //main data objective
-    achievedLevel(data) {
+    generateAchievedLevel(data) {
       let outputData = data.filter(obj => obj.modelLevel != "Aggregate");
         // outputData.sort((a, b) => (a.modelLevel > b.modelLevel) ? 1 : -1);
     
@@ -156,7 +167,7 @@ export class CrmpSummaryComponent implements OnInit {
     '${(percent * 100).toFixed(2)}%';
 
     //call each part by title for level
-
+  }
 
   // createAnswerCountsByLevel(r: any) {
   //   let levelList = [];
@@ -265,7 +276,7 @@ export class CrmpSummaryComponent implements OnInit {
 
 
 
-}
+
 
 // const displayPercent = (percent: number) => 
 // '${(percent * 100).toFixed(2)}%';

@@ -56,6 +56,8 @@ constructor(
 ngOnInit(): void {
   this.maturitySvc.getResultsData('vbosSiteSummary').subscribe((r: any) => {
     console.log(r);
+
+    
     });
 
     this.archdevwidthvariable = displayPercent(33);
