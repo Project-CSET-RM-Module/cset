@@ -57,7 +57,17 @@ ngOnInit(): void {
   this.maturitySvc.getResultsData('vbosSiteSummary').subscribe((r: any) => {
     console.log(r);
 
-    
+    this.assetmscore = 3;
+    this.configmscore = 3;
+    this.accesscscore = 3;
+    this.flawrscore = 3;
+    this.malcodescore = 3;
+    this.systemiscore = 3;
+    this.continmscore = 3;
+    this.incresprecoscore = 3;
+    this.archdevscore = 3;
+    this.supplychscore = 3;
+
     });
 
     this.archdevwidthvariable = displayPercent(33);

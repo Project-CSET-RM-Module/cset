@@ -80,6 +80,9 @@ export class CrmpSummaryComponent implements OnInit {
       console.log(r.Grouping_Id);
 
       this.riskfscore = 1;
+      this.riskascore = 1;
+      this.riskrscore = 1;
+      this.riskmscore = 1;
 
       if (r.maturityModels) {
         r.maturityModels.forEach(model => {
