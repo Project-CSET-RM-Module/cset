@@ -25,6 +25,7 @@ export class VbosSummaryComponent implements OnInit {
   achievedLevelList = [];
 	statsByCategoryList = [];
 
+  finalscorewidthvariable;
   assetmwidthvariable;
   configmanwidthvariable;
   accesscwidthvariable;
@@ -36,6 +37,7 @@ export class VbosSummaryComponent implements OnInit {
   archdevwidthvariable;
   supplymanwidthvariable;
 
+  finalscore;
   assetmscore;
   configmscore;
   accesscscore;
@@ -68,8 +70,12 @@ ngOnInit(): void {
     this.archdevscore = 3;
     this.supplychscore = 3;
 
+    this.finalscore = 3;
+
     });
 
+    this.finalscorewidthvariable = displayPercent(66);
+    // = displayPercent(finalscore * 33)
     this.archdevwidthvariable = displayPercent(33);
     this.assetmwidthvariable = displayPercent(66);
     this.configmanwidthvariable = displayPercent(33);

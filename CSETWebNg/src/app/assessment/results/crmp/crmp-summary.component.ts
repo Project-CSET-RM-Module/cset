@@ -31,10 +31,14 @@ export class CrmpSummaryComponent implements OnInit {
   riskrwidthvariable;
   riskmwidthvariable;
 
+  finalscorevariable;
+
   riskfscore;
   riskascore;
   riskrscore;
   riskmscore;
+
+  finalscore;
   
   crmpModel;
   // response;
@@ -84,6 +88,8 @@ export class CrmpSummaryComponent implements OnInit {
       this.riskrscore = 1;
       this.riskmscore = 1;
 
+      this.finalscore = 3;
+
       if (r.maturityModels) {
         r.maturityModels.forEach(model => {
           if (model.maturityModelName === 'CRMP') {
@@ -100,6 +106,8 @@ export class CrmpSummaryComponent implements OnInit {
     this.riskawidthvariable = this.displayPercent(33);
     this.riskrwidthvariable = this.displayPercent(66);
     this.riskmwidthvariable = this.displayPercent(99);
+
+    this.finalscorevariable = this.displayPercent(33);
 
 
     
