@@ -7,6 +7,7 @@ import { CrmpDataService } from '../../../services/crmp-data.service';
 import { NgxChartsModule, ColorHelper } from '@swimlane/ngx-charts';
 import { BehaviorSubject } from 'rxjs';
 import { AssessmentService } from '../../../services/assessment.service';
+import { data } from 'jquery';
 
 
 
@@ -29,6 +30,11 @@ export class CrmpSummaryComponent implements OnInit {
   riskawidthvariable;
   riskrwidthvariable;
   riskmwidthvariable;
+
+  riskfscore;
+  riskascore;
+  riskrscore;
+  riskmscore;
   
   crmpModel;
   // response;
@@ -70,19 +76,29 @@ export class CrmpSummaryComponent implements OnInit {
     
     this.maturitySvc.getResultsData('crmpSiteSummary').subscribe((r:any) => {
       console.log(r)
+      r.Grouping_Id;
+      console.log(r.Grouping_Id);
+
+      // this.riskascore = data.arguments.element.achievedLevel.vbosSiteSummary.vbosSiteSummary;
+      // let level = levelItem.find(x => x.name == element.level_Name);
+      // levelItem.find(x => x.Grouping_Id == element.Grouping_Id);
     });
     
     this.riskfwidthvariable = this.displayPercent(66);
     this.riskawidthvariable = this.displayPercent(33);
     this.riskrwidthvariable = this.displayPercent(66);
     this.riskmwidthvariable = this.displayPercent(99);
+
+
     
-    // this.CrmpDataSvc.getCRMPDetail().subscribe((r: any) => {
-    //   this.createAnswerCountsByLevel(r);
-    // //  this.createAnswerDistribByGoal(r);
-    //   this.createAnswerDistribByLevel(r);
-    //   this.createComplianceByGoal(r);
-    // });
+    //Grouping_Id
+    //title
+    //level
+
+
+    //html
+    //{{riskascore}}
+    
 
     // // cmmc example
     // //*********Error here*********
@@ -136,7 +152,8 @@ export class CrmpSummaryComponent implements OnInit {
       // return outputData;
     }
 
-
+    displayPercent = (percent: number) => 
+    '${(percent * 100).toFixed(2)}%';
 
     //call each part by title for level
 
@@ -246,8 +263,7 @@ export class CrmpSummaryComponent implements OnInit {
   //   return x + '%';
   // }
 
-  displayPercent = (percent: number) => 
-'${(percent * 100).toFixed(2)}%';
+
 
 }
 
