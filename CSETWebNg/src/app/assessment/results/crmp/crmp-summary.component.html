@@ -57,8 +57,8 @@
       </div>
       <div class="card-body">
         <div style="display: flex; justify-content: center">
-          <h2>3</h2>
-            <!-- {{achievedLevelList}} -->
+          <h2>{{3}}{{achievedLevelList}}</h2>
+           
         </div>
         <div class="containerbar">
           <div class="skillstypebar achievedwidth"></div>
@@ -69,22 +69,34 @@
     
     <div class="container">
     
-        <p><strong>Part 1: Risk Framing</strong></p>
+        <div style="display: inline-block; width: 100%; padding-top: 20px">
+            <div><strong>Part 1: Risk Framing</strong></div>
+            <div style="text-align: right;"><strong>{{riskfscore}}</strong></div>
+        </div>
           <div class="containerbar">
             <div class="skillstypebar riskframing"></div>
           </div>
     
-        <p><strong>Part 2: Risk Assessment</strong></p>
+        <div style="display: inline-block; width: 100%; padding-top: 20px">
+            <div><strong>Part 2: Risk Assessment</strong></div>
+            <div style="text-align: right;"><strong>{{riskascore}}</strong></div>
+        </div>
           <div class="containerbar">
             <div class="skillstypebar riskassessment"></div>
           </div>
-    
-        <p><strong>Part 3: Risk Response</strong></p>
+
+        <div style="display: inline-block; width: 100%; padding-top: 20px">
+            <div><strong>Part 3: Risk Response</strong></div>
+            <div style="text-align: right;"><strong>{{riskrscore}}</strong></div>
+        </div>
           <div class="containerbar">
             <div class="skillstypebar riskresponse"></div>
           </div>
     
-        <p><strong>Part 4: Risk Monitoring</strong></p>
+        <div style="display: inline-block; width: 100%; padding-top: 20px">
+            <div><strong>Part 4: Risk Monitoring</strong></div>
+            <div style="text-align: right;"><strong>{{riskmscore}}</strong></div>
+        </div>
           <div class="containerbar">
             <div class="skillstypebar riskmonitoring"></div>
           </div>

@@ -36,6 +36,17 @@ export class VbosSummaryComponent implements OnInit {
   archdevwidthvariable;
   supplymanwidthvariable;
 
+  assetmscore;
+  configmscore;
+  accesscscore;
+  flawrscore;
+  malcodescore;
+  systemiscore;
+  continmscore;
+  incresprecoscore;
+  archdevscore;
+  supplychscore;
+
 constructor(
   public maturitySvc: MaturityService, 
   public assessmentSvc: AssessmentService,
