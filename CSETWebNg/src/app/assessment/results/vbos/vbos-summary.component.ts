@@ -76,9 +76,9 @@ ngOnInit(): void {
 
     this.finalscore = 3;
 
-    this.createAnswerDistribByLevel(r);
+    // this.createAnswerDistribByLevel(r);
 
-    this.createCountTable(r);
+    // this.createCountTable(r);
 
     this.answerDistribByLevel = [];
 
@@ -120,64 +120,64 @@ ngOnInit(): void {
 	// return outputData;
 }
 
-createAnswerDistribByLevel(r: any) {
-  let levelList = [];
-  //r.rraSummary.forEach(element => {
-  r.MaturityService.forEach(element => {
-    let level = levelList.find(x => x.name == element.level_Name);
-    if (!level) {
-      level = {
-        name: element.level_Name, series: [
-          { name: 'Yes', value: 0 },
-          { name: 'No', value: 0 },
-          { name: 'Unanswered', value: 0 },
-        ]
-      };
-      levelList.push(level);
-    }
+// createAnswerDistribByLevel(r: any) {
+//   let levelList = [];
+//   //r.rraSummary.forEach(element => {
+//   r.MaturityService.forEach(element => {
+//     let level = levelList.find(x => x.name == element.level_Name);
+//     if (!level) {
+//       level = {
+//         name: element.level_Name, series: [
+//           { name: 'Yes', value: 0 },
+//           { name: 'No', value: 0 },
+//           { name: 'Unanswered', value: 0 },
+//         ]
+//       };
+//       levelList.push(level);
+//     }
 
-    var p = level.series.find(x => x.name == element.answer_Full_Name);
-    p.value = element.percent;
-  });
+//     var p = level.series.find(x => x.name == element.answer_Full_Name);
+//     p.value = element.percent;
+//   });
 
-  this.answerDistribByLevel = levelList;
-}
+//   this.answerDistribByLevel = levelList;
+// }
 
-createCountTable(r: any) {
-  let countList = [];
-  //r.rraSummaryByGoal.forEach(element => {
-  r.MaturityService.forEach(element => {  
-    let count = countList.find(x => x.name == element.title);
-    if (!count) {
-      count = {
-        name: element.title,
-        yes: 0,
-        no: 0,
-        unanswered: 0
-      };
-      countList.push(count);
-    }
+// createCountTable(r: any) {
+//   let countList = [];
+//   //r.rraSummaryByGoal.forEach(element => {
+//   r.MaturityService.forEach(element => {  
+//     let count = countList.find(x => x.name == element.title);
+//     if (!count) {
+//       count = {
+//         name: element.title,
+//         yes: 0,
+//         no: 0,
+//         unanswered: 0
+//       };
+//       countList.push(count);
+//     }
 
-    switch (element.answer_Text) {
-      case 'Y':
-        count.yes = element.qc;
-        break;
-      case 'N':
-        count.no = element.qc;
-        break;
-      case 'U':
-        count.unanswered = element.qc
-        break;
-    }
-  });
+//     switch (element.answer_Text) {
+//       case 'Y':
+//         count.yes = element.qc;
+//         break;
+//       case 'N':
+//         count.no = element.qc;
+//         break;
+//       case 'U':
+//         count.unanswered = element.qc
+//         break;
+//     }
+//   });
 
-  countList.forEach(r => {
-    r.total = r.yes + r.no + r.unanswered;
-    r.percent = ((r.yes / r.total) * 100).toFixed(1);
-  });
+//   countList.forEach(r => {
+//     r.total = r.yes + r.no + r.unanswered;
+//     r.percent = ((r.yes / r.total) * 100).toFixed(1);
+//   });
 
-  this.countTable = countList;
-}
+//   this.countTable = countList;
+// }
 
 // public setWidths(width: string) {
 //   //const docStyle = document.documentElement.style;
