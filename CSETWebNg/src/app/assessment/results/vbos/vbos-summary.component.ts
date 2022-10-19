@@ -82,7 +82,11 @@ ngOnInit(): void {
 
     // this.createCountTable(r);
 
-    this.answerDistribByLevel = [];
+    // this.answerDistribByLevel = [];
+
+    this.achievedLevel(r);
+
+    
 
     });
 

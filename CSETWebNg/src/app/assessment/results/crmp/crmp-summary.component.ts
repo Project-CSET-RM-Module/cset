@@ -92,7 +92,11 @@ export class CrmpSummaryComponent implements OnInit {
 
       this.finalscore = 3;
 
-      this.createAnswerCountsByLevel = [];
+      this.generateAchievedLevel(r);
+
+      // this.createCountTable(r);
+
+      // this.createAnswerCountsByLevel = [];
 
       // is this necessary?
       if (r.maturityModels) {
