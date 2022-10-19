@@ -65,7 +65,8 @@ ngOnInit(): void {
     r.Grouping_Id;
     console.log(r.Grouping_Id);
 
-    this.assetmscore = 3;
+    //capture data here
+    this.assetmscore = 2;
     this.configmscore = 3;
     this.accesscscore = 3;
     this.flawrscore = 3;
@@ -73,10 +74,10 @@ ngOnInit(): void {
     this.systemiscore = 3;
     this.continmscore = 3;
     this.incresprecoscore = 3;
-    this.archdevscore = 3;
+    this.archdevscore = 2;
     this.supplychscore = 3;
 
-    this.finalscore = 3;
+    // this.finalscore = 3;
 
     // this.createAnswerDistribByLevel(r);
 
@@ -86,39 +87,42 @@ ngOnInit(): void {
 
     this.achievedLevel(r);
 
+    this.finalscore = this.achievedLevel;
+
     
 
     });
 
     //this.finalscorewidthvariable = displayPercent(66);
-    this.finalscorewidthvariable = this.finalscore;
-    // = displayPercent(finalscore * 33)
-    this.archdevwidthvariable = displayPercent(33);
-    //this.archdevwidthvariable = displayPercent(this.archdevscore * 33);
-    this.assetmwidthvariable = displayPercent(66);
-    //this.assetmwidthvariable = displayPercent(this.assetmscore * 33);
-    this.configmanwidthvariable = displayPercent(33);
+    this.finalscorewidthvariable = this.finalscore * 33;
+    // = displayPercent(finalscore * 33);
+    
+    this.assetmwidthvariable = this.assetmscore * 33;
+    
+    this.configmanwidthvariable = this.configmscore * 33;
     //this.configmanwidthvariable = displayPercent(this.configmscore * 33);
-    this.accesscwidthvariable = displayPercent(33);
+    this.accesscwidthvariable = this.accesscscore * 33;
     //this.accesscwidthvariable = displayPercent(this.accesscscore * 33);
-    this.flawremwidthvariable = displayPercent(66);
+    this.flawremwidthvariable = this.flawrscore * 33;
     //this.flawremwidthvariable = displayPercent(this.flawrscore * 33);
-    this.malcodewidthvariable = displayPercent(33);
+    this.malcodewidthvariable = this.malcodescore * 33;
     //this.malcodewidthvariable = displayPercent(this.malcodescore * 33);
-    this.sysintwidthvariable = displayPercent(33);
+    this.sysintwidthvariable = this.systemiscore * 33;
     //this.sysintwidthvariable = displayPercent(this.systemiscore * 33);
-    this.continmonwidthvariable = displayPercent(99);
+    this.continmonwidthvariable = this.continmscore * 33;
     //this.continmonwidthvariable = displayPercent(this.continmscore * 33);
-    this.indidrespwidthvariable = displayPercent(33);
+    this.indidrespwidthvariable = this.incresprecoscore * 33;
     //this.indidrespwidthvariable = displayPercent(this.incresprecoscore * 33);
-    this.archdevwidthvariable = displayPercent(33);
+    //this.archdevwidthvariable = displayPercent(33);
+    this.archdevwidthvariable = this.archdevscore * 33;
     //this.archdevwidthvariable = displayPercent(this.archdevscore * 33);
-    this.supplymanwidthvariable = displayPercent(66);
+    this.supplymanwidthvariable = this.supplychscore * 33;
     //this.supplymanwidthvariable = displayPercent(this.supplychscore * 33);
     
   }
 
   achievedLevel(data) {
+    //is this necessary?
 	//let outputData = data.filter(obj => obj.modelLevel != "Aggregate");
     // outputData.sort((a, b) => (a.modelLevel > b.modelLevel) ? 1 : -1);
     //let levels: number[] = [];
@@ -126,7 +130,10 @@ ngOnInit(): void {
     // this.achievedLevelList = [];
     // outputData.forEach(element => {
     //   achievedLevel += element assessmentLevel;
+
+    // html accessible?
     //   element["achievedLevel"] = achievedLevel;
+
         // });
     let achievedLevel = data.level;
     console.log(achievedLevel);

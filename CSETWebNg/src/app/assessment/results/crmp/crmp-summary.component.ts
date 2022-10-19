@@ -85,14 +85,17 @@ export class CrmpSummaryComponent implements OnInit {
       r.Grouping_Id;
       console.log(r.Grouping_Id);
 
+      //capture data here
       this.riskfscore = 1;
       this.riskascore = 1;
       this.riskrscore = 1;
       this.riskmscore = 1;
 
-      this.finalscore = 3;
+      // this.finalscore = 3;
 
       this.generateAchievedLevel(r);
+
+      this.finalscore = this.generateAchievedLevel;
 
       // this.createCountTable(r);
 
@@ -110,14 +113,15 @@ export class CrmpSummaryComponent implements OnInit {
       // let level = levelItem.find(x => x.name == element.level_Name);
       // levelItem.find(x => x.Grouping_Id == element.Grouping_Id);
       });
-    
+
+    //this.finalscorevariable = this.displayPercent(33);
+    this.finalscorevariable = this.finalscore * 20;
     this.riskfwidthvariable = this.riskfscore * 20;
     this.riskawidthvariable = this.riskascore * 20;
     this.riskrwidthvariable = this.riskrscore * 20;
     this.riskmwidthvariable = this.riskmscore * 20;
 
-    //this.finalscorevariable = this.displayPercent(33);
-    this.finalscorevariable = this.finalscore * 20;
+
 
     //html
     //{{riskascore}}

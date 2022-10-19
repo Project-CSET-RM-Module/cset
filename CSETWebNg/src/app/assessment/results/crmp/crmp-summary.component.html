@@ -21,33 +21,29 @@
     }
     
     /* width of achieved level bar*/
-    .achievedwidth {width: 40%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
-    /* variable width of achieved level bar*/
-    /*.achievedwidth {width: var(--achievedwidthvariable)*/
+    .achievedwidth {width: var(--finalscorewidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
+    
     .achievedcontainer {display: flex; justify-content: center;}
     
-    /* width replaced with data call to maturity level or min[scores by domain/level] */
-    /* width = mat score with text label x out of 5 above, right side */
-    .riskframing {width: 80%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
-      /*width: var(--riskfwidthvariable)*/
-    .riskassessment {width: 40%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;} 
-      /*width: var(--riskawidthvariable)*/
-    .riskresponse {width: 20%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
-      /*width: var(--riskrwidthvariable)*/ 
+    .riskframing {width: var(--riskfwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
+    
+    .riskassessment {width: var(--riskawidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;} 
+    
+    .riskresponse {width: var(--riskrwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
+    
     .riskmonitoring {
-        /*width: 60%;*/
         width: var(--riskmwidthvariable);
         background-color: #007bff;
         border-top-right-radius: 5px;
         border-bottom-right-radius: 5px;}
-      /**/
     
 </style>
 
 <div class="container">
 
     <div style="text-align: center;">
-        <h2>CRMP Results</h2>
+        <h2>Component(CRMP)</h2>
+        <h2>Results</h2>
     </div>
     
     <div class="achievedcontainer">
@@ -58,8 +54,7 @@
       <div class="card-body">
         <div style="display: flex; justify-content: center">
             <h2>{{finalscore}}</h2>
-            {{achievedLevelList}}
-           
+            <!-- {{achievedLevelList}} -->
         </div>
         <div class="containerbar">
           <div class="skillstypebar achievedwidth"></div>

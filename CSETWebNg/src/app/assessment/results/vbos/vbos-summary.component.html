@@ -1,6 +1,4 @@
 <style>
-    /* derived from a ww2schools example */
-    /* Make sure that padding behaves as expected */
     * {box-sizing:border-box}
 
     .container {
@@ -22,23 +20,20 @@
     
     /* width of achieved level bar*/
     .achievedwidth {width: var(--finalscorewidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
-    /* variable width of achieved level bar*/
-    /*.achievedwidth {width: var(--achievedwidthvariable)*/
+
     .achievedcontainer {display: flex; justify-content: center;}
     
-    /* width replaced with data call to maturity level or min[scores by domain/level] */
-    /* width = mat score with text label x out of 5 above, right side */
-    .assetmanagement {width: 80%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
-      /*width: var(--assetmwidthvariable)*/
-    .configurationmanagement {width: 40%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;} 
+    .assetmanagement {width: var(--assetmwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
+    
+    .configurationmanagement {width: var(--configmanwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;} 
       /*width: var(--configmanwidthvariable)*/
-    .accesscontrol {width: 20%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
+    .accesscontrol {width: var(--accesscwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
       /*width: var(--accesscwidthvariable)*/ 
-    .flawremediation {width: 60%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
+    .flawremediation {width: var(--flawremwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
       /*width: var(--flawremwidthvariable)*/
-    .maliciouscodedetection {width: 60%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
+    .maliciouscodedetection {width: var(--malcodewidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
       /*width: var(--malcodewidthvariable)*/
-    .systemintegrity {width: 60%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;} 
+    .systemintegrity {width: var(--sysintwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;} 
       /*width: var(--sysintwidthvariable)*/
     .continuousmonitoring {width: var(--continmonwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;} 
       /*width: var(--continmonwidthvariable)*/
@@ -53,7 +48,8 @@
 <div class="container">
 
 <div style="text-align: center;">
-    <h2>VBOS Results</h2>
+    <h2>Vulnerabilities Below Operating System (VBOS)</h2>
+    <h2>Results</h2>
 </div>
 
 <div class="achievedcontainer">
@@ -64,7 +60,7 @@
   <div class="card-body">
     <div style="display: flex; justify-content: center">
       <h2>{{finalscore}}</h2>
-        {{achievedLevelList}}
+        <!-- {{achievedLevelList}} -->
         <!-- {{achievedLevel()}}  -->
     </div>
     <div class="containerbar">
