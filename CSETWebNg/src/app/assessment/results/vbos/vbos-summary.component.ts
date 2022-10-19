@@ -62,6 +62,8 @@ constructor(
 ngOnInit(): void {
   this.maturitySvc.getResultsData('vbosSiteSummary').subscribe((r: any) => {
     console.log(r);
+    r.Grouping_Id;
+    console.log(r.Grouping_Id);
 
     this.assetmscore = 3;
     this.configmscore = 3;
@@ -88,16 +90,27 @@ ngOnInit(): void {
     this.finalscorewidthvariable = this.finalscore;
     // = displayPercent(finalscore * 33)
     this.archdevwidthvariable = displayPercent(33);
+    //this.archdevwidthvariable = displayPercent(this.archdevscore * 33);
     this.assetmwidthvariable = displayPercent(66);
+    //this.assetmwidthvariable = displayPercent(this.assetmscore * 33);
     this.configmanwidthvariable = displayPercent(33);
+    //this.configmanwidthvariable = displayPercent(this.configmscore * 33);
     this.accesscwidthvariable = displayPercent(33);
+    //this.accesscwidthvariable = displayPercent(this.accesscscore * 33);
     this.flawremwidthvariable = displayPercent(66);
+    //this.flawremwidthvariable = displayPercent(this.flawrscore * 33);
     this.malcodewidthvariable = displayPercent(33);
+    //this.malcodewidthvariable = displayPercent(this.malcodescore * 33);
     this.sysintwidthvariable = displayPercent(33);
+    //this.sysintwidthvariable = displayPercent(this.systemiscore * 33);
     this.continmonwidthvariable = displayPercent(99);
+    //this.continmonwidthvariable = displayPercent(this.continmscore * 33);
     this.indidrespwidthvariable = displayPercent(33);
+    //this.indidrespwidthvariable = displayPercent(this.incresprecoscore * 33);
     this.archdevwidthvariable = displayPercent(33);
+    //this.archdevwidthvariable = displayPercent(this.archdevscore * 33);
     this.supplymanwidthvariable = displayPercent(66);
+    //this.supplymanwidthvariable = displayPercent(this.supplychscore * 33);
     
   }
 
@@ -117,6 +130,8 @@ ngOnInit(): void {
 	// return outputData;
   }
 
+// Preferred table data method
+
 // createAnswerDistribByLevel(r: any) {
 //   let levelList = [];
 //   //r.rraSummary.forEach(element => {
@@ -130,6 +145,7 @@ ngOnInit(): void {
 //           { name: 'Unanswered', value: 0 },
 //         ]
 //       };
+//       console.log(level);
 //       levelList.push(level);
 //     }
 //     var p = level.series.find(x => x.name == element.answer_Full_Name);
@@ -137,6 +153,8 @@ ngOnInit(): void {
 //   });
 //   this.answerDistribByLevel = levelList;
 // }
+
+// alternate table count data
 
 // createCountTable(r: any) {
 //   let countList = [];

@@ -41,6 +41,8 @@ export class CrmpSummaryComponent implements OnInit {
   finalscore;
   
   crmpModel;
+
+  createAnswerCountsByLevel;
   // response;
   // crmpSummary;
   // statsByLevel;
@@ -90,6 +92,9 @@ export class CrmpSummaryComponent implements OnInit {
 
       this.finalscore = 3;
 
+      this.createAnswerCountsByLevel = [];
+
+      // is this necessary?
       if (r.maturityModels) {
         r.maturityModels.forEach(model => {
           if (model.maturityModelName === 'CRMP') {
@@ -102,25 +107,69 @@ export class CrmpSummaryComponent implements OnInit {
       // levelItem.find(x => x.Grouping_Id == element.Grouping_Id);
       });
     
-    this.riskfwidthvariable = this.displayPercent(66);
-    this.riskawidthvariable = this.displayPercent(33);
-    this.riskrwidthvariable = this.displayPercent(66);
-    this.riskmwidthvariable = this.displayPercent(99);
+    this.riskfwidthvariable = this.riskfscore * 20;
+    this.riskawidthvariable = this.riskascore * 20;
+    this.riskrwidthvariable = this.riskrscore * 20;
+    this.riskmwidthvariable = this.riskmscore * 20;
 
-    this.finalscorevariable = this.displayPercent(33);
-
-
-    
-    //Grouping_Id
-    //title
-    //level
-
+    //this.finalscorevariable = this.displayPercent(33);
+    this.finalscorevariable = this.finalscore * 20;
 
     //html
     //{{riskascore}}
     
+  }
 
-    // // cmmc example
+    generateAchievedLevel(data) {
+      //let outputData = data.filter(obj => obj.modelLevel != "Aggregate");
+        // outputData.sort((a, b) => (a.modelLevel > b.modelLevel) ? 1 : -1);
+    
+        //let levels: number[] = [];
+        //outputData.forEach(o => levels.push(o.level)); 
+        // Minimum of Entire Data-Set Function
+        // this.achievedLevelList = [];
+        // outputData.forEach(element => {
+        //   achievedLevel += element assessmentLevel;
+        //   element["achievedLevel"] = achievedLevel;
+        // });  
+        let achievedLevel = data.level;
+        console.log(achievedLevel);
+      return achievedLevel; 
+      // return outputData;
+    }
+
+    displayPercent = (percent: number) => 
+    '${(percent * 100).toFixed(2)}%';
+  }
+
+  // createAnswerCountsByLevel(r: any) {
+  //   let levelList = [];
+
+  //   r.crmpSummary.forEach(element => {
+  //     let level = levelList.find(x => x.name == element.level_Name);
+  //     if (!level) {
+  //       level = {
+  //         name: element.level_Name, series: [
+  //           { name: 'Yes', value: 0 },
+  //           { name: 'No', value: 0 },
+  //           { name: 'Unanswered', value: 0 },
+  //         ]
+  //       };
+  //       levelList.push(level);
+  //     }
+
+  //     var p = level.series.find(x => x.name == element.answer_Full_Name);
+  //     p.value = element.qc;
+  //   });
+  //   this.answerCountsByLevel = levelList;
+  //   this.findMaxLength();
+  // }
+
+
+  // Past attempts for reference
+
+
+      // // cmmc example
     // //*********Error here*********
     // this.CrmpDataSvc.getResultsData('crmpSiteSummary').subscribe(
     //   (r: any) => {
@@ -151,57 +200,6 @@ export class CrmpSummaryComponent implements OnInit {
     // this.columnWidthEmitter.subscribe(item => {
     //   $(".gridCell").css("width", `${item}px`)
     // })
-
-  }
-
-
-    //main data objective
-    generateAchievedLevel(data) {
-      let outputData = data.filter(obj => obj.modelLevel != "Aggregate");
-        // outputData.sort((a, b) => (a.modelLevel > b.modelLevel) ? 1 : -1);
-    
-        let levels: number[] = [];
-        outputData.forEach(o => levels.push(o.level)); 
-        // Minimum of Entire Data-Set Function
-        // this.achievedLevelList = [];
-        let achievedLevel = Math.min(...levels);
-        console.log(achievedLevel);
-      return achievedLevel;
-        // outputData.forEach(element => {
-        //   achievedLevel += element assessmentLevel;
-        //   element["achievedLevel"] = achievedLevel;
-        // });
-      // return outputData;
-    }
-
-    displayPercent = (percent: number) => 
-    '${(percent * 100).toFixed(2)}%';
-
-    //call each part by title for level
-  }
-
-  // createAnswerCountsByLevel(r: any) {
-  //   let levelList = [];
-
-  //   r.crmpSummary.forEach(element => {
-  //     let level = levelList.find(x => x.name == element.level_Name);
-  //     if (!level) {
-  //       level = {
-  //         name: element.level_Name, series: [
-  //           { name: 'Yes', value: 0 },
-  //           { name: 'No', value: 0 },
-  //           { name: 'Unanswered', value: 0 },
-  //         ]
-  //       };
-  //       levelList.push(level);
-  //     }
-
-  //     var p = level.series.find(x => x.name == element.answer_Full_Name);
-  //     p.value = element.qc;
-  //   });
-  //   this.answerCountsByLevel = levelList;
-  //   this.findMaxLength();
-  // }
 
   // findMaxLength(){
   //   let mLength = 0;
