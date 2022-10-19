@@ -21,7 +21,7 @@
     }
     
     /* width of achieved level bar*/
-    .achievedwidth {width: 40%; background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
+    .achievedwidth {width: var(--finalscorewidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
     /* variable width of achieved level bar*/
     /*.achievedwidth {width: var(--achievedwidthvariable)*/
     .achievedcontainer {display: flex; justify-content: center;}
@@ -177,12 +177,12 @@
     <td class="text-right">{{1}}<!--{{r.percent}}-->%</td>
   </tr>
   <tr>
-    <td>Configuration Management<!--{{r.name}}--></td>
-    <td class="text-right">{{1}}<!--{{r.yes}}--></td>
-    <td class="text-right">{{1}}<!--{{r.no}}--></td>
-    <td class="text-right">{{1}}<!--{{r.unanswered}}--></td>
-    <td class="text-right">{{1}}<!--{{r.total}}--></td>
-    <td class="text-right">{{1}}<!--{{r.percent}}-->%</td>
+    <td>Configuration Management</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}%</td>
   </tr>
   <tr>
     <td>Access Control</td>

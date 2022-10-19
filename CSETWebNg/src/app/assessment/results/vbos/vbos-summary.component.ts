@@ -84,7 +84,8 @@ ngOnInit(): void {
 
     });
 
-    this.finalscorewidthvariable = displayPercent(66);
+    //this.finalscorewidthvariable = displayPercent(66);
+    this.finalscorewidthvariable = this.finalscore;
     // = displayPercent(finalscore * 33)
     this.archdevwidthvariable = displayPercent(33);
     this.assetmwidthvariable = displayPercent(66);
@@ -100,25 +101,21 @@ ngOnInit(): void {
     
   }
 
-  //main data objective
   achievedLevel(data) {
-	let outputData = data.filter(obj => obj.modelLevel != "Aggregate");
+	//let outputData = data.filter(obj => obj.modelLevel != "Aggregate");
     // outputData.sort((a, b) => (a.modelLevel > b.modelLevel) ? 1 : -1);
-
-    let levels: number[] = [];
-    outputData.forEach(o => levels.push(o.level)); 
-    // Minimum of Entire Data-Set Function
+    //let levels: number[] = [];
+    //outputData.forEach(o => levels.push(o.level)); 
     // this.achievedLevelList = [];
-    let achievedLevel = data.level;
-    //Math.min(...levels);
-    console.log(achievedLevel);
-	return achievedLevel;
     // outputData.forEach(element => {
     //   achievedLevel += element assessmentLevel;
     //   element["achievedLevel"] = achievedLevel;
-    // });
+        // });
+    let achievedLevel = data.level;
+    console.log(achievedLevel);
+	return achievedLevel;
 	// return outputData;
-}
+  }
 
 // createAnswerDistribByLevel(r: any) {
 //   let levelList = [];
@@ -135,11 +132,9 @@ ngOnInit(): void {
 //       };
 //       levelList.push(level);
 //     }
-
 //     var p = level.series.find(x => x.name == element.answer_Full_Name);
 //     p.value = element.percent;
 //   });
-
 //   this.answerDistribByLevel = levelList;
 // }
 
@@ -157,7 +152,6 @@ ngOnInit(): void {
 //       };
 //       countList.push(count);
 //     }
-
 //     switch (element.answer_Text) {
 //       case 'Y':
 //         count.yes = element.qc;
@@ -170,20 +164,11 @@ ngOnInit(): void {
 //         break;
 //     }
 //   });
-
 //   countList.forEach(r => {
 //     r.total = r.yes + r.no + r.unanswered;
 //     r.percent = ((r.yes / r.total) * 100).toFixed(1);
 //   });
-
 //   this.countTable = countList;
-// }
-
-// public setWidths(width: string) {
-//   //const docStyle = document.documentElement.style;
-//   //docStyle.setProperty('--achievedwidthvariable');
-//   //etc
-//   //docStyle not being recognized. JS?
 // }
 
 }
@@ -202,6 +187,13 @@ const displayPercent = (percent: number) =>
 //     // Check Hardcoded Array in vbos data service
 
 // 	return outputData;	
+// }
+
+// public setWidths(width: string) {
+//   //const docStyle = document.documentElement.style;
+//   //docStyle.setProperty('--achievedwidthvariable');
+//   //etc
+//   //docStyle not being recognized. JS?
 // }
 
 //secondary data objectives
