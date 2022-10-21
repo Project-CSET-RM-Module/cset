@@ -95,8 +95,7 @@ export class CrmpSummaryComponent implements OnInit {
 
       this.generateAchievedLevel(r);
 
-      this.finalscore = 2;
-      //this.generateAchievedLevel;
+      this.finalscore = this.generateAchievedLevel(r);
 
       // this.createCountTable(r);
 
