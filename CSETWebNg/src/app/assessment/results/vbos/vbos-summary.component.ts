@@ -81,21 +81,21 @@ ngOnInit(): void {
 
     // this.createAnswerDistribByLevel(r);
 
-    // this.createCountTable(r);
+    this.createCountTable(r);
 
     // this.answerDistribByLevel = [];
 
     this.achievedLevel(r);
 
-    this.finalscore = this.achievedLevel;
+    this.finalscore = this.achievedLevel(r);
 
     
 
     });
 
     //this.finalscorewidthvariable = displayPercent(66);
-    this.finalscorewidthvariable = this.finalscore * 33;
-    // = displayPercent(finalscore * 33);
+    this.finalscorewidthvariable = displayPercent(this.finalscore * 33);
+    // = displayPercent(this.finalscore * 33);
     
     this.assetmwidthvariable = this.assetmscore * 33;
     
@@ -167,38 +167,38 @@ ngOnInit(): void {
 
 // alternate table count data
 
-// createCountTable(r: any) {
-//   let countList = [];
-//   //r.rraSummaryByGoal.forEach(element => {
-//   r.MaturityService.forEach(element => {  
-//     let count = countList.find(x => x.name == element.title);
-//     if (!count) {
-//       count = {
-//         name: element.title,
-//         yes: 0,
-//         no: 0,
-//         unanswered: 0
-//       };
-//       countList.push(count);
-//     }
-//     switch (element.answer_Text) {
-//       case 'Y':
-//         count.yes = element.qc;
-//         break;
-//       case 'N':
-//         count.no = element.qc;
-//         break;
-//       case 'U':
-//         count.unanswered = element.qc
-//         break;
-//     }
-//   });
-//   countList.forEach(r => {
-//     r.total = r.yes + r.no + r.unanswered;
-//     r.percent = ((r.yes / r.total) * 100).toFixed(1);
-//   });
-//   this.countTable = countList;
-// }
+createCountTable(r: any) {
+  let countList = [];
+  //r.rraSummaryByGoal.forEach(element => {
+  r.MaturityService.forEach(element => {  
+    let count = countList.find(x => x.name == element.title);
+    if (!count) {
+      count = {
+        name: element.title,
+        yes: 0,
+        no: 0,
+        unanswered: 0
+      };
+      countList.push(count);
+    }
+    switch (element.answer_Text) {
+      case 'Y':
+        count.yes = element.qc;
+        break;
+      case 'N':
+        count.no = element.qc;
+        break;
+      case 'U':
+        count.unanswered = element.qc
+        break;
+    }
+  });
+  countList.forEach(r => {
+    r.total = r.yes + r.no + r.unanswered;
+    r.percent = ((r.yes / r.total) * 100).toFixed(1);
+  });
+  this.countTable = countList;
+}
 
 }
 

@@ -95,7 +95,7 @@ export class CrmpSummaryComponent implements OnInit {
 
       this.generateAchievedLevel(r);
 
-      this.finalscore = this.generateAchievedLevel;
+      this.finalscore = this.generateAchievedLevel(r);
 
       // this.createCountTable(r);
 
@@ -121,11 +121,6 @@ export class CrmpSummaryComponent implements OnInit {
     this.riskrwidthvariable = this.riskrscore * 20;
     this.riskmwidthvariable = this.riskmscore * 20;
 
-
-
-    //html
-    //{{riskascore}}
-    
   }
 
     generateAchievedLevel(data) {
