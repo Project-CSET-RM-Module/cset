@@ -12,7 +12,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="52b25580-a5ec-4449-bbd4-b9199772bb21" name="Changes" comment="Added Routing to crmp/vbos results | Added CRMP Stored Procedure |" />
+    <list default="true" id="52b25580-a5ec-4449-bbd4-b9199772bb21" name="Changes" comment="added get/sets for ProcMod additions for crmp">
+      <change beforePath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/workspace.xml" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -28,6 +30,7 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/2794e912b1427b202f6af830ba1ddd2a9a3c81c1bb10b6eac05a9eec34384e/FromQueryAttribute.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/NAIS-Dev/RiderProjects/cset/CSETWebApi/CSETWeb_Api/CSETWebCore.DataLayer/Manual/CrmpStoredProcModels.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/575c31ecc35a636b6f962cb71d53992552941a18982aae1c8e6c16305cc3761b/ExceptionDispatchInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/198a6261cebc324728dcc4c178edc5f2894123f711722c80e8557cbfd27651/ThrowHelper.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4cf0dfb15ffd4f75af1b3f4a52bc8483187fe0/4b/c7a6fae3/SqlCommand.cs" root0="SKIP_HIGHLIGHTING" />
@@ -106,6 +109,9 @@
       <workItem from="1656686098000" duration="16641000" />
       <workItem from="1658761580701" duration="13698000" />
       <workItem from="1660229451109" duration="4928000" />
+      <workItem from="1663772235231" duration="16616000" />
+      <workItem from="1666039345062" duration="629000" />
+      <workItem from="1666192139569" duration="8649000" />
     </task>
     <task id="LOCAL-00001" summary="Db Setup - Added Our Maturity Levels/Models to table">
       <created>1647640063663</created>
@@ -142,7 +148,28 @@
       <option name="project" value="LOCAL" />
       <updated>1658768752530</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Adjusted Stored Proc for CRMP/VBOS&#10;Changed routing for CRMP controller">
+      <created>1663790385150</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1663790385150</updated>
+    </task>
+    <task id="LOCAL-00007" summary="added get/sets for ProcMod additions">
+      <created>1666364826081</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1666364826081</updated>
+    </task>
+    <task id="LOCAL-00008" summary="added get/sets for ProcMod additions for crmp">
+      <created>1666364870380</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1666364870380</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -179,7 +206,10 @@
     <MESSAGE value="Db Setup - Added Questions to the table" />
     <MESSAGE value="Added vbos questions to DB&#10;Added CRMP DB Relations" />
     <MESSAGE value="Added Routing to crmp/vbos results | Added CRMP Stored Procedure |" />
-    <option name="LAST_COMMIT_MESSAGE" value="Added Routing to crmp/vbos results | Added CRMP Stored Procedure |" />
+    <MESSAGE value="Adjusted Stored Proc for CRMP/VBOS&#10;Changed routing for CRMP controller" />
+    <MESSAGE value="added get/sets for ProcMod additions" />
+    <MESSAGE value="added get/sets for ProcMod additions for crmp" />
+    <option name="LAST_COMMIT_MESSAGE" value="added get/sets for ProcMod additions for crmp" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -235,6 +265,19 @@
             </endOffsets>
           </properties>
           <option name="timeStamp" value="8" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="DotNet Breakpoints">
+          <url>file://$PROJECT_DIR$/CSETWeb_ApiCore/Controllers/ReportsController.cs</url>
+          <line>260</line>
+          <properties documentPath="C:\Users\NAIS-Dev\RiderProjects\cset\CSETWebApi\CSETWeb_Api\CSETWeb_ApiCore\Controllers\ReportsController.cs" initialLine="260" containingFunctionPresentation="method 'GetVBOSDetailReport'">
+            <startOffsets>
+              <option value="9613" />
+            </startOffsets>
+            <endOffsets>
+              <option value="9668" />
+            </endOffsets>
+          </properties>
+          <option name="timeStamp" value="9" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

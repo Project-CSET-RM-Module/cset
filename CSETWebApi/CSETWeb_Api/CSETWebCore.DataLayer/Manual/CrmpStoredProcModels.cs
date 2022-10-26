@@ -7,12 +7,11 @@ public class CrmpStoredProcModels
 {
     public class usp_getCrmpSummary
     {
-        public int Assessment_Id { get; set; }
-        public String Answer_Full_Name { get; set; }
-        public String Level_Name { get; set; }
-        public string Answer_Text { get; set; }
-        public int? qc { get; set; }
-        public int? Total { get; set; }
-        public double? Percent { get; set; }
+        public int Grouping_Id { get; set; }
+        public String title { get; set; }
+        public int level { get; set; }
+        public int y { get; set; }
+        public int n { get; set; }
+        public int u { get; set; }
     }
 }

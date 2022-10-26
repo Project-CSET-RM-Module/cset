@@ -6,6 +6,7 @@ import { ReportAnalysisService } from '../../../services/report-analysis.service
 import { ReportService } from '../../../services/report.service';
 import { VbosDataService } from '../../../services/vbos-data.service';
 import * as $ from 'jquery';
+import { formatPercent } from '@angular/common';
 
 
 
@@ -21,12 +22,36 @@ export class VbosSummaryComponent implements OnInit {
   initialized = false;
 	dataError = false;
 
-  maxLevel = [];
   achievedLevelList = [];
 	statsByCategoryList = [];
-  categoriesList = ["Asset Management", "Configuration Management", "Access Control", "Flaw Remediation", "Malicious Code Detection", "System Integrity",
-  "Continuous Monitoring", "Incident Response and Recovery Planning", "Architecture and Development", "Supply Chain Risk Management"];
 
+  finalscorewidthvariable;
+  assetmwidthvariable;
+  configmanwidthvariable;
+  accesscwidthvariable;
+  flawremwidthvariable;
+  malcodewidthvariable;
+  sysintwidthvariable;
+  continmonwidthvariable;
+  indidrespwidthvariable;
+  archdevwidthvariable;
+  supplymanwidthvariable;
+
+  finalscore;
+  assetmscore;
+  configmscore;
+  accesscscore;
+  flawrscore;
+  malcodescore;
+  systemiscore;
+  continmscore;
+  incresprecoscore;
+  archdevscore;
+  supplychscore;
+
+  answerDistribByLevel = [];
+
+  countTable = [];
 
 constructor(
   public maturitySvc: MaturityService, 
@@ -36,41 +61,149 @@ constructor(
 
 ngOnInit(): void {
   this.maturitySvc.getResultsData('vbosSiteSummary').subscribe((r: any) => {
-    
     console.log(r);
-    // this.achievedLevel(r);
-    // this.statsByCategory(r);
+    r.Grouping_Id;
+    console.log(r.Grouping_Id);
+
+    //capture data here
+    this.assetmscore = 2;
+    this.configmscore = 3;
+    this.accesscscore = 3;
+    this.flawrscore = 3;
+    this.malcodescore = 3;
+    this.systemiscore = 3;
+    this.continmscore = 3;
+    this.incresprecoscore = 3;
+    this.archdevscore = 2;
+    this.supplychscore = 3;
+
+    // this.finalscore = 3;
+
+    // this.createAnswerDistribByLevel(r);
+
+    this.createCountTable(r);
+
+    // this.answerDistribByLevel = [];
+
+    this.achievedLevel(r);
+
+    this.finalscore = this.achievedLevel(r);
+
+    
+
     });
+
+    //this.finalscorewidthvariable = displayPercent(66);
+    this.finalscorewidthvariable = displayPercent(this.finalscore * 33);
+    // = displayPercent(this.finalscore * 33);
+    
+    this.assetmwidthvariable = this.assetmscore * 33;
+    
+    this.configmanwidthvariable = this.configmscore * 33;
+    //this.configmanwidthvariable = displayPercent(this.configmscore * 33);
+    this.accesscwidthvariable = this.accesscscore * 33;
+    //this.accesscwidthvariable = displayPercent(this.accesscscore * 33);
+    this.flawremwidthvariable = this.flawrscore * 33;
+    //this.flawremwidthvariable = displayPercent(this.flawrscore * 33);
+    this.malcodewidthvariable = this.malcodescore * 33;
+    //this.malcodewidthvariable = displayPercent(this.malcodescore * 33);
+    this.sysintwidthvariable = this.systemiscore * 33;
+    //this.sysintwidthvariable = displayPercent(this.systemiscore * 33);
+    this.continmonwidthvariable = this.continmscore * 33;
+    //this.continmonwidthvariable = displayPercent(this.continmscore * 33);
+    this.indidrespwidthvariable = this.incresprecoscore * 33;
+    //this.indidrespwidthvariable = displayPercent(this.incresprecoscore * 33);
+    //this.archdevwidthvariable = displayPercent(33);
+    this.archdevwidthvariable = this.archdevscore * 33;
+    //this.archdevwidthvariable = displayPercent(this.archdevscore * 33);
+    this.supplymanwidthvariable = this.supplychscore * 33;
+    //this.supplymanwidthvariable = displayPercent(this.supplychscore * 33);
+    
   }
 
-  //main data objective
   achievedLevel(data) {
-	let outputData = data.filter(obj => obj.modelLevel != "Aggregate");
+    //is this necessary?
+	//let outputData = data.filter(obj => obj.modelLevel != "Aggregate");
     // outputData.sort((a, b) => (a.modelLevel > b.modelLevel) ? 1 : -1);
-
-    let levels: number[] = [];
-    outputData.forEach(o => levels.push(o.level)); 
-    // Minimum of Entire Data-Set Function
+    //let levels: number[] = [];
+    //outputData.forEach(o => levels.push(o.level)); 
     // this.achievedLevelList = [];
-    let achievedLevel = Math.min(...levels);
-    console.log(achievedLevel);
-	return achievedLevel;
     // outputData.forEach(element => {
     //   achievedLevel += element assessmentLevel;
+
+    // html accessible?
     //   element["achievedLevel"] = achievedLevel;
-    // });
+
+        // });
+    let achievedLevel = data.level;
+    console.log(achievedLevel);
+	return achievedLevel;
 	// return outputData;
+  }
+
+// Preferred table data method
+
+// createAnswerDistribByLevel(r: any) {
+//   let levelList = [];
+//   //r.rraSummary.forEach(element => {
+//   r.MaturityService.forEach(element => {
+//     let level = levelList.find(x => x.name == element.level_Name);
+//     if (!level) {
+//       level = {
+//         name: element.level_Name, series: [
+//           { name: 'Yes', value: 0 },
+//           { name: 'No', value: 0 },
+//           { name: 'Unanswered', value: 0 },
+//         ]
+//       };
+//       console.log(level);
+//       levelList.push(level);
+//     }
+//     var p = level.series.find(x => x.name == element.answer_Full_Name);
+//     p.value = element.percent;
+//   });
+//   this.answerDistribByLevel = levelList;
+// }
+
+// alternate table count data
+
+createCountTable(r: any) {
+  let countList = [];
+  //r.rraSummaryByGoal.forEach(element => {
+  r.MaturityService.forEach(element => {  
+    let count = countList.find(x => x.name == element.title);
+    if (!count) {
+      count = {
+        name: element.title,
+        yes: 0,
+        no: 0,
+        unanswered: 0
+      };
+      countList.push(count);
+    }
+    switch (element.answer_Text) {
+      case 'Y':
+        count.yes = element.qc;
+        break;
+      case 'N':
+        count.no = element.qc;
+        break;
+      case 'U':
+        count.unanswered = element.qc
+        break;
+    }
+  });
+  countList.forEach(r => {
+    r.total = r.yes + r.no + r.unanswered;
+    r.percent = ((r.yes / r.total) * 100).toFixed(1);
+  });
+  this.countTable = countList;
 }
 
-public setWidths(width: string) {
-  //const docStyle = document.documentElement.style;
-  //docStyle.setProperty('--achievedwidthvariable');
-  //etc
-  //docStyle not being recognized. JS?
 }
 
-}
-
+const displayPercent = (percent: number) => 
+'${(percent * 100).toFixed(2)}%';
 
 //DOCUMENTATION and ATTEMPTS
 
@@ -83,6 +216,13 @@ public setWidths(width: string) {
 //     // Check Hardcoded Array in vbos data service
 
 // 	return outputData;	
+// }
+
+// public setWidths(width: string) {
+//   //const docStyle = document.documentElement.style;
+//   //docStyle.setProperty('--achievedwidthvariable');
+//   //etc
+//   //docStyle not being recognized. JS?
 // }
 
 //secondary data objectives
@@ -189,9 +329,11 @@ public setWidths(width: string) {
 //     this.answerDistribByLevel = levelList;
 //   }
 
-//   formatPercent(x: any) {
-//     return x + '.0';
-//   }
+  // formatPercent(x: any) {
+  //   return x + '.0';
+  // }
+
+
 
 // }
 // }

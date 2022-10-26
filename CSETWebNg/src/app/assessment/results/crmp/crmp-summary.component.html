@@ -1,118 +1,158 @@
+<style>
+    /* derived from a ww2schools example */
+    /* Make sure that padding behaves as expected */
+    * {box-sizing:border-box}
+
+    .container {
+      padding: 50px;
+    }
+    
+    /* Container is for skill bars */
+    .containerbar {
+      width: 100%; /* full width */
+      background-color: #ddd; /* grey background */
+    }
+    
+    .skillstypebar {
+      text-align: right; /* text to the right within the bar */
+      padding-top: 10px; /* */
+      padding-bottom: 10px; /* */
+      color: white; /* visible text foreground*/
+    }
+    
+    /* width of achieved level bar*/
+    .achievedwidth {width: var(--finalscorewidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
+    
+    .achievedcontainer {display: flex; justify-content: center;}
+    
+    .riskframing {width: var(--riskfwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
+    
+    .riskassessment {width: var(--riskawidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;} 
+    
+    .riskresponse {width: var(--riskrwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
+    
+    .riskmonitoring {
+        width: var(--riskmwidthvariable);
+        background-color: #007bff;
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;}
+    
+</style>
+
+<div class="container">
+
+    <div style="text-align: center;">
+        <h2>Cyber Risk Management Program (CRMP)</h2>
+        <h2>Results</h2>
+    </div>
+    
+    <div class="achievedcontainer">
+    <div class="card" style="width: 27%;">
+      <div style="display: flex; justify-content: center">
+        <h3>Achieved Level</h3>
+      </div>
+      <div class="card-body">
+        <div style="display: flex; justify-content: center">
+            <h2>{{finalscore}}</h2>
+            <!-- {{achievedLevelList}} -->
+        </div>
+        <div class="containerbar">
+          <div class="skillstypebar achievedwidth"></div>
+        </div>
+      </div>
+    </div>
+    </div>
+    
+    <div class="container">
+    
+        <div style="display: inline-block; width: 100%; padding-top: 20px">
+            <div><strong>Part 1: Risk Framing</strong></div>
+            <div style="text-align: right;"><strong>{{riskfscore}}</strong></div>
+        </div>
+          <div class="containerbar">
+            <div class="skillstypebar riskframing"></div>
+          </div>
+    
+        <div style="display: inline-block; width: 100%; padding-top: 20px">
+            <div><strong>Part 2: Risk Assessment</strong></div>
+            <div style="text-align: right;"><strong>{{riskascore}}</strong></div>
+        </div>
+          <div class="containerbar">
+            <div class="skillstypebar riskassessment"></div>
+          </div>
+
+        <div style="display: inline-block; width: 100%; padding-top: 20px">
+            <div><strong>Part 3: Risk Response</strong></div>
+            <div style="text-align: right;"><strong>{{riskrscore}}</strong></div>
+        </div>
+          <div class="containerbar">
+            <div class="skillstypebar riskresponse"></div>
+          </div>
+    
+        <div style="display: inline-block; width: 100%; padding-top: 20px">
+            <div><strong>Part 4: Risk Monitoring</strong></div>
+            <div style="text-align: right;"><strong>{{riskmscore}}</strong></div>
+        </div>
+          <div class="containerbar">
+            <div class="skillstypebar riskmonitoring"></div>
+          </div>
+    
+    </div>
+
+    <table class="cset-table">
+        <tr>
+            <th>Category</th>
+            <th class="text-right">Yes</th>
+            <th class="text-right">No</th>
+            <th class="text-right">Unanswered</th>
+            <th class="text-right">Percent Complete</th>
+        </tr>
+        <tr>
+        <!--*ngFor="let r of countTable"-->
+            <td>Part 1: Risk Framing<!--{{r.name}}--></td>
+            <td class="text-right">{{1}}<!--{{r.yes}}--></td>
+            <td class="text-right">{{1}}<!--{{r.no}}--></td>
+            <td class="text-right">{{1}}<!--{{r.unanswered}}--></td>
+            <td class="text-right">{{1}}<!--{{r.percent}}-->%</td>
+        </tr>
+        <tr>
+          <td>Part 2: Risk Assessment</td>
+          <td class="text-right">{{1}}</td>
+          <td class="text-right">{{1}}</td>
+          <td class="text-right">{{1}}</td>
+          <td class="text-right">{{1}}%</td>
+        </tr>
+        <tr>
+          <td>Part 3: Risk Response</td>
+          <td class="text-right">{{1}}</td>
+          <td class="text-right">{{1}}</td>
+          <td class="text-right">{{1}}</td>
+          <td class="text-right">{{1}}%</td>
+        </tr>
+        <tr>
+          <td>Part 4: Risk Monitoring</td>
+          <td class="text-right">{{1}}</td>
+          <td class="text-right">{{1}}</td>
+          <td class="text-right">{{1}}</td>
+          <td class="text-right">{{1}}%</td>
+        </tr>
+    </table>
+    
+    </div>
+
+<!--
 <div class="white-panel d-flex flex-column flex-11a">
     <h3 class="d-flex flex-column flex-00a">{{title}}</h3>
     <p>
         These charts represent the answer distribution overall and across all tiers.
     </p>
 
-    <!-- <div *ngIf="!initialized">
-        <div class="spinner-container" style="margin-left: auto; margin-right: auto;">
-            <div style="max-width: 50px; max-height: 50px;"></div>
-        </div>
-    </div> -->
-
-    <!--
-                                                ANSWER BY LEVEL - Orange and Grey Chart
-
-        <div class="d-flex flex-column flex-11a" [class.d-none]="!initialized">
-        <div clas="container">
-            <div class="row mb-5">
-                <div class="col-12">
-                    <h5>CRMP Performance by Goal</h5>
-                    <div style="width: 100%; max-height: 20rem" class="d-block mb-5">
-                        <ngx-charts-bar-horizontal-stacked [results]="answerCountsByLevel" [yAxis]="'true'" [xAxis]="'true'"
-                            [trimYAxisTicks]="'false'" [maxYAxisTickLength]="maxLevel" [xAxisTicks]="sAxisTicks" [legend]="'true'"
-                            [legendPosition]="'below'" [scheme]="answerDistribColorScheme" [showDataLabel]="'true'" >
-                        </ngx-charts-bar-horizontal-stacked>
-                    </div>            
-                    </div>
-
-     <div>
-        <ngx-charts-bar-horizontal [results]="answerCountsByLevel" [yAxis]="'true'" [xAxis]="'true'"
-        [trimYAxisTicks]="'false'" [maxYAxisTickLength]="100" [xAxisTicks]="xAxisTicks" [xScaleMax]="100"
-        [xAxisTickFormatting]="formatPercent" [scheme]="colorScheme1">
-        <ng-template #tooltipTemplate let-model="model">
-            <div class="p-1">
-                {{model.value}}%
-            </div>
-        </ng-template>
-    </ngx-charts-bar-horizontal>
-    </div>  
-                                        ANSWER BY LEVEL - Orange and Grey Chart
--->
-
-
-<!--                             RRA Horizontal chart?
     <div *ngIf="!initialized">
         <div class="spinner-container" style="margin-left: auto; margin-right: auto;">
             <div style="max-width: 50px; max-height: 50px;"></div>
         </div>
-    </div>
-
-    <div class="d-flex flex-column flex-11a" [class.d-none]="!initialized">
-
-        <div *ngIf="initialized && !dataError" class="gridGraphContainer mb-5">
-            <div class="gridGraphLabels">
-                <div *ngFor="let dataRow of statsByDomainAtUnderTarget" class="gridGraphLabel graphDataRow">
-                    thing1</div>
-                     {{dataRow.domainName}} 
-            </div>
-            <div class="gridGraphDataContainer" #gridChartDataDiv>
-                <div *ngFor="let dataRow of statsByDomainAtUnderTarget" class="gridGraphData graphDataRow">
-                    <div class="gridGraphBar" [ngStyle]="getBarWidth(dataRow)">
-                    </div>
-                    <div class="gridGraphBackground  graphDataRow">
-                        <div *ngFor="let grid of gridColumns" class="gridCell"></div>
-                    </div>
-                </div>
-                <div class="gridGraphData graphDataRow">
-                    <div class="gridGraphBackgroundLabels graphDataRow">
-                        <div *ngFor="let label of gridColumns; let i = index; let last = last">{{(i /
-                            this.gridColumns.length) * 100 | number:'1.0-2'}}</div>
-                        <span style="width:0">100</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-                                        Horizontal Blue chart?
-    -->
-
-        <!-- <div class="d-flex flex-column flex-11a" [class.d-none]="!initialized">
-
-            <div *ngIf="initialized && !dataError" class="gridGraphContainer mb-5">
-                <div class="gridGraphLabels">
-                    <div *ngFor="let dataRow of statsByDomainAtUnderTarget" class="gridGraphLabel graphDataRow">
-                        {{dataRow.domainName}}</div>
-                </div>
-                <div class="gridGraphDataContainer" #gridChartDataDiv>
-                    <div *ngFor="let dataRow of statsByDomainAtUnderTarget" class="gridGraphData graphDataRow">
-                        <div class="gridGraphBar" [ngStyle]="getBarWidth(dataRow)">
-                        </div>
-                        <div class="gridGraphBackground  graphDataRow">
-                            <div *ngFor="let grid of gridColumns" class="gridCell"></div>
-                        </div>
-                    </div>
-                    <div class="gridGraphData graphDataRow">
-                        <div class="gridGraphBackgroundLabels graphDataRow">
-                            <div *ngFor="let label of gridColumns; let i = index; let last = last">{{(i /
-                                this.gridColumns.length) * 100 | number:'1.0-2'}}</div>
-                            <span style="width:0">100</span>
-                        </div>
-                    </div>
-                </div>
-            </div> -->
-
-            <div class="levelIndicatorContainer pyramidGraphLevelIndicator">
-                <div class="roundedBox">
-                    <div class="rbTitle">
-                        Achieved Level
-                    </div>
-                    <div class="rbLevel">
-                        {{crmpModel?.acheivedLevel}}
-                        {{crmpSummary.statsByDomainAtUnderTarget}}
-                    </div>
-                </div>
-              </div>
-            </div>
+    </div> 
+-->
 
     <app-nav-back-next *ngIf="showNav" [page]="'crmp-summary'"></app-nav-back-next>
 

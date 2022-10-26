@@ -1,6 +1,4 @@
 <style>
-    /* derived from a ww2schools example */
-    /* Make sure that padding behaves as expected */
     * {box-sizing:border-box}
 
     .container {
@@ -21,39 +19,37 @@
     }
     
     /* width of achieved level bar*/
-    .achievedwidth {width: 40%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;}
-    /* variable width of achieved level bar*/
-    /*.achievedwidth {width: var(--achievedwidthvariable)*/
+    .achievedwidth {width: var(--finalscorewidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
+
     .achievedcontainer {display: flex; justify-content: center;}
     
-    /* width replaced with data call to maturity level or min[scores by domain/level] */
-    /* width = mat score with text label x out of 5 above, right side */
-    .assetmanagement {width: 80%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;}
-      /*width: var(--assetmwidthvariable)*/
-    .configurationmanagement {width: 40%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;} 
-      /*width: var(--configmanwidthvariable)*/
-    .accesscontrol {width: 20%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;}
-      /*width: var(--accesscwidthvariable)*/ 
-    .flawremediation {width: 60%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;}
-      /*width: var(--flawremwidthvariable)*/
-    .maliciouscodedetection {width: 60%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;}
-      /*width: var(--malcodewidthvariable)*/
-    .systemintegrity {width: 60%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;} 
-      /*width: var(--sysintwidthvariable)*/
-    .continuousmonitoring {width: 80%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;} 
-      /*width: var(--continmonwidthvariable)*/
-    .incidentresponseandrecoveryplanning {width: 20%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;} 
-      /*width: var(--indidrespwidthvariable)*/
-    .architectureanddevelopment {width: 60%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;} 
-      /*width: var(--archdevwidthvariable)*/
-    .supplychainriskmanagement {width: 40%; background-color: #007bff; border-top-right-radius: 10px; border-bottom-right-radius: 10px;} 
-      /*width: var(--supplymanwidthvariable)*/
+    .assetmanagement {width: var(--assetmwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
+    
+    .configurationmanagement {width: var(--configmanwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;} 
+      
+    .accesscontrol {width: var(--accesscwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
+      
+    .flawremediation {width: var(--flawremwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
+      
+    .maliciouscodedetection {width: var(--malcodewidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;}
+      
+    .systemintegrity {width: var(--sysintwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;} 
+      
+    .continuousmonitoring {width: var(--continmonwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;} 
+      
+    .incidentresponseandrecoveryplanning {width: var(--indidrespwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;} 
+      
+    .architectureanddevelopment {width: var(--archdevwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;} 
+      
+    .supplychainriskmanagement {width: var(--supplymanwidthvariable); background-color: #007bff; border-top-right-radius: 5px; border-bottom-right-radius: 5px;} 
+      
 </style>
     
 <div class="container">
 
 <div style="text-align: center;">
-    <h2>VBOS Results</h2>
+    <h2>Vulnerabilities Below Operating System (VBOS)</h2>
+    <h2>Results</h2>
 </div>
 
 <div class="achievedcontainer">
@@ -63,9 +59,7 @@
   </div>
   <div class="card-body">
     <div style="display: flex; justify-content: center">
-      <h2>3</h2>
-        {{achievedLevelList}}
-        <!-- {{achievedLevel()}}  -->
+      <h2>{{finalscore}}</h2>
     </div>
     <div class="containerbar">
       <div class="skillstypebar achievedwidth"></div>
@@ -76,63 +70,170 @@
 
 <div class="container">
 
-    <p>Asset Management <span style="text-align: right">Max. 5</span></p>
+  <div style="display: inline-block; width: 100%; padding-top: 20px">
+    <div><strong>Asset Management</strong></div>
+    <div style="text-align: right;"><strong>{{assetmscore}}</strong></div>
+  </div>
       <div class="containerbar">
         <div class="skillstypebar assetmanagement"></div>
       </div>
 
-    <p>Configuration Management <span style="text-align: right">Max. 5</span></p>
+  <div style="display: inline-block; width: 100%; padding-top: 20px">
+    <div><strong>Configuration Management</strong></div>
+    <div style="text-align: right;"><strong>{{configmscore}}</strong></div>
+  </div>
       <div class="containerbar">
         <div class="skillstypebar configurationmanagement"></div>
       </div>
 
-    <p>Access Control <span style="text-align: right">Max. 5</span></p>
+  <div style="display: inline-block; width: 100%; padding-top: 20px">
+    <div><strong>Access Control</strong></div>
+    <div style="text-align: right;"><strong>{{accesscscore}}</strong></div>
+  </div>
       <div class="containerbar">
         <div class="skillstypebar accesscontrol"></div>
       </div>
 
-    <p>Flaw Remediation <span style="text-align: right">Max. 5</span></p>
+  <div style="display: inline-block; width: 100%; padding-top: 20px">
+    <div><strong>Flaw Remediation</strong></div>
+    <div style="text-align: right;"><strong>{{flawrscore}}</strong></div>
+  </div>
       <div class="containerbar">
         <div class="skillstypebar flawremediation"></div>
       </div>
 
-    <p>Malicious Code Detection <span style="text-align: right">Max. 5</span></p>
+      <div style="display: inline-block; width: 100%; padding-top: 20px">
+        <div><strong>Malicious Code Detection</strong></div>
+        <div style="text-align: right;"><strong>{{malcodescore}}</strong></div>
+      </div>
       <div class="containerbar">
         <div class="skillstypebar maliciouscodedetection"></div>
       </div>
 
-    <p>System Integrity <span style="text-align: right">Max. 5</span></p>
+      <div style="display: inline-block; width: 100%; padding-top: 20px">
+        <div><strong>System Integrity</strong></div>
+        <div style="text-align: right;"><strong>{{systemiscore}}</strong></div>
+      </div>
       <div class="containerbar">
         <div class="skillstypebar systemintegrity"></div>
       </div>
 
-    <p>Continuous Monitoring <span style="text-align: right">Max. 5</span></p>
+      <div style="display: inline-block; width: 100%; padding-top: 20px">
+        <div><strong>Continuous Monitoring</strong></div>
+        <div style="text-align: right;"><strong>{{continmscore}}</strong></div>
+      </div>
       <div class="containerbar">
         <div class="skillstypebar continuousmonitoring"></div>
       </div>
 
-    <p>Incident Response and Recovery Planning <span style="text-align: right">Max. 5</span></p>
+      <div style="display: inline-block; width: 100%; padding-top: 20px">
+        <div><strong>Incident Response and Recovery Planning</strong></div>
+        <div style="text-align: right;"><strong>{{incresprecoscore}}</strong></div>
+      </div>
       <div class="containerbar">
         <div class="skillstypebar incidentresponseandrecoveryplanning"></div>
       </div>
 
-    <p>Architecture and Development <span style="text-align: right">Max. 5</span></p>
+      <div style="display: inline-block; width: 100%; padding-top: 20px">
+        <div><strong>Architecture and Development</strong></div>
+        <div style="text-align: right;"><strong>{{archdevscore}}</strong></div>
+      </div>
       <div class="containerbar">
         <div class="skillstypebar architectureanddevelopment"></div>
       </div>
 
-    <p>Supply Chain Risk Management <span style="text-align: right">Max. 5</span></p>
+      <div style="display: inline-block; width: 100%; padding-top: 20px">
+        <div><strong>Supply Chain Risk Management</strong></div>
+        <div style="text-align: right;"><strong>{{supplychscore}}</strong></div>
+      </div>
       <div class="containerbar">
         <div class="skillstypebar supplychainriskmanagement"></div>
       </div>
 
 </div>
 
+<table class="cset-table">
+  <tr>
+      <th>Category</th>
+      <th class="text-right">Yes</th>
+      <th class="text-right">No</th>
+      <th class="text-right">Unanswered</th>
+      <th class="text-right">Percent Complete</th>
+  </tr>
+  <!-- <tr *ngFor="let r of countTable"> -->
+  <tr>
+    <td>Assett Management<!--{{r.name}}--></td>
+    <td class="text-right">{{1}}<!--{{r.yes}}--></td>
+    <td class="text-right">{{1}}<!--{{r.no}}--></td>
+    <td class="text-right">{{1}}<!--{{r.unanswered}}--></td>
+    <td class="text-right">{{1}}<!--{{r.percent}}-->%</td>
+  </tr>
+  <tr>
+    <td>Configuration Management</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}%</td>
+  </tr>
+  <tr>
+    <td>Access Control</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}%</td>
+  </tr>
+  <tr>
+    <td>Flaw Remediation</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}%</td>
+  </tr>
+  <tr>
+    <td>Malicious Code Detection</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}%</td>
+  </tr>
+  <tr>
+    <td>System Integrity</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}%</td>
+  </tr>
+  <tr>
+    <td>Continuous Monitoring</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}%</td>
+  </tr>
+  <tr>
+    <td>Incident Response and Recovery Planning</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}%</td>
+  </tr>
+  <tr>
+    <td>Architecture and Development</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}%</td>
+  </tr>
+  <tr>
+    <td>Supply Chain Risk Management</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}</td>
+    <td class="text-right">{{1}}%</td>
+  </tr>
+</table>
+
 </div>
-
-
-
-
 
 
 <!--
@@ -141,7 +242,6 @@
 	<div>
 		<canvas id="bar-chart-horizontal" class="chart-base" chart-type="type" chart-data="data" chart-labels="labels" chart-legend="false"></canvas>
 	</div>
-
 
 	<div>
 		<canvas id="bar-chart-horizontal" chart-labels="labels" width="800" height="500"></canvas>
@@ -219,39 +319,6 @@
         <h3>#4</h3>
     -->
 
-    <!-- <div class="d-flex flex-column flex-11a" [class.d-none]="!initialized">
-        <div clas="container">
-            <div class="row mb-5">
-                <div class="col-12">
-                    <h5>VBOS Performance by Goal</h5>
-                    <div style="width: 100%; max-height: 20rem" class="d-block mb-5">
-                        <ngx-charts-bar-horizontal-stacked [results]="answerCountsByLevel" [yAxis]="'true'" [xAxis]="'true'"
-                            [trimYAxisTicks]="'false'" [maxYAxisTickLength]="maxLevel" [xAxisTicks]="sAxisTicks" [legend]="'true'"
-                            [legendPosition]="'below'" [scheme]="answerDistribColorScheme" [showDataLabel]="'true'" >
-                        </ngx-charts-bar-horizontal-stacked>
-                	</div>            
-            	</div>
-            </div>
-        </div>
-    </div> -->
-
-    <!--
-	<hr>
-	<h3>#5</h3>
-    -->
-
-    <!-- <div>
-        <ngx-charts-bar-horizontal [results]="answerCountsByLevel" [yAxis]="'true'" [xAxis]="'true'"
-        [trimYAxisTicks]="'false'" [maxYAxisTickLength]="100" [xAxisTicks]="xAxisTicks" [xScaleMax]="100"
-        [xAxisTickFormatting]="formatPercent" [scheme]="colorScheme1">
-	        <ng-template #tooltipTemplate let-model="model">
-	            <div class="p-1">
-	                {{model.value}}
-	            </div>
-	        </ng-template>
-    	</ngx-charts-bar-horizontal>
-    </div>  -->
-
     <!--OLD HTML-->
     <!--
     <div>
@@ -275,35 +342,4 @@
 
 <script type="text/javascript">
 // transfer to .ts file
-	var chartItems =
-{
-	"labels": [
-		"Asset Management", 
-		"Configuration Management", 
-		"Access Control", 
-		"Flaw Remediation", 
-		"Malicious Code Detection", 
-		"System Integrity",
-		"Continuous Monitoring", 
-		"Incident Response and Recovery Planning", 
-		"Architecture and Development", 
-		"Supply Chain Risk Management"
-	],
-	"data": [
-		3,
-		2,
-		2,
-		1,
-		3,
-		2,
-		3,
-		1,
-		2,
-		1
-	]
-} 
-
-var categories = ["Asset Management", "Configuration Management", "Access Control", "Flaw Remediation", "Malicious Code Detection", "System Integrity",
-"Continuous Monitoring", "Incident Response and Recovery Planning", "Architecture and Development", "Supply Chain Risk Management"]
-
 </script>
