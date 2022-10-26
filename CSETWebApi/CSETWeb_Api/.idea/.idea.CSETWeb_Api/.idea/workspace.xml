@@ -12,23 +12,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="52b25580-a5ec-4449-bbd4-b9199772bb21" name="Changes" comment="Adjusted Stored Proc for CRMP/VBOS&#10;Changed routing for CRMP controller">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/INFORMATION_SCHEMA.NBgcMw.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/INFORMATION_SCHEMA.NBgcMw.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/db_accessadmin.KqpDJg.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/db_accessadmin.KqpDJg.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/db_backupoperator.R9Ifpg.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/db_backupoperator.R9Ifpg.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/db_datareader.To823g.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/db_datareader.To823g.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/db_datawriter._tp55w.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/db_datawriter._tp55w.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/db_ddladmin.hGWOrg.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/db_ddladmin.hGWOrg.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/db_denydatareader.2lWItw.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/db_denydatareader.2lWItw.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/db_denydatawriter.iqHLwA.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/db_denydatawriter.iqHLwA.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/db_owner.souIfA.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/db_owner.souIfA.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/db_securityadmin.Dj5jKg.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/db_securityadmin.Dj5jKg.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/dbo.sYMBAA.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/dbo.sYMBAA.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/guest.2C3iBQ.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/guest.2C3iBQ.meta" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/sys.zb4BAA.meta" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/dataSources/93f8825d-1a01-4353-9840-04ca07a4b31e/storage_v2/_src_/database/CSETWeb11010.mjNEng/schema/sys.zb4BAA.meta" afterDir="false" />
+    <list default="true" id="52b25580-a5ec-4449-bbd4-b9199772bb21" name="Changes" comment="added get/sets for ProcMod additions for crmp">
       <change beforePath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.CSETWeb_Api/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CSETWebCore.DataLayer/Manual/VbosStoredProcModels.cs" beforeDir="false" afterPath="$PROJECT_DIR$/CSETWebCore.DataLayer/Manual/VbosStoredProcModels.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -45,6 +30,7 @@
   </component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/2794e912b1427b202f6af830ba1ddd2a9a3c81c1bb10b6eac05a9eec34384e/FromQueryAttribute.cs" root0="SKIP_HIGHLIGHTING" />
+    <setting file="mock://C:/Users/NAIS-Dev/RiderProjects/cset/CSETWebApi/CSETWeb_Api/CSETWebCore.DataLayer/Manual/CrmpStoredProcModels.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/575c31ecc35a636b6f962cb71d53992552941a18982aae1c8e6c16305cc3761b/ExceptionDispatchInfo.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/SourcesCache/198a6261cebc324728dcc4c178edc5f2894123f711722c80e8557cbfd27651/ThrowHelper.cs" root0="SKIP_HIGHLIGHTING" />
     <setting file="file://$APPLICATION_CONFIG_DIR$/resharper-host/DecompilerCache/decompiler/4cf0dfb15ffd4f75af1b3f4a52bc8483187fe0/4b/c7a6fae3/SqlCommand.cs" root0="SKIP_HIGHLIGHTING" />
@@ -125,7 +111,7 @@
       <workItem from="1660229451109" duration="4928000" />
       <workItem from="1663772235231" duration="16616000" />
       <workItem from="1666039345062" duration="629000" />
-      <workItem from="1666192139569" duration="6271000" />
+      <workItem from="1666192139569" duration="8649000" />
     </task>
     <task id="LOCAL-00001" summary="Db Setup - Added Our Maturity Levels/Models to table">
       <created>1647640063663</created>
@@ -169,7 +155,21 @@
       <option name="project" value="LOCAL" />
       <updated>1663790385150</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="added get/sets for ProcMod additions">
+      <created>1666364826081</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1666364826081</updated>
+    </task>
+    <task id="LOCAL-00008" summary="added get/sets for ProcMod additions for crmp">
+      <created>1666364870380</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1666364870380</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -207,7 +207,9 @@
     <MESSAGE value="Added vbos questions to DB&#10;Added CRMP DB Relations" />
     <MESSAGE value="Added Routing to crmp/vbos results | Added CRMP Stored Procedure |" />
     <MESSAGE value="Adjusted Stored Proc for CRMP/VBOS&#10;Changed routing for CRMP controller" />
-    <option name="LAST_COMMIT_MESSAGE" value="Adjusted Stored Proc for CRMP/VBOS&#10;Changed routing for CRMP controller" />
+    <MESSAGE value="added get/sets for ProcMod additions" />
+    <MESSAGE value="added get/sets for ProcMod additions for crmp" />
+    <option name="LAST_COMMIT_MESSAGE" value="added get/sets for ProcMod additions for crmp" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
