@@ -121,7 +121,9 @@ ngOnInit(): void {
     
   }
 
-  achievedLevel(data) {
+  
+  achievedLevel(r: any) {
+  //achievedLevel(data) {
     //is this necessary?
 	//let outputData = data.filter(obj => obj.modelLevel != "Aggregate");
     // outputData.sort((a, b) => (a.modelLevel > b.modelLevel) ? 1 : -1);
@@ -135,8 +137,11 @@ ngOnInit(): void {
     //   element["achievedLevel"] = achievedLevel;
 
         // });
-    let achievedLevel = data.level;
+    // let achievedLevel = data.level;
+    let achievedLevel = r.level;
     console.log(achievedLevel);
+    console.log(r.level);
+    // spot for current result: undefined
 	return achievedLevel;
 	// return outputData;
   }
