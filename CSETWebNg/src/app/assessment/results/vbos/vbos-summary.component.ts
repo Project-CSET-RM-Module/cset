@@ -77,7 +77,15 @@ ngOnInit(): void {
     this.archdevscore = 2;
     this.supplychscore = 3;
 
-    // this.finalscore = 3;
+    // final score
+
+    this.finalscore = 1;
+
+    // this.achievedLevel(r);
+
+    // this.finalscore = this.achievedLevel(r);
+
+    // table
 
     // this.createAnswerDistribByLevel(r);
 
@@ -85,9 +93,7 @@ ngOnInit(): void {
 
     // this.answerDistribByLevel = [];
 
-    this.achievedLevel(r);
 
-    this.finalscore = this.achievedLevel(r);
 
     
 
@@ -99,25 +105,25 @@ ngOnInit(): void {
     
     this.assetmwidthvariable = this.assetmscore * 33;
     
-    this.configmanwidthvariable = this.configmscore * 33;
-    //this.configmanwidthvariable = displayPercent(this.configmscore * 33);
-    this.accesscwidthvariable = this.accesscscore * 33;
-    //this.accesscwidthvariable = displayPercent(this.accesscscore * 33);
-    this.flawremwidthvariable = this.flawrscore * 33;
-    //this.flawremwidthvariable = displayPercent(this.flawrscore * 33);
-    this.malcodewidthvariable = this.malcodescore * 33;
-    //this.malcodewidthvariable = displayPercent(this.malcodescore * 33);
-    this.sysintwidthvariable = this.systemiscore * 33;
-    //this.sysintwidthvariable = displayPercent(this.systemiscore * 33);
-    this.continmonwidthvariable = this.continmscore * 33;
-    //this.continmonwidthvariable = displayPercent(this.continmscore * 33);
-    this.indidrespwidthvariable = this.incresprecoscore * 33;
-    //this.indidrespwidthvariable = displayPercent(this.incresprecoscore * 33);
-    //this.archdevwidthvariable = displayPercent(33);
-    this.archdevwidthvariable = this.archdevscore * 33;
-    //this.archdevwidthvariable = displayPercent(this.archdevscore * 33);
-    this.supplymanwidthvariable = this.supplychscore * 33;
-    //this.supplymanwidthvariable = displayPercent(this.supplychscore * 33);
+    //this.configmanwidthvariable = this.configmscore * 33;
+    this.configmanwidthvariable = displayPercent(this.configmscore * 33);
+    //this.accesscwidthvariable = this.accesscscore * 33;
+    this.accesscwidthvariable = displayPercent(this.accesscscore * 33);
+    //this.flawremwidthvariable = this.flawrscore * 33;
+    this.flawremwidthvariable = displayPercent(this.flawrscore * 33);
+    //this.malcodewidthvariable = this.malcodescore * 33;
+    this.malcodewidthvariable = displayPercent(this.malcodescore * 33);
+    //this.sysintwidthvariable = this.systemiscore * 33;
+    this.sysintwidthvariable = displayPercent(this.systemiscore * 33);
+    //this.continmonwidthvariable = this.continmscore * 33;
+    this.continmonwidthvariable = displayPercent(this.continmscore * 33);
+    //this.indidrespwidthvariable = this.incresprecoscore * 33;
+    this.indidrespwidthvariable = displayPercent(this.incresprecoscore * 33);
+    this.archdevwidthvariable = displayPercent(this.archdevscore * 33);
+    //this.archdevwidthvariable = this.archdevscore * 33;
+    this.archdevwidthvariable = displayPercent(this.archdevscore * 33);
+    //this.supplymanwidthvariable = this.supplychscore * 33;
+    this.supplymanwidthvariable = displayPercent(this.supplychscore * 33);
     
   }
 
