@@ -7,6 +7,7 @@ import { ReportService } from '../../../services/report.service';
 import { VbosDataService } from '../../../services/vbos-data.service';
 import * as $ from 'jquery';
 import { formatPercent } from '@angular/common';
+import { element } from 'protractor';
 
 
 
@@ -206,7 +207,23 @@ createCountTable(r: any) {
 }
 
 makeCountTable(data) {
-  
+  let countsList = [];
+  data.MaturityService.forEach(element => {
+    let count = countsList.find(x => x.name == element.title);
+      if (!count) {
+        count = {
+          name: element.title, series: [
+            { name: 'Yes', value: 0 },
+            { name: 'No', value: 0 },
+            { name: 'Unanswered', value: 0 },
+          ]
+        };
+        countsList.push(count);
+      }
+
+      var p = count.series.find(x => x.name == element.answer_Full_Name);
+      p.value = element.percent;
+  })
 }
 
 }
