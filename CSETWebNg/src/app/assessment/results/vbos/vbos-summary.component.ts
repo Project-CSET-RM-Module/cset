@@ -53,6 +53,7 @@ export class VbosSummaryComponent implements OnInit {
   answerDistribByLevel = [];
 
   countTable = [];
+  countsTable = [];
 
 constructor(
   public maturitySvc: MaturityService, 
@@ -219,6 +220,7 @@ makeCountTable(data) {
           ]
         };
         countsList.push(count);
+        this.countsTable = countsList;
       }
 
       var p = count.series.find(x => x.name == element.answer_Full_Name);
