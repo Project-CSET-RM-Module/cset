@@ -205,6 +205,10 @@ createCountTable(r: any) {
   this.countTable = countList;
 }
 
+makeCountTable(data) {
+  
+}
+
 }
 
 const displayPercent = (percent: number) => 
