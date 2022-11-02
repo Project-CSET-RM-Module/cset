@@ -96,7 +96,7 @@ ngOnInit(): void {
 
     });
 
-    this.finalscorewidthvariable = (this.finalscore * 33) + "%";
+    this.finalscorewidthvariable = "33%";
     //this.finalscorewidthvariable = displayPercent(this.finalscore * 33);
     // = displayPercent(this.finalscore * 33);
 
