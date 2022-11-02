@@ -55,6 +55,9 @@ export class VbosSummaryComponent implements OnInit {
   countTable = [];
   countsTable = [];
 
+  barscoreswidthvar;
+  level;
+
 constructor(
   public maturitySvc: MaturityService, 
   public assessmentSvc: AssessmentService,
@@ -96,6 +99,9 @@ ngOnInit(): void {
     this.finalscorewidthvariable = (this.finalscore * 33) + "%";
     //this.finalscorewidthvariable = displayPercent(this.finalscore * 33);
     // = displayPercent(this.finalscore * 33);
+
+    //for the bars div loop
+    // this.barscoreswidthvar = (this.level * 33) + "%";
     
     this.assetmwidthvariable = (66);
     this.configmanwidthvariable = displayPercent(100);
