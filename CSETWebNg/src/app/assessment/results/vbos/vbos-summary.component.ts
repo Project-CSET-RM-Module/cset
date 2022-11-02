@@ -93,11 +93,11 @@ ngOnInit(): void {
 
     });
 
-    this.finalscorewidthvariable = displayPercent(66);
+    this.finalscorewidthvariable = (this.finalscore * 33) + "%";
     //this.finalscorewidthvariable = displayPercent(this.finalscore * 33);
     // = displayPercent(this.finalscore * 33);
     
-    this.assetmwidthvariable = displayPercent(66);
+    this.assetmwidthvariable = (66);
     this.configmanwidthvariable = displayPercent(100);
     this.accesscwidthvariable = displayPercent(66);
     this.flawremwidthvariable = displayPercent(100);
