@@ -24,7 +24,6 @@ export class CrmpSummaryComponent implements OnInit {
   dataError = false;
 
   achievedLevelList = [];
-	statsByCategoryList = [];
 
   riskfwidthvariable;
   riskawidthvariable;
@@ -42,31 +41,15 @@ export class CrmpSummaryComponent implements OnInit {
   
   crmpModel;
 
+  countTable = [];
+
+  barscoreswidthvar;
+  level;
+
   createAnswerCountsByLevel;
   // response;
   // crmpSummary;
   // statsByLevel;
-  // columnWidthPx = 25;
-
-  // statsByDomain;
-  // statsByDomainAtUnderTarget;
-  // gridColumnCount = 10;
-  // gridColumns = new Array(this.gridColumnCount);
-  // @ViewChild("gridChartDataDiv") gridChartData: ElementRef;
-  // @ViewChild("gridTiles") gridChartTiles: Array<any>;
-  // columnWidthEmitter: BehaviorSubject<number>;
-
-  // whiteText = "rgba(255,255,255,1)";
-  // blueText = "rgba(31,82,132,1)";
-
-  // sAxisTicks = [0, 5, 10, 15, 18];
-  // maxLevel = 0;
-  // answerCountsByLevel = [];
-  // answerDistribColorScheme = { domain: ['#28A745', '#DC3545', '#c3c3c3'] };
-
-  // complianceByGoal = [];
-  // answerDistribByGoal = [];
-  // answerDistribByLevel = [];
 
  constructor(
    public maturitySvc: MaturityService,
@@ -91,38 +74,20 @@ export class CrmpSummaryComponent implements OnInit {
       this.riskrscore = 4;
       this.riskmscore = 1;
 
+      this.barscoreswidthvar = this.level;
+
+      this.achievedLevel(r);
+
       // final score
-
+  
       this.finalscore = 1;
-
-      // this.generateAchievedLevel(r);
-
-      // this.finalscore = this.generateAchievedLevel(r);
+      // this.achievedLevel(r);
+      // this.finalscore = this.achievedLevel(r);
 
       // table
 
-      // this.createCountTable(r);
-
-      // this.createAnswerCountsByLevel = [];
-
-      // is this necessary?
-      if (r.maturityModels) {
-        r.maturityModels.forEach(model => {
-          if (model.maturityModelName === 'CRMP') {
-            //this.achievedLevel = achievedLevel;
-            }
-        });
-      }
-      // this.riskascore = data.arguments.element.achievedLevel.vbosSiteSummary.vbosSiteSummary;
-      // let level = levelItem.find(x => x.name == element.level_Name);
-      // levelItem.find(x => x.Grouping_Id == element.Grouping_Id);
+      this.createCountTable(r);
       });
-
-    // this.finalscorevariable = displayPercent(this.finalscore * 20);
-    // this.riskfwidthvariable = displayPercent(this.riskfscore * 20);
-    // this.riskawidthvariable = displayPercent(this.riskascore * 20);
-    // this.riskrwidthvariable = displayPercent(this.riskrscore * 20);
-    // this.riskmwidthvariable = displayPercent(this.riskmscore * 20);
 
     this.finalscorevariable = displayPercent(20);
     this.riskfwidthvariable = displayPercent(40);
@@ -132,22 +97,32 @@ export class CrmpSummaryComponent implements OnInit {
 
   }
 
-    generateAchievedLevel(data) {
-      //let outputData = data.filter(obj => obj.modelLevel != "Aggregate");
-        // outputData.sort((a, b) => (a.modelLevel > b.modelLevel) ? 1 : -1);
-    
-        //let levels: number[] = [];
-        //outputData.forEach(o => levels.push(o.level)); 
-        // Minimum of Entire Data-Set Function
-        // this.achievedLevelList = [];
-        // outputData.forEach(element => {
-        //   achievedLevel += element assessmentLevel;
-        //   element["achievedLevel"] = achievedLevel;
-        // });  
-        let achievedLevel = data.level;
+    // generateAchievedLevel(data) {
+    //     let achievedLevel = data.level;
+    //     console.log(achievedLevel);
+    //   return achievedLevel; 
+    //   // return outputData;
+    // }
+
+    achievedLevel(r: any) {
+        let achievedLevel = r.level;
         console.log(achievedLevel);
-      return achievedLevel; 
-      // return outputData;
+        console.log(r.level);
+        // spot for current result: undefined
+      return achievedLevel;
+    }
+
+    createCountTable(r: any) {
+        let countList = [];
+        
+        r.forEach(element => {  
+            countList.push(element)
+        });
+        // countList.forEach(r => {
+        //   r.total = r.yes + r.no + r.unanswered;
+        //   r.percent = ((r.yes / r.total) * 100).toFixed(1);
+        // });
+        this.countTable = countList;
     }
 
     displayPercent = (percent: number) => 
