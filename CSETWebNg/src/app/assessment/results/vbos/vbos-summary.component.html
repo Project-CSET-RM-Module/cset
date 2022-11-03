@@ -283,22 +283,17 @@
   </tr>
 </table>
 
-<table class="cset-table">
-  <tr>
+<!-- uses foreach... -->
+<table mat-table [dataSource]="countTable" class="cset-table">
+  <ng-container>
     <th>Category</th>
     <th class="text-right">Yes</th>
     <th class="text-right">No</th>
     <th class="text-right">Unanswered</th>
     <th class="text-right">Percent Complete</th>
-  </tr>
-  <!-- <tr *ngFor="let r of countTable"> -->
-    <tr *ngFor="let r of countTable">
-    <td>Assett Management<!--{{r.name}}--></td>
-    <td class="text-right">{{17}}<!--{{r.yes}}--></td>
-    <td class="text-right">{{3}}<!--{{r.no}}--></td>
-    <td class="text-right">{{0}}<!--{{r.unanswered}}--></td>
-    <td class="text-right">{{100}}<!--{{r.percent}}-->%</td>
-  </tr>
+  </ng-container>
+  <tr></tr>
+  <tr></tr>
 </table>
 
 </div>

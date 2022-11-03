@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, ViewChild, ElementRef, Input } from '@angular/core';
+import { Component, OnInit, HostListener, ViewChild, ElementRef, Input, } from '@angular/core';
 import { NavigationService } from '../../../services/navigation.service';
 import { MaturityService } from '../../../services/maturity.service';
 import { AssessmentService } from '../../../services/assessment.service';
@@ -68,7 +68,9 @@ ngOnInit(): void {
   this.maturitySvc.getResultsData('vbosSiteSummary').subscribe((r: any) => {
     console.log(r);
     r.Grouping_Id;
+    r.level;
     console.log(r.Grouping_Id);
+    console.log(this.level);
 
     //capture data here
     this.assetmscore = 2;
@@ -81,6 +83,8 @@ ngOnInit(): void {
     this.incresprecoscore = 2;
     this.archdevscore = 2;
     this.supplychscore = 3;
+
+    this.barscoreswidthvar = this.level;
 
     // final score
 
@@ -103,7 +107,7 @@ ngOnInit(): void {
     //for the bars div loop
     // this.barscoreswidthvar = (this.level * 33) + "%";
     
-    this.assetmwidthvariable = (66);
+    this.assetmwidthvariable = formatPercent(66, this.assetmwidthvariable);
     this.configmanwidthvariable = displayPercent(100);
     this.accesscwidthvariable = displayPercent(66);
     this.flawremwidthvariable = displayPercent(100);
@@ -132,18 +136,13 @@ ngOnInit(): void {
   
   achievedLevel(r: any) {
   //achievedLevel(data) {
-    //is this necessary?
-	//let outputData = data.filter(obj => obj.modelLevel != "Aggregate");
-    // outputData.sort((a, b) => (a.modelLevel > b.modelLevel) ? 1 : -1);
-    //let levels: number[] = [];
-    //outputData.forEach(o => levels.push(o.level)); 
+
     // this.achievedLevelList = [];
     // outputData.forEach(element => {
     //   achievedLevel += element assessmentLevel;
 
     // html accessible?
     //   element["achievedLevel"] = achievedLevel;
-
         // });
     // let achievedLevel = data.level;
     let achievedLevel = r.level;
@@ -151,7 +150,6 @@ ngOnInit(): void {
     console.log(r.level);
     // spot for current result: undefined
 	return achievedLevel;
-	// return outputData;
   }
 
 // Preferred table data method
