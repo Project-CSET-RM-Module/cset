@@ -180,34 +180,14 @@ ngOnInit(): void {
 
 createCountTable(r: any) {
   let countList = [];
-  //r.rraSummaryByGoal.forEach(element => {
-  r.MaturityService.forEach(element => {  
-    let count = countList.find(x => x.name == element.title);
-    if (!count) {
-      count = {
-        name: element.title,
-        yes: 0,
-        no: 0,
-        unanswered: 0
-      };
-      countList.push(count);
-    }
-    switch (element.answer_Text) {
-      case 'Y':
-        count.yes = element.qc;
-        break;
-      case 'N':
-        count.no = element.qc;
-        break;
-      case 'U':
-        count.unanswered = element.qc
-        break;
-    }
+  
+  r.forEach(element => {  
+      countList.push(element)
   });
-  countList.forEach(r => {
-    r.total = r.yes + r.no + r.unanswered;
-    r.percent = ((r.yes / r.total) * 100).toFixed(1);
-  });
+  // countList.forEach(r => {
+  //   r.total = r.yes + r.no + r.unanswered;
+  //   r.percent = ((r.yes / r.total) * 100).toFixed(1);
+  // });
   this.countTable = countList;
 }
 
