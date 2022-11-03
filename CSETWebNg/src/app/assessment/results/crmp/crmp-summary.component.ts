@@ -86,16 +86,20 @@ export class CrmpSummaryComponent implements OnInit {
       console.log(r.Grouping_Id);
 
       //capture data here
-      this.riskfscore = 1;
-      this.riskascore = 1;
-      this.riskrscore = 1;
+      this.riskfscore = 2;
+      this.riskascore = 3;
+      this.riskrscore = 4;
       this.riskmscore = 1;
 
-      // this.finalscore = 3;
+      // final score
 
-      this.generateAchievedLevel(r);
+      this.finalscore = 1;
 
-      this.finalscore = this.generateAchievedLevel(r);
+      // this.generateAchievedLevel(r);
+
+      // this.finalscore = this.generateAchievedLevel(r);
+
+      // table
 
       // this.createCountTable(r);
 
@@ -114,12 +118,17 @@ export class CrmpSummaryComponent implements OnInit {
       // levelItem.find(x => x.Grouping_Id == element.Grouping_Id);
       });
 
-    //this.finalscorevariable = this.displayPercent(33);
-    this.finalscorevariable = this.finalscore * 20;
-    this.riskfwidthvariable = this.riskfscore * 20;
-    this.riskawidthvariable = this.riskascore * 20;
-    this.riskrwidthvariable = this.riskrscore * 20;
-    this.riskmwidthvariable = this.riskmscore * 20;
+    // this.finalscorevariable = displayPercent(this.finalscore * 20);
+    // this.riskfwidthvariable = displayPercent(this.riskfscore * 20);
+    // this.riskawidthvariable = displayPercent(this.riskascore * 20);
+    // this.riskrwidthvariable = displayPercent(this.riskrscore * 20);
+    // this.riskmwidthvariable = displayPercent(this.riskmscore * 20);
+
+    this.finalscorevariable = displayPercent(20);
+    this.riskfwidthvariable = displayPercent(40);
+    this.riskawidthvariable = displayPercent(60);
+    this.riskrwidthvariable = displayPercent(80);
+    this.riskmwidthvariable = displayPercent(20);
 
   }
 
@@ -144,6 +153,9 @@ export class CrmpSummaryComponent implements OnInit {
     displayPercent = (percent: number) => 
     '${(percent * 100).toFixed(2)}%';
   }
+
+  const displayPercent = (percent: number) => 
+'${(percent * 100).toFixed(2)}%';
 
   // createAnswerCountsByLevel(r: any) {
   //   let levelList = [];

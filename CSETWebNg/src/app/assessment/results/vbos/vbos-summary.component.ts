@@ -1,4 +1,4 @@
-import { Component, OnInit, HostListener, ViewChild, ElementRef, Input } from '@angular/core';
+import { Component, OnInit, HostListener, ViewChild, ElementRef, Input, } from '@angular/core';
 import { NavigationService } from '../../../services/navigation.service';
 import { MaturityService } from '../../../services/maturity.service';
 import { AssessmentService } from '../../../services/assessment.service';
@@ -7,6 +7,7 @@ import { ReportService } from '../../../services/report.service';
 import { VbosDataService } from '../../../services/vbos-data.service';
 import * as $ from 'jquery';
 import { formatPercent } from '@angular/common';
+import { element } from 'protractor';
 
 
 
@@ -52,6 +53,10 @@ export class VbosSummaryComponent implements OnInit {
   answerDistribByLevel = [];
 
   countTable = [];
+  countsTable = [];
+
+  barscoreswidthvar;
+  level;
 
 constructor(
   public maturitySvc: MaturityService, 
@@ -63,82 +68,88 @@ ngOnInit(): void {
   this.maturitySvc.getResultsData('vbosSiteSummary').subscribe((r: any) => {
     console.log(r);
     r.Grouping_Id;
+    r.level;
     console.log(r.Grouping_Id);
+    console.log(this.level);
 
     //capture data here
     this.assetmscore = 2;
     this.configmscore = 3;
-    this.accesscscore = 3;
+    this.accesscscore = 2;
     this.flawrscore = 3;
     this.malcodescore = 3;
-    this.systemiscore = 3;
+    this.systemiscore = 1;
     this.continmscore = 3;
-    this.incresprecoscore = 3;
+    this.incresprecoscore = 2;
     this.archdevscore = 2;
     this.supplychscore = 3;
 
-    // this.finalscore = 3;
+    this.barscoreswidthvar = this.level;
+
+    // final score
+
+    this.finalscore = 1;
+    // this.achievedLevel(r);
+    // this.finalscore = this.achievedLevel(r);
+
+    // table
 
     // this.createAnswerDistribByLevel(r);
-
     this.createCountTable(r);
-
     // this.answerDistribByLevel = [];
-
-    this.achievedLevel(r);
-
-    this.finalscore = this.achievedLevel(r);
-
-    
 
     });
 
-    //this.finalscorewidthvariable = displayPercent(66);
-    this.finalscorewidthvariable = displayPercent(this.finalscore * 33);
+    this.finalscorewidthvariable = "33%";
+    //this.finalscorewidthvariable = displayPercent(this.finalscore * 33);
     // = displayPercent(this.finalscore * 33);
+
+    //for the bars div loop
+    // this.barscoreswidthvar = (this.level * 33) + "%";
     
-    this.assetmwidthvariable = this.assetmscore * 33;
+    this.assetmwidthvariable = formatPercent(66, this.assetmwidthvariable);
+    this.configmanwidthvariable = displayPercent(100);
+    this.accesscwidthvariable = displayPercent(66);
+    this.flawremwidthvariable = displayPercent(100);
+    this.malcodewidthvariable = displayPercent(100);
+    this.sysintwidthvariable = displayPercent(33);
+    this.continmonwidthvariable = displayPercent(100);
+    this.indidrespwidthvariable = displayPercent(66);
+    this.archdevwidthvariable = displayPercent(66);
+    this.supplymanwidthvariable = displayPercent(100);
     
-    this.configmanwidthvariable = this.configmscore * 33;
-    //this.configmanwidthvariable = displayPercent(this.configmscore * 33);
-    this.accesscwidthvariable = this.accesscscore * 33;
-    //this.accesscwidthvariable = displayPercent(this.accesscscore * 33);
-    this.flawremwidthvariable = this.flawrscore * 33;
-    //this.flawremwidthvariable = displayPercent(this.flawrscore * 33);
-    this.malcodewidthvariable = this.malcodescore * 33;
-    //this.malcodewidthvariable = displayPercent(this.malcodescore * 33);
-    this.sysintwidthvariable = this.systemiscore * 33;
-    //this.sysintwidthvariable = displayPercent(this.systemiscore * 33);
-    this.continmonwidthvariable = this.continmscore * 33;
-    //this.continmonwidthvariable = displayPercent(this.continmscore * 33);
-    this.indidrespwidthvariable = this.incresprecoscore * 33;
-    //this.indidrespwidthvariable = displayPercent(this.incresprecoscore * 33);
-    //this.archdevwidthvariable = displayPercent(33);
-    this.archdevwidthvariable = this.archdevscore * 33;
-    //this.archdevwidthvariable = displayPercent(this.archdevscore * 33);
-    this.supplymanwidthvariable = this.supplychscore * 33;
-    //this.supplymanwidthvariable = displayPercent(this.supplychscore * 33);
     
+    // this.assetmwidthvariable = displayPercent(this.assetmscore * 33);
+    // this.configmanwidthvariable = displayPercent(this.configmscore * 33);
+    // this.accesscwidthvariable = displayPercent(this.accesscscore * 33);
+    // this.flawremwidthvariable = displayPercent(this.flawrscore * 33);
+    // this.malcodewidthvariable = displayPercent(this.malcodescore * 33);
+    // this.sysintwidthvariable = displayPercent(this.systemiscore * 33);
+    // this.continmonwidthvariable = displayPercent(this.continmscore * 33);
+    // this.indidrespwidthvariable = displayPercent(this.incresprecoscore * 33);
+    // this.archdevwidthvariable = displayPercent(this.archdevscore * 33);
+    // this.supplymanwidthvariable = displayPercent(this.supplychscore * 33);
+
+
   }
 
-  achievedLevel(data) {
-    //is this necessary?
-	//let outputData = data.filter(obj => obj.modelLevel != "Aggregate");
-    // outputData.sort((a, b) => (a.modelLevel > b.modelLevel) ? 1 : -1);
-    //let levels: number[] = [];
-    //outputData.forEach(o => levels.push(o.level)); 
+  
+  achievedLevel(r: any) {
+  //achievedLevel(data) {
+
     // this.achievedLevelList = [];
     // outputData.forEach(element => {
     //   achievedLevel += element assessmentLevel;
 
     // html accessible?
     //   element["achievedLevel"] = achievedLevel;
-
         // });
-    let achievedLevel = data.level;
+    // let achievedLevel = data.level;
+    let achievedLevel = r.level;
     console.log(achievedLevel);
+    console.log(r.level);
+    // spot for current result: undefined
 	return achievedLevel;
-	// return outputData;
   }
 
 // Preferred table data method
@@ -169,35 +180,36 @@ ngOnInit(): void {
 
 createCountTable(r: any) {
   let countList = [];
-  //r.rraSummaryByGoal.forEach(element => {
-  r.MaturityService.forEach(element => {  
-    let count = countList.find(x => x.name == element.title);
-    if (!count) {
-      count = {
-        name: element.title,
-        yes: 0,
-        no: 0,
-        unanswered: 0
-      };
-      countList.push(count);
-    }
-    switch (element.answer_Text) {
-      case 'Y':
-        count.yes = element.qc;
-        break;
-      case 'N':
-        count.no = element.qc;
-        break;
-      case 'U':
-        count.unanswered = element.qc
-        break;
-    }
+  
+  r.forEach(element => {  
+      countList.push(element)
   });
-  countList.forEach(r => {
-    r.total = r.yes + r.no + r.unanswered;
-    r.percent = ((r.yes / r.total) * 100).toFixed(1);
-  });
+  // countList.forEach(r => {
+  //   r.total = r.yes + r.no + r.unanswered;
+  //   r.percent = ((r.yes / r.total) * 100).toFixed(1);
+  // });
   this.countTable = countList;
+}
+
+makeCountTable(data) {
+  let countsList = [];
+  data.MaturityService.forEach(element => {
+    let count = countsList.find(x => x.name == element.title);
+      if (!count) {
+        count = {
+          name: element.title, series: [
+            { name: 'Yes', value: 0 },
+            { name: 'No', value: 0 },
+            { name: 'Unanswered', value: 0 },
+          ]
+        };
+        countsList.push(count);
+        this.countsTable = countsList;
+      }
+
+      var p = count.series.find(x => x.name == element.answer_Full_Name);
+      p.value = element.percent;
+  })
 }
 
 }
