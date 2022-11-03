@@ -24,7 +24,6 @@ export class VbosSummaryComponent implements OnInit {
 	dataError = false;
 
   achievedLevelList = [];
-	statsByCategoryList = [];
 
   finalscorewidthvariable;
   assetmwidthvariable;
@@ -50,10 +49,7 @@ export class VbosSummaryComponent implements OnInit {
   archdevscore;
   supplychscore;
 
-  answerDistribByLevel = [];
-
   countTable = [];
-  countsTable = [];
 
   barscoreswidthvar;
   level;
@@ -94,9 +90,7 @@ ngOnInit(): void {
 
     // table
 
-    // this.createAnswerDistribByLevel(r);
     this.createCountTable(r);
-    // this.answerDistribByLevel = [];
 
     });
 
@@ -118,19 +112,6 @@ ngOnInit(): void {
     this.archdevwidthvariable = displayPercent(66);
     this.supplymanwidthvariable = displayPercent(100);
     
-    
-    // this.assetmwidthvariable = displayPercent(this.assetmscore * 33);
-    // this.configmanwidthvariable = displayPercent(this.configmscore * 33);
-    // this.accesscwidthvariable = displayPercent(this.accesscscore * 33);
-    // this.flawremwidthvariable = displayPercent(this.flawrscore * 33);
-    // this.malcodewidthvariable = displayPercent(this.malcodescore * 33);
-    // this.sysintwidthvariable = displayPercent(this.systemiscore * 33);
-    // this.continmonwidthvariable = displayPercent(this.continmscore * 33);
-    // this.indidrespwidthvariable = displayPercent(this.incresprecoscore * 33);
-    // this.archdevwidthvariable = displayPercent(this.archdevscore * 33);
-    // this.supplymanwidthvariable = displayPercent(this.supplychscore * 33);
-
-
   }
 
   
@@ -152,29 +133,6 @@ ngOnInit(): void {
 	return achievedLevel;
   }
 
-// Preferred table data method
-
-// createAnswerDistribByLevel(r: any) {
-//   let levelList = [];
-//   //r.rraSummary.forEach(element => {
-//   r.MaturityService.forEach(element => {
-//     let level = levelList.find(x => x.name == element.level_Name);
-//     if (!level) {
-//       level = {
-//         name: element.level_Name, series: [
-//           { name: 'Yes', value: 0 },
-//           { name: 'No', value: 0 },
-//           { name: 'Unanswered', value: 0 },
-//         ]
-//       };
-//       console.log(level);
-//       levelList.push(level);
-//     }
-//     var p = level.series.find(x => x.name == element.answer_Full_Name);
-//     p.value = element.percent;
-//   });
-//   this.answerDistribByLevel = levelList;
-// }
 
 // alternate table count data
 
@@ -191,26 +149,16 @@ createCountTable(r: any) {
   this.countTable = countList;
 }
 
-makeCountTable(data) {
-  let countsList = [];
-  data.MaturityService.forEach(element => {
-    let count = countsList.find(x => x.name == element.title);
-      if (!count) {
-        count = {
-          name: element.title, series: [
-            { name: 'Yes', value: 0 },
-            { name: 'No', value: 0 },
-            { name: 'Unanswered', value: 0 },
-          ]
-        };
-        countsList.push(count);
-        this.countsTable = countsList;
-      }
+// makePercent(r: any) {
+//   let countsList = [];
+//   r.forEach(element => {
+//     let count = countsList.find(x => x.name == element.title);
+    
 
-      var p = count.series.find(x => x.name == element.answer_Full_Name);
-      p.value = element.percent;
-  })
-}
+//       var p = count.series.find(x => x.name == element.answer_Full_Name);
+//       p.value = element.percent;
+//   })
+// }
 
 }
 
