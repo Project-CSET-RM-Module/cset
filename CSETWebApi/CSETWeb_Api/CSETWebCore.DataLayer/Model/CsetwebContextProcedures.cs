@@ -1727,6 +1727,30 @@ namespace CSETWebCore.DataLayer.Model
             return _;
         }
 
+        public virtual async Task<List<usp_countsForLevelsByGroupMaturityModelResults>> usp_countsForLevelsByGroupMaturityModel(int? assessment_id, int? mat_model_id,CancellationToken cancellationToken = default)
+        {
+
+            var sqlParameters = new []
+            {
+                new SqlParameter
+                {
+                    ParameterName = "assessment_id",
+                    Value = assessment_id ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Int,
+                },
+                new SqlParameter
+                {
+                    ParameterName = "mat_model_id",
+                    Value = mat_model_id ?? Convert.DBNull,
+                    SqlDbType = System.Data.SqlDbType.Int,
+                },
+            };
+            var _ = await _context.SqlQueryAsync<usp_countsForLevelsByGroupMaturityModelResults>("EXEC dbo.usp_countsForLevelsByGroupMaturityModel] @assessment_id @mat_model_id", sqlParameters, cancellationToken);
+
+
+            return _;
+        }
+        
         public virtual async Task<List<usp_getRRASummaryByGoalResult>> usp_getRRASummaryByGoalAsync(int? assessment_id, OutputParameter<int> returnValue = null, CancellationToken cancellationToken = default)
         {
             var parameterreturnValue = new SqlParameter
