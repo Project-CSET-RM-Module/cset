@@ -39,3 +39,4 @@ obj
 /lucene/SearchIndex2/bin
 /CSETWeb_Api/CSETWeb_Api/Web.temp.config
 /CSETWeb_Api/BusinessLogic/ImportAssessment/Models/AllGeneralJsonModels.cs.bak
+.idea/*
