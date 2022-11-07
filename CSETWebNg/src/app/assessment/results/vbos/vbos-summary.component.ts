@@ -8,6 +8,7 @@ import { VbosDataService } from '../../../services/vbos-data.service';
 import * as $ from 'jquery';
 import { formatPercent } from '@angular/common';
 import { element } from 'protractor';
+import { CmmcGapsComponent } from '../mat-cmmc/cmmc-gaps/cmmc-gaps.component';
 
 
 
@@ -61,6 +62,9 @@ constructor(
 ){}
 
 ngOnInit(): void {
+  this.maturitySvc.getLevelScoresByGroup().subscribe((r:any) =>{
+     console.log(r);
+  })
   this.maturitySvc.getResultsData('vbosSiteSummary').subscribe((r: any) => {
     console.log(r);
     r.Grouping_Id;

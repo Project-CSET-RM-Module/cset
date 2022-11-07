@@ -15,6 +15,7 @@ const headers = {
 export class MaturityService {
 
 
+
   static currentMaturityModelName: string;
 
   domains: any[];
@@ -64,6 +65,11 @@ export class MaturityService {
       null,
       headers
     );
+  }
+
+  getLevelScoresByGroup() {
+    return this.http.get(this.configSvc.apiUrl + "MaturityModel/GetLevelScoresByGroup",
+      headers)
   }
 
   getDomainObservations() {
