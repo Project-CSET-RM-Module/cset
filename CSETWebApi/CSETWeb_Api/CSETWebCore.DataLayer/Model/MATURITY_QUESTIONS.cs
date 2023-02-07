@@ -32,7 +32,7 @@ namespace CSETWebCore.DataLayer.Model
         public string Category { get; set; }
         [StringLength(250)]
         public string Sub_Category { get; set; }
-        public int Maturity_Level { get; set; }
+        public int Maturity_Level_Id { get; set; }
         public int Sequence { get; set; }
         [MaxLength(20)]
         public byte[] Text_Hash { get; set; }
@@ -43,7 +43,7 @@ namespace CSETWebCore.DataLayer.Model
         public string Examination_Approach { get; set; }
         public string Short_Name { get; set; }
 
-        [ForeignKey(nameof(Maturity_Level))]
+        [ForeignKey(nameof(Maturity_Level_Id))]
         [InverseProperty(nameof(MATURITY_LEVELS.MATURITY_QUESTIONS))]
         public virtual MATURITY_LEVELS Maturity_LevelNavigation { get; set; }
         [ForeignKey(nameof(Maturity_Model_Id))]
