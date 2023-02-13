@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -88,7 +88,7 @@ export class EditUserComponent implements OnInit {
   save(form: NgForm) {
     if (this.model && form.valid) {
       this.auth.updateUser(this.model).subscribe(
-        () => { },
+        () => { this.auth.setUserInfo(this.model) },
         error => console.log('Error updating the user information' + error.message)
       );
       this.dialog.close(this.model);

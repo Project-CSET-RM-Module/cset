@@ -1,6 +1,6 @@
 ﻿//////////////////////////////// 
 // 
-//   Copyright 2022 Battelle Energy Alliance, LLC  
+//   Copyright 2023 Battelle Energy Alliance, LLC  
 // 
 // 
 //////////////////////////////// 
@@ -37,7 +37,7 @@ namespace CSETWebCore.Api.Controllers
         private readonly IAdminTabBusiness _adminTabBusiness;
 
         public ReportsController(CSETContext context, IReportsDataBusiness report, ITokenManager token,
-            IAggregationBusiness aggregation, IQuestionBusiness question, IQuestionRequirementManager questionRequirement, 
+            IAggregationBusiness aggregation, IQuestionBusiness question, IQuestionRequirementManager questionRequirement,
             IAssessmentUtil assessmentUtil, IAdminTabBusiness adminTabBusiness)
         {
             _context = context;
@@ -57,7 +57,14 @@ namespace CSETWebCore.Api.Controllers
             int assessmentId = _token.AssessmentForUser();
             _report.SetReportsAssessmentId(assessmentId);
             BasicReportData data = new BasicReportData();
-            data.ControlList = _report.GetControls();
+
+            var ss = _context.STANDARD_SELECTION.Where(x => x.Assessment_Id == assessmentId).FirstOrDefault();
+            if (ss != null)
+            {
+                data.ApplicationMode = ss.Application_Mode;
+            }
+
+            data.ControlList = _report.GetControls(data.ApplicationMode);
             data.genSalTable = _report.GetGenSals();
             data.information = _report.GetInformation();
             data.salTable = _report.GetSals();
@@ -204,7 +211,7 @@ namespace CSETWebCore.Api.Controllers
 
             var mm = new MaturityBusiness(_context, _assessmentUtil, _adminTabBusiness);
 
-            var resp = mm.GetMaturityQuestions(assessmentId, "", true);
+            var resp = mm.GetMaturityQuestions(assessmentId, "", true, 0);
 
             // get all supplemental info for questions, because it is not included in the previous method
             var dict = mm.GetReferences(assessmentId);
@@ -507,6 +514,24 @@ namespace CSETWebCore.Api.Controllers
             int assessmentId = _token.AssessmentForUser();
             _question.SetQuestionAssessmentId(assessmentId);
             _questionRequirement.SetApplicationMode(mode);
+        }
+
+
+        /// <summary>
+        /// Returns questions and supplemental content
+        /// for a set or maturity model.
+        /// This report is not intended to be something
+        /// that a CSET user would view.  The intent is
+        /// for confirming new modules under development.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet]
+        [Route("api/reports/modulecontent")]
+        public IActionResult ModuleContentReport([FromQuery] string set)
+        {
+            var report = new ModuleContentReport(_context, _questionRequirement);
+            var resp = report.GetResponse(set);
+            return Ok(resp);
         }
     }
 }

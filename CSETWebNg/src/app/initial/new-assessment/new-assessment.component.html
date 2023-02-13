@@ -1,0 +1,48 @@
+<!---------------------- 
+
+   Copyright 2023 Battelle Energy Alliance, LLC  
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy 
+  of this software and associated documentation files (the "Software"), to deal 
+  in the Software without restriction, including without limitation the rights 
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell 
+  copies of the Software, and to permit persons to whom the Software is 
+  furnished to do so, subject to the following conditions: 
+ 
+  The above copyright notice and this permission notice shall be included in all 
+  copies or substantial portions of the Software. 
+ 
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR 
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, 
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE 
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER 
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, 
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE 
+  SOFTWARE. 
+-------------------------->
+<div *ngFor="let row of rows"  class="m-4" style="height:281px;">
+    <div>
+        <h3>{{row.group_Title}}</h3>
+    </div>
+    <swiper class="gallery-slider"
+        [config]="config"
+        (slideChange)="onSlideChange()"
+        #swiper
+    >
+        <ng-template swiperSlide *ngFor="let c of row.galleryItems; let i = index">
+            <div [attr.id]="'c'+c.gallery_Item_Id" class="card gallery-card" (mouseover)="onHover(c.gallery_Item_Id)" (mouseleave)="onHoverOut(-1, c.gallery_Item_Id)">
+                <div class="card-image-parent">
+                    <img class="card-image-child" [src]="getImageSrc(c.icon_File_Name_Small)">
+                </div>
+                <div class="card-body gallery-card-body cursor-pointer" style="min-height:180px; max-height:200px; z-index:1" (click)="assessSvc.newAssessmentGallery(c)">
+                    <h6 class="card-title" ellipsis [ellipsis-content]="c.title" style="max-height:80px; min-height:80px; font-weight:bold;"></h6>
+                    <p class="card-text" ellipsis [ellipsis-content]="c.plainText" style="max-height:80px; min-height:80px;"></p>
+                </div>
+                <div class="card-footer gallery-card-footer" style="text-align:right;" [hidden]="c.gallery_Item_Id!=hoverIndex">
+                    <button matTooltip="View Detail" class="btn btn-outline-light btn-circle btn-sm gallery-btn-info" (click)="openDialog(c)" style="margin-right:5px; z-index:100"><i class="fa-solid fa-circle-info" style="font-size: 18px;"></i></button>
+                    <button matTooltip="Create Assessment" class="btn btn-light btn-circle btn-sm gallery-btn-play" (click)="assessSvc.newAssessmentGallery(c)" ><i class="fa-solid fa-play" style="font-size: 18px; z-index:100"></i></button>
+                </div>
+            </div>
+        </ng-template>
+    </swiper>
+</div>

@@ -1,4 +1,10 @@
-﻿using System.Collections.Generic;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using System.Collections.Generic;
 using System.Linq;
 using CSETWebCore.DataLayer.Model;
 using CSETWebCore.Interfaces.Demographic;
@@ -108,21 +114,14 @@ namespace CSETWebCore.Business.Standards
 
         public bool GetFramework(int assessmentId)
         {
-            using (var db = new CSETContext())
-            {
-                return db.AVAILABLE_STANDARDS.Where(x => x.Assessment_Id == assessmentId && x.Set_Name == "NCSF_V1" && x.Selected)
-                    .FirstOrDefault() == null ? false : true;
-            }
-
+            return _context.AVAILABLE_STANDARDS.Where(x => x.Assessment_Id == assessmentId && x.Set_Name == "NCSF_V1" && x.Selected)
+                .FirstOrDefault() == null ? false : true;
         }
 
 
         public bool GetACET(int assessmentId)
         {
-            using (var db = new CSETContext())
-            {
-                return !(db.AVAILABLE_STANDARDS.Where(x => x.Assessment_Id == assessmentId && x.Set_Name == "ACET_V1" && x.Selected).FirstOrDefault() == null);
-            }
+            return !(_context.AVAILABLE_STANDARDS.Where(x => x.Assessment_Id == assessmentId && x.Set_Name == "ACET_V1" && x.Selected).FirstOrDefault() == null);
         }
 
 
@@ -260,9 +259,6 @@ namespace CSETWebCore.Business.Standards
                     break;
                 case "acet":
                     basicStandards.Add("ACET_V1");
-                    break;
-                case "tsa":
-                    basicStandards.Add("TSA2018");
                     break;
             }
 

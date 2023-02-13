@@ -1,4 +1,10 @@
-﻿using System;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,7 +39,7 @@ namespace UpgradeLibrary.Upgrade
             }
             catch (Exception e) 
             {
-                throw new DatabaseUpgradeException("Error in upgrading assessment version 9.2.3 file to 10.0.0: " + e.Message);
+                throw new DatabaseUpgradeException("Error in upgrading database version 9.2.3 file to 10.0.0: " + e.Message);
             }
         }
     }

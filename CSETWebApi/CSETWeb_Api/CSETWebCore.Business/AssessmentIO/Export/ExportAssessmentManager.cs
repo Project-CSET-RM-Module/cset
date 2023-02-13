@@ -1,6 +1,6 @@
 //////////////////////////////// 
 // 
-//   Copyright 2022 Battelle Energy Alliance, LLC  
+//   Copyright 2023 Battelle Energy Alliance, LLC  
 // 
 // 
 //////////////////////////////// 
@@ -73,6 +73,7 @@ namespace CSETWebCore.Business.AssessmentIO.Export
             TinyMapper.Bind<FINANCIAL_HOURS, jFINANCIAL_HOURS>();
             TinyMapper.Bind<FINDING, jFINDING>();
             TinyMapper.Bind<FINDING_CONTACT, jFINDING_CONTACT>();
+            TinyMapper.Bind<ISE_ACTIONS_FINDINGS, jISE_ACTIONS_FINDINGS>();
             TinyMapper.Bind<FRAMEWORK_TIER_TYPE_ANSWER, jFRAMEWORK_TIER_TYPE_ANSWER>();
             TinyMapper.Bind<GENERAL_SAL, jGENERAL_SAL>();
             TinyMapper.Bind<GENERAL_SAL, jGENERAL_SAL>();
@@ -117,8 +118,8 @@ namespace CSETWebCore.Business.AssessmentIO.Export
 
 
             foreach (var item in _context.ANSWER
-                .Include(x => x.FINDING)
-                .ThenInclude(x => x.FINDING_CONTACT)
+                .Include(x => x.FINDING).ThenInclude(x => x.ISE_ACTIONS_FINDINGS)
+                .Include(x => x.FINDING).ThenInclude(x => x.FINDING_CONTACT)
                 .Where(x => x.Assessment_Id == assessmentId))
             {
                 model.jANSWER.Add(TinyMapper.Map<ANSWER,jANSWER>(item));
@@ -128,6 +129,14 @@ namespace CSETWebCore.Business.AssessmentIO.Export
                     foreach (var fc in f.FINDING_CONTACT)
                     {
                         model.jFINDING_CONTACT.Add(TinyMapper.Map<FINDING_CONTACT,jFINDING_CONTACT>(fc));
+                    }
+
+                    foreach (var action in f.ISE_ACTIONS_FINDINGS)
+                    {
+                        if (action != null)
+                        {
+                            model.jISE_ACTIONS_FINDINGS.Add(TinyMapper.Map<ISE_ACTIONS_FINDINGS, jISE_ACTIONS_FINDINGS>(action));
+                        }
                     }
                 }
             }
@@ -176,7 +185,7 @@ namespace CSETWebCore.Business.AssessmentIO.Export
             foreach (var item in _context.DOCUMENT_FILE.Include(x => x.DOCUMENT_ANSWERS).ThenInclude(x => x.Answer).Where(x => x.Assessment_Id == assessmentId))
             {
                 model.jDOCUMENT_FILE.Add(TinyMapper.Map<DOCUMENT_FILE,jDOCUMENT_FILE>(item));
-                foreach (var a in item.ANSWERs())
+                foreach (var a in item.ANSWERs(_context))
                 {
                     model.jDOCUMENT_ANSWERS.Add(new jDOCUMENT_ANSWERS()
                     {
@@ -195,6 +204,7 @@ namespace CSETWebCore.Business.AssessmentIO.Export
             {
                 var oInfo = TinyMapper.Map<INFORMATION,jINFORMATION>(item);
                 oInfo.Assessment_Date = assessmentDate;
+                oInfo.Baseline_Assessment_Id = null;
                 model.jINFORMATION.Add(oInfo);
             }
 
@@ -323,7 +333,7 @@ namespace CSETWebCore.Business.AssessmentIO.Export
 
 
                     
-                    var extStandard = StandardConverter.ToExternalStandard(set);
+                    var extStandard = StandardConverter.ToExternalStandard(set, _context);
                     var setname = Regex.Replace(extStandard.shortName, @"\W", "_");
 
                     // Export Set
@@ -341,7 +351,7 @@ namespace CSETWebCore.Business.AssessmentIO.Export
                         if (req != null)
                         {
                             var buffer = Encoding.Default.GetBytes($"{extStandard.shortName}|||{req.Requirement_Title}|||{req.Requirement_Text}");
-                            t.Custom_Question_Guid = new Guid(new MD5CryptoServiceProvider().ComputeHash(buffer)).ToString();
+                            t.Custom_Question_Guid = new Guid(MD5.Create().ComputeHash(buffer)).ToString();
                         }
                         return t;
                     }).Concat(model.jANSWER.Where(s => !s.Is_Requirement).GroupJoin(questions, s => s.Question_Or_Requirement_Id, s => s.Question_Id, (t, s) =>
@@ -350,7 +360,7 @@ namespace CSETWebCore.Business.AssessmentIO.Export
                         if (req != null)
                         {
                             var buffer = Encoding.Default.GetBytes(req.Simple_Question);
-                            t.Custom_Question_Guid = new Guid(new MD5CryptoServiceProvider().ComputeHash(buffer)).ToString();
+                            t.Custom_Question_Guid = new Guid(MD5.Create().ComputeHash(buffer)).ToString();
                         }
                         return t;
                     })).ToList();

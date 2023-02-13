@@ -1,4 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -37,6 +43,23 @@ namespace CSETWebCore.Api.Controllers
             return Ok(_module.GetCustomSetList());
         }
 
+
+        [HttpGet]
+        [Route("api/builder/GetAllSets")]
+        public IActionResult GetAllSetsList()
+        {
+            return Ok(_module.GetCustomSetList(true));
+        }
+
+
+        [HttpGet]
+        [Route("api/builder/GetSetsInUse")]
+        public IActionResult GetSetsInUseList()
+        {
+            return Ok(_module.GetSetsInUseList());
+        }
+
+
         [HttpGet]
         [Route("api/builder/GetNonCustomSets")]
         public IActionResult GetNonCustomSetList(string setName)
@@ -61,6 +84,8 @@ namespace CSETWebCore.Api.Controllers
         {
            return Ok(_module.GetBaseSets(setName));
         }
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -81,7 +106,7 @@ namespace CSETWebCore.Api.Controllers
         [Route("api/builder/UpdateSetDetail")]
         public IActionResult UpdateSetDetail([FromBody] SetDetail setDetail)
         {
-            return Ok(_module.SaveSetDetail(setDetail));
+            return Ok(new { SetName = _module.SaveSetDetail(setDetail) });
         }
 
 

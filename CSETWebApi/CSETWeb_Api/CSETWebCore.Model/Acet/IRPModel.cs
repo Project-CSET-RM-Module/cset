@@ -1,4 +1,10 @@
-﻿namespace CSETWebCore.Model.Acet
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+namespace CSETWebCore.Model.Acet
 {
     public class IRPModel
     {
@@ -14,6 +20,7 @@
         public string Risk_5_Description { get; set; }
         public int Response { get; set; }
         public string Comment { get; set; }
+        public string Risk_Type { get; set; }
 
 
         /// <summary>

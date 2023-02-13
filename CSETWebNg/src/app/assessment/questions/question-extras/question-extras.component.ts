@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,8 @@ import { Finding } from './../findings/findings.model';
 import { AssessmentService } from '../../../services/assessment.service';
 import { ComponentOverrideComponent } from '../../../dialogs/component-override/component-override.component';
 import { MaturityService } from '../../../services/maturity.service';
+import { LayoutService } from '../../../services/layout.service';
+
 
 @Component({
   selector: 'app-question-extras',
@@ -54,12 +56,16 @@ export class QuestionExtrasComponent implements OnInit {
   @Output() changeComponents = new EventEmitter();
   @ViewChild('questionExtras') questionExtrasDiv: ElementRef;
 
+  @Input() myOptions: any;
+
   extras: QuestionDetailsContentViewModel;
   tab: QuestionInformationTabData;
   expanded = false;
   mode: string;  // selector for which data is being displayed, 'DETAIL', 'SUPP', 'CMNT', 'DOCS', 'DISC', 'FDBK'.
   answer: Answer;
   dialogRef: MatDialogRef<OkayComponent>;
+
+  showMfr = false;
 
   showQuestionIds = false;
 
@@ -69,25 +75,38 @@ export class QuestionExtrasComponent implements OnInit {
   origTitle: string;
 
   constructor(
-    private questionsSvc: QuestionsService,
+    public questionsSvc: QuestionsService,
     private findSvc: FindingsService,
     public fileSvc: FileUploadClientService,
     public dialog: MatDialog,
     public configSvc: ConfigService,
     public authSvc: AuthenticationService,
     public assessSvc: AssessmentService,
-    private maturitySvc: MaturityService) {
+    private maturitySvc: MaturityService,
+    public layoutSvc: LayoutService
+    ) {
   }
 
 
   ngOnInit() {
     this.showQuestionIds = this.configSvc.showQuestionAndRequirementIDs();
+
+    if (!!this.myOptions) {
+      if (this.myOptions.eagerSupplemental) {
+        this.toggleExtras('SUPP');
+      }
+
+      this.showMfr = this.myOptions.showMfr;
+    }
   }
 
-
+  /**
+   *
+   */
   showOverrideDialog(componentType: any): void {
     const dialogRef = this.dialog.open(ComponentOverrideComponent, {
-      width: '600px',
+      width: this.layoutSvc.hp ? '90%' : '600px',
+      maxWidth: this.layoutSvc.hp ? '90%' : '600px',
       height: '800px',
       data: { componentType: componentType, component_Symbol_Id: componentType.component_Symbol_Id, myQuestion: this.myQuestion },
     });
@@ -97,11 +116,12 @@ export class QuestionExtrasComponent implements OnInit {
       }
     });
   }
+
   /**
- * Shows/hides the "expand" section.
- * @param q
- * @param feature
- */
+   * Shows/hides the "expand" section.
+   * @param q
+   * @param feature
+   */
   toggleExtras(clickedMode: string) {
     if (this.expanded && clickedMode === this.mode) {
 
@@ -131,7 +151,7 @@ export class QuestionExtrasComponent implements OnInit {
   show() {
     // we already have content - don't make another server call
     if (this.tab != null) {
-      this.scrollToExtras();
+      //this.scrollToExtras();
       return;
     }
 
@@ -139,11 +159,11 @@ export class QuestionExtrasComponent implements OnInit {
     this.questionsSvc.getDetails(this.myQuestion.questionId, this.myQuestion.questionType).subscribe(
       (details) => {
         this.extras = details;
+        this.extras.questionId = this.myQuestion.questionId;
 
         // populate my details with the first "non-null" tab
-        this.tab = this.extras.listTabs?.find(t => t.requirementFrameworkTitle != null);
-
-        this.scrollToExtras()
+        this.tab = this.extras.listTabs?.find(t => t.requirementFrameworkTitle != null) ?? this.extras.listTabs[0];
+        //this.scrollToExtras()
 
         // add questionIDs to related questions for debug if configured to do so
         if (this.showQuestionIds) {
@@ -167,8 +187,30 @@ export class QuestionExtrasComponent implements OnInit {
    */
   saveComment(e) {
     this.defaultEmptyAnswer();
-    this.answer.comment = e.srcElement.value;
+    this.answer.comment = e.target.value;
     this.saveAnswer();
+  }
+
+  /**
+   *
+   * @returns
+   */
+  showDocumentsIcon(): boolean {
+
+    return true;
+  }
+
+  /**
+   *
+   */
+  showFeedbackIcon(): boolean {
+    if (this.configSvc.installationMode === 'ACET') {
+      return false;
+    }
+    if (this.configSvc.installationMode === 'RRA') {
+      return false;
+    }
+    return true;
   }
 
   /**
@@ -177,7 +219,7 @@ export class QuestionExtrasComponent implements OnInit {
   */
   saveFeedback(e) {
     this.defaultEmptyAnswer();
-    this.answer.feedback = e.srcElement.value;
+    this.answer.feedback = e.target.value;
     this.saveAnswer();
   }
 
@@ -232,9 +274,13 @@ export class QuestionExtrasComponent implements OnInit {
     this.answer.comment = this.myQuestion.comment;
     this.answer.feedback = this.myQuestion.feedback;
     this.answer.componentGuid = this.myQuestion.componentGuid;
+    this.answer.freeResponseAnswer = this.myQuestion.freeResponseAnswer;
 
     // Tell the parent (subcategory) component that something changed
     this.changeExtras.emit(null);
+
+    // Tell any observers the new extras
+    this.questionsSvc.broadcastExtras(this.extras);
 
     this.questionsSvc.storeAnswer(this.answer).subscribe(
       (response: number) => {
@@ -271,6 +317,8 @@ export class QuestionExtrasComponent implements OnInit {
           return this.myQuestion.hasDiscovery ? 'inline' : 'none';
         }
         return (this.extras && this.extras.findings && this.extras.findings.length > 0) ? 'inline' : 'none';
+
+
     }
   }
 
@@ -297,18 +345,31 @@ export class QuestionExtrasComponent implements OnInit {
       issue: '',
       recommendations: '',
       resolution_Date: null,
-      vulnerabilities: ''
+      vulnerabilities: '',
+      title: null,
+      type: null,
+      risk_Area: null,
+      sub_Risk: null,
+      description: null,
+      actionItems: null,
+      citations: null,
+      auto_Generated: null,
+      supp_Guidance: null
     };
 
-    this.dialog
-      .open(FindingsComponent, { data: find, disableClose: true })
+    this.dialog.open(FindingsComponent, {
+        data: find,
+        disableClose: true,
+        width: this.layoutSvc.hp ? '90%' : '600px',
+        maxWidth: this.layoutSvc.hp ? '90%' : '600px'
+      })
       .afterClosed().subscribe(result => {
         const answerID = find.answer_Id;
         this.findSvc.getAllDiscoveries(answerID).subscribe(
           (response: Finding[]) => {
             this.extras.findings = response;
             this.myQuestion.hasDiscovery = (this.extras.findings.length > 0);
-            this.myQuestion.answer_Id = find.answer_Id
+            this.myQuestion.answer_Id = find.answer_Id;
           },
           error => console.log('Error updating findings | ' + (<Error>error).message)
         );
@@ -322,12 +383,16 @@ export class QuestionExtrasComponent implements OnInit {
   deleteDiscovery(findingToDelete) {
 
     // Build a message whether the observation has a title or not
-    let msg = "Are you sure you want to delete observation '"
+    let msg = "Are you sure you want to delete "
+      + this.observationOrIssue().toLowerCase()
+      + " '"
       + findingToDelete.summary
       + "?'";
 
     if (findingToDelete.summary === null) {
-      msg = "Are you sure you want to delete this observation?";
+      msg = "Are you sure you want to delete this "
+      + this.observationOrIssue().toLowerCase()
+      + "?";
     }
 
 
@@ -346,6 +411,7 @@ export class QuestionExtrasComponent implements OnInit {
         }
         this.extras.findings.splice(deleteIndex, 1);
         this.myQuestion.hasDiscovery = (this.extras.findings.length > 0);
+
       }
     });
   }
@@ -368,13 +434,14 @@ export class QuestionExtrasComponent implements OnInit {
     const options = {};
     options['questionId'] = this.myQuestion.questionId;
     options['answerId'] = this.myQuestion.answer_Id;
-    options['maturity'] = this.myQuestion.is_Maturity;
+    options['questionType'] = this.myQuestion.questionType;
 
     this.fileSvc.fileUpload(e.target.files[0], options)
       .subscribe(resp => {
         // refresh the document list
         if (resp.status === 200 && resp.body) {
           this.extras.documents = resp.body;
+          this.questionsSvc.broadcastExtras(this.extras);
         }
         e.target.value = "";
       }
@@ -437,21 +504,9 @@ export class QuestionExtrasComponent implements OnInit {
         this.questionsSvc.deleteDocument(document.document_Id, this.myQuestion.questionId)
           .subscribe();
 
+          this.questionsSvc.broadcastExtras(this.extras);
       }
     });
-  }
-
-  /**
-   *
-   */
-  documentUrl(document: CustomDocument) {
-    var link = '';
-    if (document.is_Uploaded) {
-      link = this.configSvc.apiUrl + 'ReferenceDocument/' + document.file_Id + '#' + document.section_Ref;
-    } else {
-      link = this.configSvc.docUrl + document.file_Name + '#' + document.section_Ref;
-    }
-    return link;
   }
 
   /**
@@ -527,21 +582,25 @@ export class QuestionExtrasComponent implements OnInit {
   // }
 
   autoLoadSupplemental() {
-    return this.questionsSvc.autoLoadSupplementalSetting;
+    return this.questionsSvc.autoLoadSupplemental(this.assessSvc.assessment.maturityModel?.modelId);
   }
 
   /**
-   * Programatically clicks the Supplemental icon button to force the lazy load of its content.
+   * Programmatically clicks a question extra button to force the lazy load of its content.
    * Do nothing if the user has already selected a mode or collapsed the extras.
    */
-  forceLoadSupplemental() {
+  forceLoadQuestionExtra(extra: string) {
     if (!!this.mode || this.mode === '') {
       return;
     }
 
     this.expanded = false;
-    const btn: HTMLElement = document.getElementById('btn_supp_' + this.myQuestion.questionId) as HTMLElement;
+    const btn: HTMLElement = document.getElementById(`btn_${extra}_` + this.myQuestion.questionId) as HTMLElement;
     btn.click();
+  }
+
+  autoLoadComments() {
+    return this.usesRAC();
   }
 
   /**
@@ -561,10 +620,12 @@ export class QuestionExtrasComponent implements OnInit {
    * It can grow as new behaviors are required.
    */
   displayIcon(mode) {
+
     // EDM
     if (this.myQuestion.is_Maturity
       && (this.assessSvc.usesMaturityModel('EDM')
-        || this.assessSvc.usesMaturityModel('CRR'))) {
+        || this.assessSvc.usesMaturityModel('CRR')
+        || this.assessSvc.isISE())) {
       if (mode == 'DETAIL') {
         return false;
       }
@@ -581,6 +642,39 @@ export class QuestionExtrasComponent implements OnInit {
       if (mode == 'REVIEWED') {
         return false;
       }
+    }
+
+    // CISA CIS
+    if (this.myQuestion.is_Maturity && this.assessSvc.usesMaturityModel('CIS')) {
+      if (mode == 'DETAIL') {
+        return false;
+      }
+      if (mode == 'REVIEWED') {
+        return false;
+      }
+      if (mode == 'DISC') {
+        return false;
+      }
+      if (mode == 'REFS') {
+        return false;
+      }
+    }
+
+    // ISE model always hides Observations
+    if (this.myQuestion.is_Maturity && this.assessSvc.usesMaturityModel('ISE')) {
+      if (mode == 'DISC') {
+        return false;
+      }
+    }
+
+    // OBSERVATIONS
+    if (mode == 'DISC') {
+      return this.configSvc.behaviors.showObservations;
+    }
+
+    // DOCUMENTS
+    if (mode == 'DOCS') {
+      return this.configSvc.behaviors.showAssessmentDocuments;
     }
 
     return true;
@@ -614,4 +708,62 @@ export class QuestionExtrasComponent implements OnInit {
 
     return "I";
   }
+
+  /**
+   * Returns 'Observation' if the assessment is not ISE, 'Issue' if it is ISE
+   */
+   observationOrIssue () {
+    if (this.assessSvc.isISE()) {
+      return 'Issue';
+    }
+    else {
+      return 'Observation';
+    }
+  }
+
+  /**
+   * Returns the custom label if the model has one (currently only ISE), or the default if not
+   */
+  documentLabel(defaultLabel: string) {
+    if (this.assessSvc.isISE()) {
+      if(defaultLabel === 'Source Documents') {
+        return 'Resources';
+      } else if (defaultLabel === 'Additional Documents') {
+        return 'References';
+      }
+    }
+    return defaultLabel;
+  }
+
+  /**
+   * Checks if the current assessment uses the Rapid Assessment Control Set.
+   */
+  usesRAC() {
+    return this.assessSvc.assessment?.useStandard && this.assessSvc.usesStandard('RAC');
+  }
+
+  /**
+   * Adding this back in for now (I need the old table format)
+   * @param document 
+   * @returns 
+   */
+  documentUrl(document: CustomDocument) {
+    var link = '';
+    if (document.is_Uploaded) {
+      link = this.configSvc.apiUrl + 'ReferenceDocument/' + document.file_Id + '#' + document.section_Ref;
+    } else {
+      link = this.configSvc.docUrl + document.file_Name + '#' + document.section_Ref;
+    }
+    return link;
+  }
+
+  /**
+   * 
+   */
+  areNoReferenceDocumentsAvailable() {
+    return (!this.tab?.referenceTextList || this.tab.referenceTextList.length === 0)
+      && (!this.tab?.sourceDocumentsList || this.tab.sourceDocumentsList.length === 0)
+      && (!this.tab?.additionalDocumentsList || this.tab.additionalDocumentsList.length === 0)
+  }
+
 }

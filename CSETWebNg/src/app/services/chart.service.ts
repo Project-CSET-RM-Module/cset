@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,8 @@ import { Injectable } from '@angular/core';
 import { ConfigService } from './config.service';
 import { Utilities } from './utilities.service';
 import Chart from 'chart.js/auto';
+import { debug } from 'console';
+import { QuestionsService } from './questions.service';
 
 
 /**
@@ -39,7 +41,8 @@ export class ChartService {
 
   constructor(
     private http: HttpClient,
-    private configSvc: ConfigService
+    private configSvc: ConfigService,
+    private questionsSvc: QuestionsService
   ) { }
 
   /**
@@ -125,7 +128,7 @@ export class ChartService {
  * @param canvasId
  * @param x
  */
-  buildHorizBarChart(canvasId: string, x: any, showLegend: boolean, zeroHundred: boolean) {
+  buildHorizBarChart(canvasId: string, x: any, showLegend: boolean, zeroHundred: boolean, opts: any = {}, isPercent:boolean=true) {
     if (!x.labels) {
       x.labels = [];
     }
@@ -143,6 +146,7 @@ export class ChartService {
     if (tempChart) {
       tempChart.destroy();
     }
+    let percent = isPercent?'%':' ';
 
     var myOptions: any = {
       indexAxis: 'y',
@@ -154,11 +158,15 @@ export class ChartService {
           callbacks: {
             label: ((context) =>
               context.dataset.label + (!!context.dataset.label ? ': ' : ' ')
-              + (<Number>context.dataset.data[context.dataIndex]).toFixed() + '%')
+              + (<Number>context.dataset.data[context.dataIndex]).toFixed() + percent )
           }
-        }
+        },
+
       }
     };
+
+    // overlay the options object with any passed-in properties
+    Object.assign(myOptions, opts);
 
     // set the scale if desired
     if (zeroHundred) {
@@ -192,7 +200,7 @@ export class ChartService {
     let segmentLabels = [];
     x.labels.forEach(element => {
       segmentColors.push(this.segmentColor(element));
-      segmentLabels.push(this.configSvc.answerLabels[element]);
+      segmentLabels.push(this.questionsSvc.answerDisplayLabel(0, element));
     });
 
 
@@ -366,6 +374,51 @@ export class ChartService {
               label: ((context) =>
                 context.dataset.label + (!!context.dataset.label ? ': ' : ' ')
                 + (<Number>context.dataset.data[context.dataIndex]).toFixed() + '%')
+            }
+          }
+        }
+      }
+    });
+  }
+
+  /**
+  *
+  */
+  buildCrrPercentagesOfPracticesBarChart(canvasId: string, x: any) {
+    let tempChart = Chart.getChart(canvasId);
+    if (tempChart) {
+      tempChart.destroy();
+    }
+    return new Chart(canvasId, {
+      type: 'bar',
+      data: {
+        labels: x.labels,
+        datasets: [{
+          data: x.values,
+          backgroundColor: "rgb(21, 124, 142)",
+          borderColor: "rgb(21,124,142)",
+          borderWidth: 0
+        }],
+      },
+      options: {
+        indexAxis: 'y',
+        hover: { mode: null },
+        events: [],
+        plugins: {
+          legend: {
+            display: false
+          }
+        },
+        scales: {
+          x: {
+            min: 0,
+            max: 100,
+            beginAtZero: true,
+            ticks: {
+              stepSize: 10,
+              callback: function (value) {
+                return value + "%";
+              }
             }
           }
         }

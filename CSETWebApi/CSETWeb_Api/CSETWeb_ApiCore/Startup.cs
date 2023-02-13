@@ -1,3 +1,9 @@
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
 using CSETWebCore.Business.ACETDashboard;
 using CSETWebCore.Business.AdminTab;
 using CSETWebCore.Business.Aggregation;
@@ -45,6 +51,7 @@ using CSETWebCore.Interfaces.ResourceLibrary;
 using CSETWebCore.Interfaces.Sal;
 using CSETWebCore.Interfaces.Standards;
 using CSETWebCore.Interfaces.User;
+using CSETWebCore.Business.GalleryParser;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -60,6 +67,11 @@ using System.Linq;
 using CSETWebCore.Interfaces.Crr;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Rewrite;
+using CSETWebCore.Interfaces.Analytics;
+using CSETWebCore.Business.Analytics;
+using System.Text.Json;
+using CSETWebCore.Api.Error;
+using CSETWebCore.Business.Merit;
 
 namespace CSETWeb_ApiCore
 {
@@ -103,21 +115,25 @@ namespace CSETWeb_ApiCore
                 };
             });
             services.AddAuthorization();
-            services.AddControllers().AddNewtonsoftJson(options =>
+            services.AddControllers()
+                .AddNewtonsoftJson(options =>
                 {
                     options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
-                });
+                    
+                }).AddXmlDataContractSerializerFormatters();
             services.AddHttpContextAccessor();
             services.AddDbContext<CSETContext>(
-                options => options.UseSqlServer("name=ConnectionStrings:CSET_DB"));
+                options => options.UseSqlServer(Configuration.GetConnectionString("CSET_DB")));
 
             //Services
             services.AddTransient<IAdminTabBusiness, AdminTabBusiness>();
+            services.AddTransient<IAnalyticsBusiness, AnalyticsBusiness>();
             services.AddTransient<IAssessmentBusiness, AssessmentBusiness>();
             services.AddTransient<IAssessmentModeData, AssessmentModeData>();
             services.AddTransient<IAssessmentUtil, AssessmentUtil>();
             services.AddTransient<IContactBusiness, ContactBusiness>();
             services.AddTransient<IDemographicBusiness, DemographicBusiness>();
+            services.AddTransient<ICisDemographicBusiness, CisDemographicBusiness>();
             services.AddTransient<IDiagramManager, DiagramManager>();
             services.AddTransient<IDocumentBusiness, DocumentBusiness>();
             services.AddTransient<IHtmlFromXamlConverter, HtmlFromXamlConverter>();
@@ -134,6 +150,7 @@ namespace CSETWeb_ApiCore
             services.AddTransient<IStandardsBusiness, StandardsBusiness>();
             services.AddTransient<IStandardSpecficLevelRepository, StandardSpecficLevelRepository>();
             services.AddTransient<ITokenManager, TokenManager>();
+            services.AddTransient<ILocalInstallationHelper, LocalInstallationHelper>();
             services.AddTransient<IUserAuthentication, UserAuthentication>();
             services.AddTransient<IUserBusiness, UserBusiness>();
             services.AddTransient<IUtilities, Utilities>();
@@ -147,7 +164,11 @@ namespace CSETWeb_ApiCore
             services.AddTransient<IFileRepository, FileRepository>();
             services.AddTransient<IDataHandling, DataHandling>();
             services.AddTransient<ICrrScoringHelper, CrrScoringHelper>();
+            services.AddTransient<IGalleryState, GalleryState>();
+            services.AddTransient<IGalleryEditor, GalleryEditor>();
             services.AddScoped<IIRPBusiness, IRPBusiness>();
+            services.AddTransient<IJSONFileExport, JSONFileExport>();
+
 
             services.AddSwaggerGen(c =>
             {
@@ -159,6 +180,7 @@ namespace CSETWeb_ApiCore
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();
@@ -180,6 +202,9 @@ namespace CSETWeb_ApiCore
                  app.UseRewriter(options);
             }
 
+            // Serve up index.html from webapp when root url is hit
+            app.UseRewriter(new RewriteOptions().AddRewrite("^$", "index.html", true));
+ 
             //app.UseHttpsRedirection();
             app.UseStaticFiles(new StaticFileOptions
             {
@@ -193,6 +218,13 @@ namespace CSETWeb_ApiCore
                     Path.Combine(env.ContentRootPath, "Documents")),
                 RequestPath = "/Documents"
             });
+            app.UseStaticFiles(new StaticFileOptions
+            {
+                FileProvider = new PhysicalFileProvider(
+                    Path.Combine(env.ContentRootPath, "WebApp")),
+                RequestPath = ""
+            });
+            app.ConfigureExceptionHandler();
             app.UseRouting();
             app.UseCors("AllowAll");
             app.UseAuthentication();

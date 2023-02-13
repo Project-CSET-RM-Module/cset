@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -33,7 +33,7 @@ import { ConfigService } from '../../services/config.service';
   host: {class: 'd-flex flex-column flex-11a'}
 })
 export class AboutCsetComponent implements OnInit {
-  version = environment.version;
+  version = environment.visibleVersion;
   helpContactEmail = this.configSvc.helpContactEmail;
   helpContactPhone = this.configSvc.helpContactPhone;
 
@@ -47,7 +47,7 @@ export class AboutCsetComponent implements OnInit {
      * 
      */
     ngOnInit() {
-      if (this.configSvc.showBuildTime()) {
+      if (this.configSvc.config.debug.showBuildTime ?? false) {
         this.linkerTime = localStorage.getItem('cset.linkerDate');
       }
     }

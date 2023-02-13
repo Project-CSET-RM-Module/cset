@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,7 @@
 //
 ////////////////////////////////
 import { Component, OnInit, AfterViewInit } from '@angular/core';
-import { NavigationService } from '../../../services/navigation.service';
+import { NavigationService } from '../../../services/navigation/navigation.service';
 import { AssessmentService } from '../../../services/assessment.service';
 import { MaturityService } from '../../../services/maturity.service';
 import { QuestionsService } from '../../../services/questions.service';
@@ -33,6 +33,7 @@ import { QuestionFilterService } from '../../../services/filtering/question-filt
 import { ConfigService } from '../../../services/config.service';
 import { AcetFilteringService } from '../../../services/filtering/maturity-filtering/acet-filtering.service';
 import { MaturityFilteringService } from '../../../services/filtering/maturity-filtering/maturity-filtering.service';
+import { CompletionService } from '../../../services/completion.service';
 
 
 @Component({
@@ -61,6 +62,7 @@ export class MaturityQuestionsAcetComponent implements OnInit, AfterViewInit {
     public maturityFilteringSvc: MaturityFilteringService,
     private acetFilteringSvc: AcetFilteringService,
     public navSvc: NavigationService,
+    public completionSvc: CompletionService,
     private dialog: MatDialog
   ) {
 
@@ -74,8 +76,8 @@ export class MaturityQuestionsAcetComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {    
-    this.loadQuestions();
     this.assessSvc.currentTab = 'questions';
+    this.loadQuestions();
   }
 
   /**
@@ -100,16 +102,17 @@ export class MaturityQuestionsAcetComponent implements OnInit, AfterViewInit {
     this.groupings = null;
     this.maturitySvc.getQuestionsList(this.configSvc.installationMode, false).subscribe(
       (response: MaturityQuestionResponse) => {
+        this.completionSvc.setQuestionArray(response);
         this.modelName = response.modelName;
         this.questionsAlias = response.questionsAlias;
 
         // the recommended maturity level(s) based on IRP
         this.maturityLevels = response.levels;
-        console.log(response.groupings);
         this.groupings = response.groupings;
         this.assessSvc.assessment.maturityModel.maturityTargetLevel = response.maturityTargetLevel;
         this.assessSvc.assessment.maturityModel.answerOptions = response.answerOptions;
         this.filterSvc.answerOptions = response.answerOptions;
+        this.filterSvc.maturityModelId = response.modelId;
 
         // get the selected maturity filters
         this.acetFilteringSvc.initializeMatFilters(response.maturityTargetLevel).then((x: any) => {

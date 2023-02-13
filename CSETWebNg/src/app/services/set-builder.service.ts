@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -35,28 +35,32 @@ const headers = {
 @Injectable()
 export class SetBuilderService {
 
+  public navXml: Document;
+  activeRequirement: Requirement;
+  activeQuestion: Question;
+  navOrigin: string;
+  standardDocumentsNavOrigin: string;
+  standardDocumentsNavOriginID: string;
+  moduleBuilderPaths: string[] = [];
+
+  private apiUrl: string;
 
 
-
-    private apiUrl: string;
-
-    constructor(
-        private http: HttpClient,
-        private configSvc: ConfigService,
-        private router: Router
-    ) {
-        this.apiUrl = this.configSvc.apiUrl;
-    }
-
-    public navXml: Document;
-
-    activeRequirement: Requirement;
-    activeQuestion: Question;
-
-    navOrigin: string;
-
-    standardDocumentsNavOrigin: string;
-    standardDocumentsNavOriginID: string;
+  constructor(
+      private http: HttpClient,
+      private configSvc: ConfigService,
+      private router: Router
+  ) {
+      this.apiUrl = this.configSvc.apiUrl;
+      this.readBreadcrumbXml().subscribe((x: any) => {
+        const oParser = new DOMParser();
+        this.navXml = oParser.parseFromString(x, 'application/xml');
+        let htmlElements: HTMLCollection = this.navXml.getElementsByTagName('Page');
+        for (let i = 0; i < htmlElements.length; i++) {
+          this.moduleBuilderPaths.push(htmlElements[i].attributes.getNamedItem('navpath').value);
+        }
+      });
+  }
 
     /**
      * Converts linebreak characters to HTML <br> tag.
@@ -73,6 +77,22 @@ export class SetBuilderService {
      */
     getCustomSetList() {
         return this.http.get(this.apiUrl + 'builder/getCustomSets');
+    }
+
+
+    /**
+     * Returns a collection of all standards.
+     */
+     getAllSetList() {
+        return this.http.get(this.apiUrl + 'builder/getAllSets');
+    }
+
+
+    /**
+     * Returns a collection of all standards that are currently being used in an assessment.
+     */
+    getSetsInUseList() {
+      return this.http.get(this.apiUrl + 'builder/getSetsInUse');
     }
 
 

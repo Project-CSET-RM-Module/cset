@@ -7,6 +7,8 @@ CREATE PROCEDURE [dbo].[usp_getStandardSummaryOverall]
 	@assessment_id int
 AS
 BEGIN
+	SET TRANSACTION ISOLATION LEVEL READ UNCOMMITTED
+
 	-- SET NOCOUNT ON added to prevent extra result sets from
 	-- interfering with SELECT statements.
 	SET NOCOUNT ON;
@@ -17,7 +19,7 @@ then calculate the total risk in each question_group_heading(category)
 then calculate the actual percentage of the total risk in each category 
 order by the total
 */
-declare @applicationMode varchar(50)
+declare @applicationMode nvarchar(50)
 
 exec dbo.GetApplicationModeDefault @assessment_id, @ApplicationMode output
 
@@ -26,8 +28,8 @@ exec dbo.GetApplicationModeDefault @assessment_id, @ApplicationMode output
 	IF OBJECT_ID('tempdb..#answers') IS NOT NULL DROP TABLE #answers
 
 	create table #answers (assessment_id int, answer_id int, is_requirement bit, question_or_requirement_id int, mark_for_review bit, 
-	comment ntext, alternate_justification ntext, question_number int, answer_text varchar(50), 
-	component_guid varchar(36), is_component bit, custom_question_guid varchar(50), is_framework bit, old_answer_id int, reviewed bit)
+	comment ntext, alternate_justification ntext, question_number int, answer_text nvarchar(50), 
+	component_guid nvarchar(36), is_component bit, custom_question_guid nvarchar(50), is_framework bit, old_answer_id int, reviewed bit)
 
 	insert into #answers exec [GetRelevantAnswers] @assessment_id
 

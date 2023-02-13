@@ -1,0 +1,67 @@
+<!----------------------
+
+   Copyright 2023 Battelle Energy Alliance, LLC
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy
+  of this software and associated documentation files (the "Software"), to deal
+  in the Software without restriction, including without limitation the rights
+  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+  copies of the Software, and to permit persons to whom the Software is
+  furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all
+  copies or substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+  SOFTWARE.
+-------------------------->
+<div class="d-flex flex-column justify-content-center flex-11a">
+  <div class="mat-dialog-header p-3 d-flex justify-content-start align-items-center flex-00a">
+    <span class="cset-icons-exclamation-triangle fs-base-6 mr-3"></span>
+    <span>Common Vulnerabilities and Exposures (CVE)</span>
+  </div>
+
+  <mat-dialog-content class="p-3 pr-0 mt-2 oy-auto d-flex flex-column flex-11a">
+    <div class="disclaimer-blurb">
+      Disclaimer: The following affects this Vendor and Product, but might not affect your exact device based on Version or Serial Number.
+    </div>
+
+    <p><span class="font-weight-bold">Vendor:</span> {{ vendor.name }}</p>
+    <p><span class="font-weight-bold">Product:</span> {{ product.name }}</p>
+
+    <table matSort (matSortChange)="sortData($event)" class="assessment-summary" style='overflow:auto'>
+      <th mat-sort-header="cve">CVE #</th>
+      <th mat-sort-header="score" style="width: 15%">Score</th>
+      <th mat-sort-header="version">Affected Versions / Serials</th>
+      <th mat-sort-header="linkDetails">CISA Advisory Link</th>
+      <th mat-sort-header="linkWebsite">Vendor Link</th>
+
+      <tr *ngFor="let vulnerability of product.vulnerabilities">
+        <td><a [href]="getCveUrl(vulnerability.cve)" target="_blank">{{ vulnerability.cve }}</a></td>
+        <td>
+          <a [href]="getFirstOrgUrl(vulnerability)" class="cve-score" target="_blank"
+          [ngStyle]="{
+             'backgroundColor': getCveWarning(vulnerability.scores[0].cvss_V3.baseScore).color,
+             'color': getCveWarning(vulnerability.scores[0].cvss_V3.baseScore).level === 'CRITICAL' ? '#a9a9a9' : 'black'
+            }">
+            {{ vulnerability.scores[0].cvss_V3.baseScore }} {{ getCveWarning(vulnerability.scores[0].cvss_V3.baseScore).level }}
+          </a>
+        </td>
+        <td>
+          {{ product.affectedVersions }}
+        </td>
+        <td><a [href]="product.advisoryUrl" target="_blank">{{ product.advisoryUrl }}</a></td>
+        <td><a [href]="getVendorUrl(vulnerability.remediations)" target="_blank">{{ getVendorUrl(vulnerability.remediations) }}</a></td>
+      </tr>
+    </table>
+  </mat-dialog-content>
+
+  <mat-dialog-actions class="p-3 pt-0 mb-0 d-flex justify-content-end flex-00a">
+    <button class="btn btn-secondary" (click)="close()">Close</button>
+  </mat-dialog-actions>
+</div>

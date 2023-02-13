@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -75,10 +75,10 @@ export class SitesummaryCMMCComponent implements OnInit, AfterViewChecked, After
 
     this.titleService.setTitle("Site Summary - CSET");
 
-    this.reportSvc.getReport('executivecmmc').subscribe((r: any) => {
+    this.reportSvc.getReport('sitesummarycmmc').subscribe((r: any) => {
         this.response = r;
       },
-      error => console.log('Executive report load Error: ' + (<Error>error).message)
+      error => console.log('Site summary CMMC report load Error: ' + (<Error>error).message)
     );
     this.columnWidthEmitter.subscribe(item => {
       $(".gridCell").css("width", `${item}px`)
@@ -106,7 +106,7 @@ export class SitesummaryCMMCComponent implements OnInit, AfterViewChecked, After
   }
 
   /**
-   * 
+   *
    */
    buildNewPie(level: any) {
     // build the data object for Chart

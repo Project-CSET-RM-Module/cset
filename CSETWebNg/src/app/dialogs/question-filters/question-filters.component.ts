@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -23,8 +23,10 @@
 ////////////////////////////////
 import { Component, Inject, Output, EventEmitter, Input, OnInit } from '@angular/core';
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { AssessmentService } from '../../services/assessment.service';
 import { ConfigService } from '../../services/config.service';
 import { QuestionFilterService } from '../../services/filtering/question-filter.service';
+import { QuestionsService } from '../../services/questions.service';
 
 @Component({
   selector: 'app-question-filters',
@@ -40,12 +42,16 @@ export class QuestionFiltersComponent implements OnInit {
 
   question = "Question";
   questions = "questions";
+  observations = "observations";
+  comments = "comments";
   answerOptions: any[];
 
   constructor(
     public filterSvc: QuestionFilterService,
     private dialog: MatDialogRef<QuestionFiltersComponent>,
+    private assessSvc: AssessmentService,
     private configSvc: ConfigService,
+    public questionsSvc: QuestionsService,
     @Inject(MAT_DIALOG_DATA) public data: any
   ) {
     if (!!data && !!data.showFilterAboveTargetLevel) {
@@ -67,6 +73,10 @@ export class QuestionFiltersComponent implements OnInit {
     if (this.configSvc.installationMode === 'ACET') {
       this.question = "Statement";
       this.questions = "statements";
+      if (this.assessSvc.isISE()) {
+        this.observations = "issues";
+        this.comments = "notes";
+      }
     }
     this.refreshAnswerOptions();
   }
@@ -77,8 +87,23 @@ export class QuestionFiltersComponent implements OnInit {
   refreshAnswerOptions() {
     this.answerOptions = [];
     this.filterSvc.answerOptions.filter(x => x != 'U').forEach(o => {
-      this.answerOptions.push({ value: o, text: this.configSvc.answerLabels[o] });
+      if(this.assessSvc.isISE()) {
+        this.answerOptions.push({ 
+          value: o, 
+          text: this.questionsSvc.answerButtonLabel(this.filterSvc.maturityModelId, o) 
+        });
+      } else {
+        this.answerOptions.push({ 
+          value: o, 
+          text: this.questionsSvc.answerDisplayLabel(this.filterSvc.maturityModelId, o) 
+        });
+      }
     });
+
+    if (this.assessSvc.isISE()) {
+      // Remove 'N/A' and 'Compensating Control' from ISE filters menu.
+      this.answerOptions = this.answerOptions.slice(0, 2);
+    }
   }
 
   /**
@@ -97,7 +122,7 @@ export class QuestionFiltersComponent implements OnInit {
       this.close();
     }
 
-    const s = (<HTMLInputElement>e.srcElement).value.trim();
+    const s = (<HTMLInputElement>e.target).value.trim();
     this.filterSvc.filterSearchString = s;
 
     this.filterChanged.emit(true);
@@ -109,7 +134,7 @@ export class QuestionFiltersComponent implements OnInit {
    * @param ans 
    */
   updateFilters(e: Event, ans: string) {
-    this.filterSvc.setFilter(ans, (<HTMLInputElement>e.srcElement).checked);
+    this.filterSvc.setFilter(ans, (<HTMLInputElement>e.target).checked);
 
     this.filterChanged.emit(true);
   }
@@ -126,5 +151,9 @@ export class QuestionFiltersComponent implements OnInit {
    */
   isInstallation(mode: string) {
     return this.configSvc.installationMode == mode;
+  }
+
+  usesMaturityModel(model: string) {
+    return this.assessSvc.usesMaturityModel(model);
   }
 }

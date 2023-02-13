@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -21,9 +21,10 @@
 //  SOFTWARE.
 //
 ////////////////////////////////
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { ActivatedRoute, Router } from '@angular/router';
+import { NgbAccordion } from '@ng-bootstrap/ng-bootstrap';
 import { AlertComponent } from '../../dialogs/alert/alert.component';
 import { EjectionComponent } from '../../dialogs/ejection/ejection.component';
 import { AssessmentService } from '../../services/assessment.service';
@@ -51,6 +52,8 @@ export class LoginTsaComponent implements OnInit {
   private isEjectDialogOpen = false;
   browserIsIE: boolean = false;
 
+  @ViewChild('acc') accordion: NgbAccordion;
+
   /**
    * Constructor
    */
@@ -69,13 +72,13 @@ export class LoginTsaComponent implements OnInit {
    */
   ngOnInit(): void {
     this.browserIsIE = /msie\s|trident\//i.test(window.navigator.userAgent);
-    this.isRunningInElectron = localStorage.getItem('isRunningInElectron') === 'true' ? true : false;
+    this.isRunningInElectron = this.configSvc.isRunningInElectron;
     if (this.authenticationService.isLocal) {
       this.mode = 'LOCAL';
       this.continueStandAlone();
     } else {
       // reset login status
-      this.authenticationService.logout();
+      //this.authenticationService.logout();
       // default the page as 'login'
       this.mode = 'LOGIN';
       if (this.route.snapshot.params['eject']) {
@@ -151,5 +154,12 @@ export class LoginTsaComponent implements OnInit {
 
   exit() {
     window.close();
+  }
+
+  isFooterOpen(): boolean {
+    if (!!this.accordion) {
+      return this.accordion.isExpanded('footerPanel');
+    }
+    return false;
   }
 }

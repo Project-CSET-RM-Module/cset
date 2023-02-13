@@ -1,7 +1,31 @@
+////////////////////////////////
+//
+//   Copyright 2023 Battelle Energy Alliance, LLC
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in all
+//  copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//  SOFTWARE.
+//
+////////////////////////////////
 import { Component, OnInit } from '@angular/core';
 import { Title } from '@angular/platform-browser';
 import { ConfigService } from '../../../services/config.service';
 import { MaturityService } from '../../../services/maturity.service';
+import { QuestionsService } from '../../../services/questions.service';
 import { ReportAnalysisService } from '../../../services/report-analysis.service';
 import { ReportService } from '../../../services/report.service';
 import { RraDataService } from '../../../services/rra-data.service';
@@ -15,6 +39,8 @@ export class RraDeficiencyComponent implements OnInit {
 
   response: any;
 
+  loading: boolean = false;
+
   colorSchemeRed = { domain: ['#DC3545'] };
   xAxisTicks = [0, 25, 50, 75, 100];
 
@@ -27,10 +53,12 @@ export class RraDeficiencyComponent implements OnInit {
     public configSvc: ConfigService,
     private titleService: Title,
     public maturitySvc: MaturityService,
+    public questionsSvc: QuestionsService,
     public rraDataSvc: RraDataService
   ) { }
 
   ngOnInit() {
+    this.loading = true;
     this.titleService.setTitle("Deficiency Report - RRA");
 
     this.maturitySvc.getMaturityDeficiency("RRA").subscribe(
@@ -43,7 +71,7 @@ export class RraDeficiencyComponent implements OnInit {
         let advancedList = [];
 
         this.response.deficienciesList.forEach(element => {
-          let level = this.getStringLevel(element.mat.maturity_Level);
+          let level = this.getStringLevel(element.mat.maturity_Level_Id);
           switch (level) {
             case 'Basic':
               basicList.push(element);
@@ -58,6 +86,7 @@ export class RraDeficiencyComponent implements OnInit {
         });
 
         this.response.deficienciesList = basicList.concat(intermediateList).concat(advancedList);
+        this.loading = false;
       },
       error => console.log('Deficiency Report Error: ' + (<Error>error).message)
     );
@@ -84,9 +113,9 @@ export class RraDeficiencyComponent implements OnInit {
   }
 
   /**
-   * 
-   * @param levelNumber 
-   * @returns 
+   *
+   * @param levelNumber
+   * @returns
    */
   getStringLevel(levelNumber: number) {
     //this should come from db eventually.
@@ -126,7 +155,7 @@ export class RraDeficiencyComponent implements OnInit {
   /**
    * Build a chart sorting the least-compliant goals to the top.
    * Must build answerDistribByGoal before calling this function.
-   * @param r 
+   * @param r
    */
    createTopRankedGoals(r: any) {
     let goalList = [];
@@ -144,9 +173,9 @@ export class RraDeficiencyComponent implements OnInit {
   }
 
   /**
-   * 
-   * @param x 
-   * @returns 
+   *
+   * @param x
+   * @returns
    */
   formatPercent(x: any) {
     return x + '%';

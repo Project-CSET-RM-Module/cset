@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -26,8 +26,9 @@ import { Router } from '../../../../../../node_modules/@angular/router';
 import { AnalysisService } from '../../../../services/analysis.service';
 import { AssessmentService } from '../../../../services/assessment.service';
 import { ConfigService } from '../../../../services/config.service';
-import { NavigationService } from '../../../../services/navigation.service';
+import { NavigationService } from '../../../../services/navigation/navigation.service';
 import  Chart  from 'chart.js/auto';
+import { QuestionsService } from '../../../../services/questions.service';
 
 @Component({
   selector: 'app-components-types',
@@ -40,10 +41,12 @@ export class ComponentsTypesComponent implements OnInit {
 
   constructor(
     private analysisSvc: AnalysisService,
-    private assessSvc: AssessmentService,
+    //private assessSvc: AssessmentService,
+    public questionsSvc: QuestionsService,
     public navSvc: NavigationService,
     public configSvc: ConfigService,
-    private router: Router) { }
+    //private router: Router
+    ) { }
 
   ngOnInit() {
     this.analysisSvc.getComponentTypes().subscribe(x => {

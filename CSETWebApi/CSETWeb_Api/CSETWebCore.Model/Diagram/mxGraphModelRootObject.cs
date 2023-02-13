@@ -1,4 +1,10 @@
-﻿namespace CSETWebCore.Model.Diagram
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+namespace CSETWebCore.Model.Diagram
 {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.6.1055.0")]
     [System.SerializableAttribute()]
@@ -61,6 +67,19 @@
 
         private string visibleField { get; set; }
 
+        private string vendorNameField { get; set; }
+        
+        private string productNameField { get; set; }
+
+
+        private string versionNameField { get; set; }
+
+
+        private string serialNumberField { get; set; }
+
+
+        private string physicalLocationField { get; set; }
+
         /// <remarks/>
         public mxGraphModelRootObjectMxCell mxCell
         {
@@ -118,7 +137,7 @@
 
         /// <remarks/>
         [System.Xml.Serialization.XmlAttributeAttribute()]
-        public string zoneType
+        public string ZoneType
         {
             get
             {
@@ -309,6 +328,76 @@
             set
             {
                 this.visibleField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string VendorName
+        {
+            get
+            {
+                return this.vendorNameField;
+            }
+            set
+            {
+                this.vendorNameField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string ProductName
+        {
+            get
+            {
+                return this.productNameField;
+            }
+            set
+            {
+                this.productNameField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string VersionName
+        {
+            get
+            {
+                return this.versionNameField;
+            }
+            set
+            {
+                this.versionNameField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string SerialNumber
+        {
+            get
+            {
+                return this.serialNumberField;
+            }
+            set
+            {
+                this.serialNumberField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string PhysicalLocation
+        {
+            get
+            {
+                return this.physicalLocationField;
+            }
+            set
+            {
+                this.physicalLocationField = value;
             }
         }
     }

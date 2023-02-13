@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@
 import { Component, OnInit, AfterViewChecked, AfterViewInit } from '@angular/core';
 import { ReportAnalysisService } from '../../services/report-analysis.service';
 import { ReportService } from '../../services/report.service';
+import { QuestionsService } from './../../services/questions.service';
 import { ConfigService } from '../../services/config.service';
 import { Title, DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { AcetDashboard } from '../../models/acet-dashboard.model';
@@ -79,6 +80,7 @@ export class DetailComponent implements OnInit, AfterViewInit, AfterViewChecked 
   constructor(
     public analysisSvc: ReportAnalysisService,
     public reportSvc: ReportService,
+    public questionsSvc: QuestionsService,
     public configSvc: ConfigService,
     private titleService: Title,
     public acetSvc: ACETService,
@@ -305,5 +307,9 @@ export class DetailComponent implements OnInit, AfterViewInit, AfterViewChecked 
     comp.statementsReviewed = 0;
     comp.hasSpecifyField = hasSpecifyField;
     components.push(comp);
+  }
+
+  usesRAC() {
+    return !!this.responseResultsByCategory?.dataSets.find(e => e.label === 'RAC');
   }
 }

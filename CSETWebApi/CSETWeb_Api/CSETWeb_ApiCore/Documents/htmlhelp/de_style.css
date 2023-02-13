@@ -67,7 +67,7 @@ padding:0;
 }
 span.code
 {
-font-family:"Courier New";
+font-family:"Consolas";
 font-size: 11pt;color:#000000;
 font-style:normal;
 text-decoration:none;
@@ -75,7 +75,7 @@ font-weight:normal;
 }
 span.quote
 {
-font-family:"Georgia";
+font-family:"Arial";
 font-size: 11pt;color:#000000;
 font-style:italic;
 text-decoration:none;
@@ -122,13 +122,6 @@ span.de_01FCC507AB
 	font-size: 13pt;
 	color:#004364;
 }
-span.de_04C23F39A4
-{
-	font-family: "Calibri";
-	font-size: 14pt;
-	color:#000000;
-	text-decoration:underline;
-}
 span.de_065E82921A
 {
 	font-family: "Arial";
@@ -160,15 +153,17 @@ span.de_1B34CF3DDC
 	font-size: 11pt;
 	color:#0070c0;
 }
-span.de_1BAB0D9893
-{
-	color:#005287;
-}
 span.de_1FF6BF54A0
 {
 	font-family: "Arial";
 	font-size: 11pt;
 	color:#1f5724;
+}
+span.de_2257DE664C
+{
+	font-family: "Arial";
+	font-size: 16pt;
+	color:#003366;
 }
 span.de_2385B26FC8
 {
@@ -178,7 +173,7 @@ span.de_2385B26FC8
 }
 span.de_23C19DE48C
 {
-	font-family: "Times New Roman";
+	font-family: "Arial";
 	font-size: 11pt;
 	color:#000000;
 }
@@ -225,6 +220,11 @@ span.de_45105D3361
 	color:#000000;
 	text-decoration:underline;
 }
+span.de_461F34A8F1
+{
+	font-family: "Arial";
+	font-size: 12pt;
+}
 span.de_476D3D315E
 {
 	text-decoration:underline;
@@ -237,7 +237,7 @@ span.de_4AF4BF9DD6
 }
 span.de_4CD179DA38
 {
-	font-family: "Calibri";
+	font-family: "Arial";
 	font-size: 11pt;
 	color:#000000;
 }
@@ -251,43 +251,25 @@ span.de_56F4564E24
 	font-size: 12pt;
 	color:#000000;
 }
-span.de_5D94B843DD
-{
-	font-family: "Segoe UI Semilight";
-	font-size: 12pt;
-	color:#000000;
-}
 span.de_5EC8135B83
 {
 	font-family: "Arial";
 	font-size: 11pt;
 	color:#222222;
 }
-span.de_67BC475A8E
+span.de_5EDD1287A9
 {
-	font-family: "Calibri";
-	font-size: 10pt;
-	color:#000000;
-}
-span.de_68756AA8B1
-{
-	font-family: "Calibri";
-	font-size: 18pt;
-	color:#000000;
+	font-family: "Arial";
+	font-size: 14pt;
+	color:#003366;
 }
 span.de_68B99ACC5C
 {
 	font-family: "Arial";
 }
-span.de_6B7F0857AE
-{
-	font-family: "Calibri";
-	font-size: 14pt;
-	color:#000000;
-}
 span.de_6C2B69BD23
 {
-	font-family: "Calibri";
+	font-family: "Arial";
 	font-size: 11pt;
 	color:#0000ff;
 	text-decoration:underline;
@@ -297,12 +279,6 @@ span.de_6C8983303A
 	font-family: "Arial";
 	font-size: 16pt;
 	color:#213a63;
-}
-span.de_6ECB5FC290
-{
-	font-family: "Roboto";
-	font-size: 12pt;
-	color:#404040;
 }
 span.de_6F7A601F57
 {
@@ -316,7 +292,7 @@ span.de_7DFD18CEFC
 }
 span.de_7ECBECEBE5
 {
-	font-family: "Times New Roman";
+	font-family: "Arial";
 	font-size: 12pt;
 	color:#000000;
 }
@@ -345,6 +321,16 @@ span.de_8C403700ED
 	font-family: "Arial";
 	font-size: 11pt;
 }
+span.de_96372F1890 {
+	font-family: "Arial";
+	font-size: 11pt;
+	color: #0066cc;
+}
+span.de_98CC41B486 {
+	font-family: "Arial";
+	font-size: 11pt;
+	color: #1d1c1d;
+}
 span.de_A6255A6E85
 {
 	font-family: "Arial";
@@ -357,16 +343,9 @@ span.de_A94F92E31D
 	font-size: 13pt;
 	color:#004364;
 }
-span.de_AA8586C066
-{
-	font-family: "Arial";
-	font-size: 14pt;
-	color:#000000;
-	text-decoration:underline;
-}
 span.de_AC2A21CFAA
 {
-	font-family: "Times New Roman";
+	font-family: "Arial";
 	font-size: 12pt;
 	color:#0070c0;
 }
@@ -399,17 +378,17 @@ span.de_CED2805213
 {
 	color:#ff003c;
 }
-span.de_D050B360A5
-{
-	font-family: "Arial";
-	font-size: 11pt;
-	color:#201f1e;
-}
 span.de_D13D14CE0A
 {
 	font-family: "Arial";
 	font-size: 11pt;
 	color:#213a63;
+}
+span.de_D8BCB2AC4C
+{
+	font-family: "Arial";
+	font-size: 12pt;
+	color:#000000;
 }
 span.de_E0B81922AE
 {
@@ -426,7 +405,7 @@ span.de_E0D79DE1AC
 }
 span.de_E71183D815
 {
-	font-family: "Times New Roman";
+	font-family: "Arial";
 	font-size: 13pt;
 	color:#000000;
 }
@@ -1346,7 +1325,7 @@ span.de_FFB638AC42
 	text-align: left;
 	padding: 0;
 	margin: 0;
-	content: '' counter(list-counter-49, disc) '\00a0';
+	content: '' counter(list-counter-49, decimal) '.\00a0';
 	counter-increment: list-counter-49;
 }
 .list-counter-49 > div > div[class='list-marker-chm'] {
@@ -1436,7 +1415,7 @@ span.de_FFB638AC42
 	text-align: left;
 	padding: 0;
 	margin: 0;
-	content: '' counter(list-counter-54, decimal) '.\00a0';
+	content: '' counter(list-counter-54, disc) '\00a0';
 	counter-increment: list-counter-54;
 }
 .list-counter-54 > div > div[class='list-marker-chm'] {
@@ -1566,96 +1545,6 @@ span.de_FFB638AC42
 	counter-increment: list-counter-61;
 }
 .list-counter-61 > div > div[class='list-marker-chm'] {
-	display: inline-block;
-	text-align: left;
-	zoom: 1;
-	padding: 0;
-	margin: 0;
-	*display: inline;
-}
-.list-counter-62 > div > * {
-	text-indent: 0px;}
-.list-counter-62 > div > div[class='list-marker']:before {
-	display: inline-block;
-	text-align: left;
-	padding: 0;
-	margin: 0;
-	content: '' counter(list-counter-62, disc) '\00a0';
-	counter-increment: list-counter-62;
-}
-.list-counter-62 > div > div[class='list-marker-chm'] {
-	display: inline-block;
-	text-align: left;
-	zoom: 1;
-	padding: 0;
-	margin: 0;
-	*display: inline;
-}
-.list-counter-63 > div > * {
-	text-indent: 0px;}
-.list-counter-63 > div > div[class='list-marker']:before {
-	display: inline-block;
-	text-align: left;
-	padding: 0;
-	margin: 0;
-	content: '' counter(list-counter-63, disc) '\00a0';
-	counter-increment: list-counter-63;
-}
-.list-counter-63 > div > div[class='list-marker-chm'] {
-	display: inline-block;
-	text-align: left;
-	zoom: 1;
-	padding: 0;
-	margin: 0;
-	*display: inline;
-}
-.list-counter-64 > div > * {
-	text-indent: 0px;}
-.list-counter-64 > div > div[class='list-marker']:before {
-	display: inline-block;
-	text-align: left;
-	padding: 0;
-	margin: 0;
-	content: '' counter(list-counter-64, disc) '\00a0';
-	counter-increment: list-counter-64;
-}
-.list-counter-64 > div > div[class='list-marker-chm'] {
-	display: inline-block;
-	text-align: left;
-	zoom: 1;
-	padding: 0;
-	margin: 0;
-	*display: inline;
-}
-.list-counter-65 > div > * {
-	text-indent: 0px;}
-.list-counter-65 > div > div[class='list-marker']:before {
-	display: inline-block;
-	text-align: left;
-	padding: 0;
-	margin: 0;
-	content: '' counter(list-counter-65, disc) '\00a0';
-	counter-increment: list-counter-65;
-}
-.list-counter-65 > div > div[class='list-marker-chm'] {
-	display: inline-block;
-	text-align: left;
-	zoom: 1;
-	padding: 0;
-	margin: 0;
-	*display: inline;
-}
-.list-counter-66 > div > * {
-	text-indent: 0px;}
-.list-counter-66 > div > div[class='list-marker']:before {
-	display: inline-block;
-	text-align: left;
-	padding: 0;
-	margin: 0;
-	content: '' counter(list-counter-66, disc) '\00a0';
-	counter-increment: list-counter-66;
-}
-.list-counter-66 > div > div[class='list-marker-chm'] {
 	display: inline-block;
 	text-align: left;
 	zoom: 1;

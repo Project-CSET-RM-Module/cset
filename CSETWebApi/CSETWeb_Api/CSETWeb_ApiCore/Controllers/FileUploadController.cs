@@ -1,6 +1,6 @@
 ﻿//////////////////////////////// 
 // 
-//   Copyright 2022 Battelle Energy Alliance, LLC  
+//   Copyright 2023 Battelle Energy Alliance, LLC  
 // 
 // 
 //////////////////////////////// 
@@ -14,8 +14,10 @@ using CSETWebCore.Model.Document;
 using CSETWebCore.Model.Question;
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-
+using Microsoft.EntityFrameworkCore;
+using CSETWebCore.Interfaces.Maturity;
 
 namespace CSETWebCore.Api.Controllers
 {
@@ -26,13 +28,15 @@ namespace CSETWebCore.Api.Controllers
         private readonly IDocumentBusiness _documentManager;
         private readonly IFileRepository _fileRepo;
         private readonly IQuestionRequirementManager _answerManager;
+        private readonly IMaturityBusiness _maturityBusiness;
 
         public FileUploadController(
             ITokenManager tokenManager,
             CSETContext context,
             IDocumentBusiness documentManager,
             IFileRepository fileRepo,
-            IQuestionRequirementManager answerManager
+            IQuestionRequirementManager answerManager,
+            IMaturityBusiness maturityBusiness
         )
         {
             _tokenManager = tokenManager;
@@ -40,8 +44,14 @@ namespace CSETWebCore.Api.Controllers
             _documentManager = documentManager;
             _fileRepo = fileRepo;
             _answerManager = answerManager;
+            _maturityBusiness = maturityBusiness;
         }
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>        
         [HttpPost]
         [Route("/api/files/blob/create/")]
         public async Task<IActionResult> Upload()
@@ -49,7 +59,7 @@ namespace CSETWebCore.Api.Controllers
             const string key_questionId = "questionId";
             const string key_answerId = "answerId";
             const string key_title = "title";
-            const string key_maturity = "maturity";
+            const string key_questionType = "questionType";
 
             var assessmentId = _tokenManager.AssessmentForUser();
             _documentManager.SetUserAssessmentId(assessmentId);
@@ -58,7 +68,7 @@ namespace CSETWebCore.Api.Controllers
             keyDict.Add(key_questionId, null);
             keyDict.Add(key_answerId, null);
             keyDict.Add(key_title, null);
-            keyDict.Add(key_maturity, null);
+            keyDict.Add(key_questionType, null);
 
             var loader = new FileUploadStream();
             FileUploadStreamResult result = null;
@@ -72,6 +82,8 @@ namespace CSETWebCore.Api.Controllers
                 return StatusCode(400);
             }
 
+            string questionType = result.FormNameValues[key_questionType];
+
             int questionId;
             if (!int.TryParse(result.FormNameValues[key_questionId], out questionId))
             {
@@ -80,18 +92,39 @@ namespace CSETWebCore.Api.Controllers
 
             int answerId;
             if (!int.TryParse(result.FormNameValues[key_answerId], out answerId))
-            {
-                bool isMaturity = false;
-                bool.TryParse(result.FormNameValues[key_maturity], out isMaturity);
+            {                
+                var answerObj = new ANSWER();
 
-                var answer = new Answer
+                // if no answerId was provided, try to find an answer for this assessment/question
+                if (answerId == 0)
                 {
-                    QuestionId = questionId,
-                    Is_Maturity = isMaturity
-                };
+                    answerObj = _context.ANSWER.FirstOrDefault(x =>
+                        x.Assessment_Id == assessmentId && x.Question_Or_Requirement_Id == questionId);
+                }
 
-                _answerManager.InitializeManager(assessmentId);
-                answerId = _answerManager.StoreAnswer(answer);
+                if (answerObj == null)
+                {
+                    var answer = new Answer
+                    {
+                        QuestionId = questionId,
+                        QuestionType = questionType
+                    };
+
+                    // 
+                    if (questionType.ToLower() == "maturity")
+                    {                        
+                        answerId = _maturityBusiness.StoreAnswer(assessmentId, answer);
+                    }
+                    else
+                    {
+                        _answerManager.InitializeManager(assessmentId);
+                        answerId = _answerManager.StoreAnswer(answer);
+                    }
+                }
+                else
+                {
+                    answerId = answerObj.Answer_Id;
+                }
             }
 
             _documentManager.AddDocument(result.FormNameValues[key_title], answerId, result);
@@ -99,7 +132,7 @@ namespace CSETWebCore.Api.Controllers
             // returns all documents for the answer to account for updating duplicate docs
             // not the most efficient, but there are lots of shenanigans involved in keeping
             // the frontend for this synced
-            return Ok(_documentManager.GetDocumentsForAnswer(answerId));         
+            return Ok(_documentManager.GetDocumentsForAnswer(answerId));
         }
     }
 }

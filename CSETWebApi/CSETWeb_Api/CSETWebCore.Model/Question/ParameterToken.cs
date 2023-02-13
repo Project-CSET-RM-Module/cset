@@ -1,4 +1,10 @@
-﻿namespace CSETWebCore.Model.Question
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+namespace CSETWebCore.Model.Question
 {
     public class ParameterToken
     {
@@ -19,5 +25,7 @@
             this.RequirementId = reqId;
             this.AnswerId = ansId;
         }
+
+        public ParameterToken() { }
     }
 }

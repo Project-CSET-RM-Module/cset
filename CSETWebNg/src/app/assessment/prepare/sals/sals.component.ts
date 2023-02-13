@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -24,13 +24,14 @@
 import { Component, OnInit } from '@angular/core';
 import { SalService } from '../../../services/sal.service';
 import { Sal } from '../../../models/sal.model';
-import { NavigationService } from '../../../services/navigation.service';
+import { NavigationService } from '../../../services/navigation/navigation.service';
+import { LayoutService } from '../../../services/layout.service';
+
 
 @Component({
   selector: 'app-sals',
   templateUrl: './sals.component.html',
   // tslint:disable-next-line:use-host-property-decorator
-  host: { class: 'd-flex flex-column flex-11a' }
 })
 export class SalsComponent implements OnInit {
 
@@ -41,7 +42,9 @@ export class SalsComponent implements OnInit {
 
   constructor(
     public salsSvc: SalService,
-    public navSvc: NavigationService) {
+    public navSvc: NavigationService,
+    public layoutSvc: LayoutService
+    ) {
   }
 
   ngOnInit() {

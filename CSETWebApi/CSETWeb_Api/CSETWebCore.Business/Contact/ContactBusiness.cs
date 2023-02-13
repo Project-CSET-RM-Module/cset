@@ -1,9 +1,12 @@
-﻿using System;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using CSETWebCore.Helpers;
 using CSETWebCore.Interfaces.Contact;
 using CSETWebCore.Interfaces.Helpers;
 using CSETWebCore.Model.Contact;
@@ -11,7 +14,7 @@ using CSETWebCore.Model.User;
 using CSETWebCore.DataLayer.Model;
 using CSETWebCore.Interfaces.Notification;
 using CSETWebCore.Interfaces.User;
-
+using CSETWebCore.Helpers;
 
 namespace CSETWebCore.Business.Contact
 {
@@ -21,19 +24,19 @@ namespace CSETWebCore.Business.Contact
         private readonly ITokenManager _tokenManager;
         private readonly INotificationBusiness _notificationBusiness;
         private readonly IUserBusiness _userBusiness;
-        private readonly IUserAuthentication _userAuthentication;
+        private readonly ILocalInstallationHelper _localInstallationHelper;
         private CSETContext _context;
 
         public ContactBusiness(CSETContext context, IAssessmentUtil assessmentUtil,
             ITokenManager tokenManager, INotificationBusiness notificationBusiness, IUserBusiness userBusiness,
-            IUserAuthentication userAuthentication)
+            ILocalInstallationHelper localInstallationHelper)
         {
             _context = context;
             _assessmentUtil = assessmentUtil;
             _tokenManager = tokenManager;
             _notificationBusiness = notificationBusiness;
             _userBusiness = userBusiness;
-            _userAuthentication = userAuthentication;
+            _localInstallationHelper = localInstallationHelper;
         }
 
         public enum ContactRole { RoleUser = 1, RoleAdmin = 2 }
@@ -67,7 +70,14 @@ namespace CSETWebCore.Business.Contact
                     UserId = q.cc.UserId ?? null,
                     AssessmentContactId = q.cc.Assessment_Contact_Id,
                     Title = q.cc.Title,
-                    Phone = q.cc.Phone
+                    Phone = q.cc.Phone,
+                    CellPhone = q.cc.Cell_Phone,
+                    ReportsTo = q.cc.Reports_To,
+                    OrganizationName = q.cc.Organization_Name,
+                    SiteName = q.cc.Site_Name,
+                    EmergencyCommunicationsProtocol = q.cc.Emergency_Communications_Protocol,
+                    IsSiteParticipant = q.cc.Is_Site_Participant,
+                    IsPrimaryPoc = q.cc.Is_Primary_POC,
                 };
 
                 list.Add(c);
@@ -230,7 +240,14 @@ namespace CSETWebCore.Business.Contact
                     Assessment_Id = assessmentId,
                     AssessmentRoleId = newContact.AssessmentRoleId,
                     Title = newContact.Title,
-                    Phone = newContact.Phone
+                    Phone = newContact.Phone,
+                    Cell_Phone = newContact.CellPhone,
+                    Reports_To = newContact.ReportsTo,
+                    Organization_Name = newContact.OrganizationName,
+                    Site_Name = newContact.SiteName,
+                    Emergency_Communications_Protocol = newContact.EmergencyCommunicationsProtocol,
+                    Is_Site_Participant = newContact.IsSiteParticipant,
+                    Is_Primary_POC = newContact.IsPrimaryPoc,
                 };
 
                 // Include the userid if such a user exists
@@ -265,7 +282,7 @@ namespace CSETWebCore.Business.Contact
                         // Send this brand-new user an email with their temporary password (if they have an email)
                         if (!string.IsNullOrEmpty(userDetail.Email))
                         {
-                            if (!_userAuthentication.IsLocalInstallation(appCode))
+                            if (!_localInstallationHelper.IsLocalInstallation())
                             {
                                 _notificationBusiness.SendInviteePassword(userDetail.Email, userDetail.FirstName, userDetail.LastName, resp.TemporaryPassword, appCode);
                             }
@@ -287,7 +304,7 @@ namespace CSETWebCore.Business.Contact
             // Tell the user that they have been invited to participate in an Assessment (if they have an email) 
             if (!string.IsNullOrEmpty(newContact.PrimaryEmail))
             {
-                if (!_userAuthentication.IsLocalInstallation(appCode))
+                if (!_localInstallationHelper.IsLocalInstallation())
                 {
                     _notificationBusiness.InviteToAssessment(newContact);
                 }
@@ -305,21 +322,26 @@ namespace CSETWebCore.Business.Contact
                 Invited = existingContact.Invited,
                 UserId = existingContact.UserId ?? null,
                 Title = existingContact.Title,
-                Phone = existingContact.Phone
+                Phone = existingContact.Phone,
+                CellPhone = newContact.CellPhone,
+                ReportsTo = newContact.ReportsTo,
+                OrganizationName = newContact.OrganizationName,
+                SiteName = newContact.SiteName,
+                EmergencyCommunicationsProtocol = newContact.EmergencyCommunicationsProtocol,
+                IsSiteParticipant = newContact.IsSiteParticipant,
+                IsPrimaryPoc = newContact.IsPrimaryPoc
             };
         }
 
 
         /// <summary>
-        /// 
+        /// Updates ASSESSMENT_CONTACT record with given userId using provided ContactDetail object
         /// </summary>
         /// <returns></returns>
-        public void UpdateContact(ContactDetail contact)
+        public void UpdateContact(ContactDetail contact, int userId)
         {
-            var ac = _context.ASSESSMENT_CONTACTS.Where(x => x.UserId == contact.UserId
+            var ac = _context.ASSESSMENT_CONTACTS.Where(x => x.UserId == userId
                 && x.Assessment_Id == contact.AssessmentId).FirstOrDefault();
-
-            string prevEmail = ac.PrimaryEmail;
 
             ac.UserId = contact.UserId;
             ac.FirstName = contact.FirstName;
@@ -328,6 +350,15 @@ namespace CSETWebCore.Business.Contact
             ac.AssessmentRoleId = contact.AssessmentRoleId;
             ac.Title = contact.Title;
             ac.Phone = contact.Phone;
+            ac.Title = contact.Title;
+            ac.Phone = contact.Phone;
+            ac.Cell_Phone = contact.CellPhone;
+            ac.Reports_To = contact.ReportsTo;
+            ac.Organization_Name = contact.OrganizationName;
+            ac.Site_Name = contact.SiteName;
+            ac.Emergency_Communications_Protocol = contact.EmergencyCommunicationsProtocol;
+            ac.Is_Site_Participant = contact.IsSiteParticipant;
+            ac.Is_Primary_POC = contact.IsPrimaryPoc;
 
             _context.SaveChanges();
         }
@@ -341,7 +372,7 @@ namespace CSETWebCore.Business.Contact
         /// <param name="userId"></param>
         /// <param name="assessmentId"></param>
         /// <returns></returns>
-        public int? GetUserRoleOnAssessment(int userId, int assessmentId)
+        public int? GetUserRoleOnAssessment(int? userId, int assessmentId)
         {
             var contact = _context.ASSESSMENT_CONTACTS.Where(ac => ac.UserId == userId && ac.Assessment_Id == assessmentId).FirstOrDefault();
             if (contact != null)
@@ -414,16 +445,13 @@ namespace CSETWebCore.Business.Contact
         /// <param name="assessmentId"></param>
         public void MarkContactInvited(int userId, int assessmentId)
         {
-            using (var db = new CSETContext())
+            var assessmentContact = _context.ASSESSMENT_CONTACTS.Where(ac => ac.UserId == userId && ac.Assessment_Id == assessmentId)
+                .FirstOrDefault();
+            if (assessmentContact != null)
             {
-                var assessmentContact = db.ASSESSMENT_CONTACTS.Where(ac => ac.UserId == userId && ac.Assessment_Id == assessmentId)
-                    .FirstOrDefault();
-                if (assessmentContact != null)
-                {
-                    assessmentContact.Invited = true;
-                    db.ASSESSMENT_CONTACTS.Update(assessmentContact);
-                    db.SaveChangesAsync();
-                }
+                assessmentContact.Invited = true;
+                _context.ASSESSMENT_CONTACTS.Update(assessmentContact);
+                _context.SaveChangesAsync();
             }
         }
 

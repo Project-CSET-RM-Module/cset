@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -22,7 +22,7 @@
 //
 ////////////////////////////////
 import { Component, OnInit } from '@angular/core';
-import { NavigationService } from '../../../../services/navigation.service';
+import { NavigationService } from '../../../../services/navigation/navigation.service';
 import { ConfigService } from '../../../../services/config.service';
 import { AssessmentService } from '../../../../services/assessment.service';
 import { MaturityService } from '../../../../services/maturity.service';
@@ -30,7 +30,7 @@ import { MaturityModel } from '../../../../models/assessment-info.model';
 
 @Component({
   selector: 'app-model-select',
-  templateUrl: './model-select.component.html', 
+  templateUrl: './model-select.component.html',
   styleUrls: ['./model-select.component.scss']
 })
 export class ModelSelectComponent implements OnInit {
@@ -38,7 +38,7 @@ export class ModelSelectComponent implements OnInit {
   docUrl: string;
   cmmcURL: string;
   modelChoice: string;
-
+  isTSA:boolean=false;
   // this should be stored in a service
   selectedModels = [];
 
@@ -50,11 +50,14 @@ export class ModelSelectComponent implements OnInit {
   ) { }
 
   /**
-   * 
+   *
    */
   ngOnInit() {
     this.docUrl = this.configSvc.docUrl;
     this.cmmcURL = this.docUrl + 'CMMC_ModelMain 1.02.pdf';
+    if ( this.configSvc.installationMode=="TSA"){
+      this.isTSA=true;
+    }
   }
 
   /**
@@ -75,7 +78,7 @@ export class ModelSelectComponent implements OnInit {
         localStorage.removeItem('tree');
 
         // refresh Prepare section of the sidenav
-        this.navSvc.buildTree(this.navSvc.getMagic());
+        this.navSvc.buildTree();
       });
     }
   }
@@ -97,5 +100,19 @@ export class ModelSelectComponent implements OnInit {
     }
 
     return '';
+  }
+
+  /**
+   * Returns the model title that is stored in the database for the given model
+   */
+  getModelTitle(model: string) {
+    return AssessmentService.allMaturityModels.find(x => x.modelName === model)?.modelTitle;
+  }
+
+  /**
+   * Return the model description that is stored in the database for the given model
+   */
+  getModelDescription(model: string) {
+    return AssessmentService.allMaturityModels.find(x => x.modelName === model)?.modelDescription;
   }
 }

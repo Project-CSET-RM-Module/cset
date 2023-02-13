@@ -1,11 +1,9 @@
-# Please note we do not use java and are not vulnerable to the log4j vulnerability.
-After review we do use log4net but are not using log4j
-
+To Download the Latest CSET Release click here https://cset-download.inl.gov/
 
 # CSET 11.x.x
  
 Download CSET For Windows:
-[CSET 11.X.X Standalone Installer](https://github.com/cisagov/cset/releases/)
+[CSET 11.X.X Standalone Installer](https://cset-download.inl.gov/)
 
 What is CSET?
 [CSET Overview](https://www.youtube.com/watch?v=B3xAh4iSRO0)
@@ -13,8 +11,13 @@ What is CSET?
 How Do I Use CSET?
 [CSET Detailed Video](https://www.youtube.com/watch?v=ELbvQTl4xmU)
 
+Older Versions of CSET For Windows:
+[CSET 11.X.X Standalone Installer](https://github.com/cisagov/cset/releases/)
 
-						
+
+# Please note we do not use java and are not vulnerable to the log4j vulnerability.
+After review we do use log4net but are not using log4j
+
 -------------------------------------------------------------------------
 
 File Checksum Integrity Verifier version 2.05.
@@ -46,7 +49,7 @@ It is recommended that users meet the minimum system hardware and software requi
 • 6 GB free disk space
 • 4 GB of RAM
 • Microsoft Windows 10 or higher
-• Microsoft .NET Core 5.0 Runtime (included in CSET installation)
+• Microsoft .NET Core 7.0 Runtime (included in CSET installation)
 • SQL Server 2019 Express LocalDB (included in CSET installation)
 
 System Requirements Enterprise Installation
@@ -57,7 +60,7 @@ It is recommended that users meet the minimum system hardware and software requi
 • 8 GB free disk space
 • 4 GB of RAM
 • Microsoft Windows Server 2016 Edition or higher recommended
-• Microsoft .NET Core 5.0 Runtime
+• Microsoft .NET Core 7.0 Runtime
 • SQL Server 2019 or higher recommended
 • Internet Information Server (IIS) or Kestrel
 
@@ -96,7 +99,7 @@ CSET will begin to install. If the user doesn&#39;t have SQL Server 2019 LocalDB
 
 LocalDB 2019 will install. Select &quot;Finish&quot; when it completes.
 
-CSET will also install the .NET 6 and ASP.NET Core 6 runtimes in the background if they are not already installed.
+CSET will also install the .NET 7 and ASP.NET Core 7 runtimes in the background if they are not already installed.
 
 The CSET Setup Wizard will open to walk the user through the install process (Fig.5). Select &quot;Next&quot;.
 
@@ -161,6 +164,45 @@ Figure 11: Local Install Landing Page
 
 ### Introduction
 This documentation is provided to assist users in navigating the basics of the CSET® Enterprise Edition. Here users will find step-by-step directions for installation, configuration, and setup, as well as links to various resources to assist in this process.
+
+### Using the Provided Setup Script
+The enterprise installation can be automated through the use of a provided PowerShell script named ```setup_enterprise.ps1``` (as of CSET release v11.0.1.2). This script is located in the root of the enterprise binaries zip folder.
+
+1. Extract the CSET enterprise binaries to a desired location on your computer.
+
+2. Search for PowerShell from the Windows Start menu. Right-click on Windows Powershell then click "Run as administrator."
+
+![](img/figES1.PNG) 
+<br/>
+
+3. Navigate to the extracted CSET binaries folder. In this example, the folder is located on the user desktop. The PowerShell command to navigate to the desktop directory would be: <br/>
+ ```cd C:\users\%USER%\Desktop\CSETv11012_Enterprise_Binaries```.
+
+4. To run the setup script in the enterprise binaries directory, type ```.\setup_enterprise``` and hit the enter key.
+
+5. The script will open the installation wizards for SQL Server Express 2019 and the .NET 7 Hosting Bundle. The script will not proceed to each subsequent installation step until each installation wizard window is closed. It will also install IIS and IIS Manager in the background.
+
+![](img/figES2.PNG) 
+<br/>
+
+6. The script will then prompt for the creation of a password for the new CSET service user.
+
+![](img/figES3.PNG)
+<br/>
+
+7. The script will create the application pools and sites necessary for hosting CSET in IIS. Next, the script will prompt for the SQL server name to be used for the database setup. This name will likely be in the following format: <br/> 
+```%COMPUTERNAME%\SQLEXPRESS```
+
+![](img/figES4.PNG)
+<br/>
+
+8. Once the script finishes its execution, open IIS Manager and browse the CSETUI site to begin using CSET.
+
+![](img/figES5.PNG)
+<br/>
+
+![](img/figES6.PNG)
+<br/>
 
 ### Prerequisites & Necessary Files
 1.	Download the CSET Enterprise Files from the [CSET® releases page](https://github.com/cisagov/cset/releases/tag/v10.1). Click "CSET_X.X.X.XBinary.zip" file to download it. Once the download is complete, you will need to unzip the folder.  The download is found in in the latest release.   

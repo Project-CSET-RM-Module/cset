@@ -1,6 +1,6 @@
 ﻿//////////////////////////////// 
 // 
-//   Copyright 2022 Battelle Energy Alliance, LLC  
+//   Copyright 2023 Battelle Energy Alliance, LLC  
 // 
 // 
 //////////////////////////////// 
@@ -39,7 +39,6 @@ namespace CSETWebCore.Api.Controllers
         {
             _token.SetToken(token);
             int assessmentId = _token.AssessmentForUser(token);
-            int currentUserId = int.Parse(_token.Payload(Constants.Constants.Token_UserId));
 
 
             // determine extension (.csetw, .acet)
@@ -62,5 +61,6 @@ namespace CSETWebCore.Api.Controllers
 
             return File(result, "application/octet-stream", filename);
         }
+
     }
 }

@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -20,8 +20,12 @@
 //  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //  SOFTWARE.
 //
+
+import * as internal from "stream";
+
 ////////////////////////////////
 export interface Finding {
+  // ACET fields
   question_Id: number;
   answer_Id: number;
   finding_Id: number;
@@ -32,9 +36,27 @@ export interface Finding {
   vulnerabilities: string;
   resolution_Date: Date;
   importance_Id: number;
+  // ISE fields
+  title: string;
+  type: string;
+  risk_Area: string;
+  sub_Risk: string;
+  description: string;
+  citations: string;
+  actionItems: string;
+  auto_Generated: number;
+  supp_Guidance: string;
+  // Shared fields
   importance: Importance;
   finding_Contacts: FindingContact[];
 }
+
+export interface SubRiskArea {
+  subRisk_Id: number;
+  value: string;
+  riskArea: string;
+}
+
 export interface Importance {
   importance_Id: number;
   value: string;
@@ -45,4 +67,14 @@ export interface FindingContact {
   assessment_Contact_Id: number;
   name: string;
   selected: boolean;
+}
+
+export interface ActionItemTextUpdate {
+  actionTextItems: ActionItemText[];
+  finding_Id: number;
+}
+
+export interface ActionItemText {
+  Mat_Question_Id: number;
+  ActionItemOverrideText: string;
 }

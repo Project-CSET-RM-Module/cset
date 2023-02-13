@@ -1,4 +1,10 @@
-﻿using System.Collections.Generic;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using System.Collections.Generic;
 using CSETWebCore.Model.Contact;
 
 namespace CSETWebCore.Interfaces.Contact
@@ -9,8 +15,8 @@ namespace CSETWebCore.Interfaces.Contact
         IEnumerable<ContactSearchResult> SearchContacts(int userId, ContactSearchParameters searchParms);
         ContactDetail AddContactToAssessment(int assessmentId, int userId, int roleid, bool invited);
         ContactDetail CreateAndAddContactToAssessment(ContactCreateParameters newContact);
-        void UpdateContact(ContactDetail contact);
-        int? GetUserRoleOnAssessment(int userId, int assessmentId);
+        void UpdateContact(ContactDetail contact, int userId);
+        int? GetUserRoleOnAssessment(int? userId, int assessmentId);
         List<ContactDetail> RemoveContact(int assessmentContactId);
         void MarkContactInvited(int userId, int assessmentId);
         void RefreshContactNameFromUserDetails();

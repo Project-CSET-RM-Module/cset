@@ -1,6 +1,6 @@
 ﻿//////////////////////////////// 
 // 
-//   Copyright 2022 Battelle Energy Alliance, LLC  
+//   Copyright 2023 Battelle Energy Alliance, LLC  
 // 
 // 
 //////////////////////////////// 
@@ -17,12 +17,13 @@ namespace CSETWebCore.Business.Reports
 {
     public class BasicReportData
     {
+        public string ApplicationMode { get; set; }
         public List<usp_GetOverallRankedCategoriesPage_Result> top5Categories;
 
         public INFORMATION information { get; set; }
         public OverallSALTable salTable { get; set; }
         public GenSALTable genSalTable { get; set; }
-
+        public SourceFiles sourceFiles { get; set; }
         public OverallSALTable nistSalTable { get; set; }
         public List<CNSSSALJustificationsTable> nistTypes { get; set; }
         public List<RequirementControl> ControlList { get; set; }
@@ -57,7 +58,10 @@ namespace CSETWebCore.Business.Reports
             // ACET properties
             public string Credit_Union_Name { get; set; }
             public string Charter { get; set; }
-            public int Assets { get; set; }
+            public long Assets { get; set; }
+            public string Assessment_Effective_Date { get; set; }
+            public string Assessment_Creation_Date { get; set; }
+
 
             // Maturity Properties
             public string QuestionsAlias { get; set; }
@@ -121,6 +125,13 @@ namespace CSETWebCore.Business.Reports
         public string Alias { get; set; }
         public string DocumentTitle { get; set; }
         public string FileName { get; set; }
+    }
+
+    public class SourceFiles
+    {
+        public int Mat_Question_Id { get; set; }
+        public int Gen_File_Id { get; set; }
+        public string Title { get; set; }
     }
 
     public class SimpleStandardQuestions
@@ -194,36 +205,32 @@ namespace CSETWebCore.Business.Reports
         public bool Reviewed { get; set; }
 
 
-        
+       
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="context"></param>
-        public RelevantAnswers()
-        {
-        }
+        public RelevantAnswers() { }
+
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="assessmentID"></param>
         /// <returns></returns>
-        public List<RelevantAnswers> GetAnswersForAssessment(int assessmentID)
+        public List<RelevantAnswers> GetAnswersForAssessment(int assessmentID, CSETContext context)
         {
             List<RelevantAnswers> answers = new List<RelevantAnswers>();
-            using (var _context = new CSETContext())
-            {
-                _context.LoadStoredProc("[RelevantAnswers]")
+
+                context.LoadStoredProc("[RelevantAnswers]")
                     .WithSqlParam("assessment_id", assessmentID)
                     .ExecuteStoredProc((handler) =>
                     {
                         answers = handler.ReadToList<RelevantAnswers>().ToList();
                     });
 
-                return answers;
-            }
-           
+                return answers;                       
         }
     }
 

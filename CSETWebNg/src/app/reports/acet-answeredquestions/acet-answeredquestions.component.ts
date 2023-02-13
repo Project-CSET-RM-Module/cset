@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@ import { Title, DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ReportService } from '../../services/report.service';
 import { ACETService } from '../../services/acet.service';
 import { ConfigService } from '../../services/config.service';
+import { QuestionsService } from '../../services/questions.service';
 
 
 @Component({
@@ -41,7 +42,7 @@ export class AcetAnsweredQuestionsComponent implements OnInit {
     private titleService: Title,
     public acetSvc: ACETService,
     public configSvc: ConfigService,
-
+    public questionsSvc: QuestionsService
   ) { }
 
   ngOnInit(): void {

@@ -1,6 +1,6 @@
 ﻿//////////////////////////////// 
 // 
-//   Copyright 2022 Battelle Energy Alliance, LLC  
+//   Copyright 2023 Battelle Energy Alliance, LLC  
 // 
 // 
 //////////////////////////////// 
@@ -103,7 +103,7 @@ namespace CSETWebCore.Api.Controllers
                 BadRequest($"A Set named '{setName}' was not found.");
             }
 
-            return Ok(set.ToExternalStandard());
+            return Ok(set.ToExternalStandard(_context));
         }
     }
 }

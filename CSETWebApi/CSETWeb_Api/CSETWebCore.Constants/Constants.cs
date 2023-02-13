@@ -1,4 +1,10 @@
-﻿using System;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using System;
 
 namespace CSETWebCore.Constants
 {
@@ -11,7 +17,7 @@ namespace CSETWebCore.Constants
 
         public static string Token_TimezoneOffsetKey = "tzoffset";
         public static string Token_UserId = "userid";
-        // public static string Token_UserEmail = "useremail";  This is mutable - let's not send it
+        public static string Token_AccessKey = "acckey";
         public static string Token_AssessmentId = "assess";
         public static string Token_AggregationId = "aggreg";
         public static string Token_Scope = "scope";
@@ -393,6 +399,10 @@ namespace CSETWebCore.Constants
 
         public const string SIMPLE_SAL = "Simple";
 
+        //Question Types
+        public const string QuestionTypeMaturity = "Maturity";
+        public const string QuestionTypeComponent = "Component";
+
         //Maturity Levels
         public const string MaturityLevel = "Maturity_Level";
         public const string IncompleteMaturity = "Incomplete";
@@ -402,6 +412,10 @@ namespace CSETWebCore.Constants
         public const string IntermediateMaturity = "Intermediate";
         public const string AdvancedMaturity = "Advanced";
         public const string InnovativeMaturity = "Innovative";
+
+        public const string ScuepMaturity = "SCUEP";
+        public const string CoreMaturity = "CORE";
+        public const string CorePlusMaturity = "CORE+";
 
         //IRP Levels
         public const string LeastIrp = "Least";

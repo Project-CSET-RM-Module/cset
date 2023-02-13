@@ -1,4 +1,10 @@
-﻿using System;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.IO;
@@ -74,6 +80,12 @@ namespace CSETWebCore.ExportCSV
             datatable.Columns.Add("Description", typeof(System.String));
             datatable.Columns.Add("Host Name", typeof(System.String));
             datatable.Columns.Add("Visible", typeof(System.String));
+            datatable.Columns.Add("Vendor Name", typeof(System.String));
+            datatable.Columns.Add("Product Name", typeof(System.String));
+            datatable.Columns.Add("Version Name", typeof(System.String));
+            datatable.Columns.Add("Serial Number", typeof(System.String));
+            datatable.Columns.Add("Physical Location", typeof(System.String));
+
 
             foreach (var c in components)
             {
@@ -91,6 +103,11 @@ namespace CSETWebCore.ExportCSV
                 row["Description"] = c.Description;
                 row["Host Name"] = c.HostName;
                 row["Visible"] = c.visible;
+                row["Vendor Name"] = c.VendorName;
+                row["Product Name"] = c.ProductName;
+                row["Version Name"] = c.VersionName;
+                row["Serial Number"] = c.SerialNumber;
+                row["Physical Location"] = c.PhysicalLocation;
 
                 datatable.Rows.Add(row);
             }
@@ -117,7 +134,7 @@ namespace CSETWebCore.ExportCSV
             {
                 var row = datatable.NewRow();
 
-                row["Type"] = z.zoneType;
+                row["Type"] = z.ZoneType;
                 row["Label"] = z.label;
                 row["Sal"] = z.SAL;
                 row["Layer"] = z.layerName;
@@ -148,7 +165,7 @@ namespace CSETWebCore.ExportCSV
             {
                 var row = datatable.NewRow();
 
-                row["Label"] = l.value;
+                row["Label"] = l.label;
                 row["Subnet Names"] = string.Empty;
                 row["Layer"] = l.layerName;
                 row["Visible"] = l.visible;

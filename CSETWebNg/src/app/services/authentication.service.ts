@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -39,11 +39,13 @@ import { parse } from 'querystring';
 export interface LoginResponse {
     token: string;
     resetRequired: boolean;
+    isPasswordExpired: boolean;
     isSuperUser: boolean;
     userLastName: string;
     userFirstName: string;
-    userId: number;
+    userId?: number;
     email: string;
+    accessKey?: string;
     exportExtension: string;
     importExtensions: string;
     linkerTime: string;
@@ -61,14 +63,35 @@ export class AuthenticationService {
     private initialized = false;
     private parser = new JwtParser();
 
-    constructor(private http: HttpClient, private router: Router, private configSvc: ConfigService, public dialog: MatDialog) {
+    constructor(
+        private http: HttpClient,
+        private router: Router,
+        private configSvc: ConfigService,
+        public dialog: MatDialog
+    ) {
         if (!this.initialized) {
             this.initialized = true;
-
         }
     }
 
+    /**
+     * Indicates if the user has agreed to the privacy warning.
+     * Returns true if not running as "CSET Online".
+     *
+     * Only CSET Online requires the user agreement.
+     * If not currently running as CSET Online, always returns true.
+     */
+    hasUserAgreedToPrivacyWarning() {
+        if (!this.configSvc.config.behaviors.showPrivacyWarning) {
+            return true;
+        }
 
+        return (sessionStorage.getItem('hasUserAgreedToPrivacyWarning') == 'true');
+    }
+
+    /**
+     *
+     */
     checkLocal() {
         return this.http.post(this.configSvc.apiUrl + 'auth/login/standalone',
             JSON.stringify(
@@ -81,7 +104,7 @@ export class AuthenticationService {
             .toPromise().then(
                 (response: LoginResponse) => {
 
-                    if (response.email === null || response.email === undefined) {
+                    if (response?.email === null || response?.email === undefined) {
                         this.isLocal = false;
                     } else {
                         this.isLocal = true;
@@ -90,7 +113,7 @@ export class AuthenticationService {
 
                     localStorage.setItem('cset.isLocal', (this.isLocal + ''));
 
-                    localStorage.setItem('cset.linkerDate', response.linkerTime);
+                    localStorage.setItem('cset.linkerDate', response?.linkerTime);
                 },
                 error => {
                     console.warn('Error getting stand-alone status. Assuming non-stand-alone mode.');
@@ -110,25 +133,6 @@ export class AuthenticationService {
      * @param user
      */
     storeUserData(user: LoginResponse) {
-        // if (localStorage.getItem('userToken') != null) {
-
-        //     console.log("userToken is not being reset");
-        //     console.log(localStorage.getItem('userToken'));
-        //     console.log("user token is:")
-        //     console.log(user.token);
-        //     let uid = parseInt(localStorage.getItem("userId"));
-        //     let uuid = parseInt(this.parser.decodeToken(localStorage.getItem('userToken')).userid);
-        //     console.log("localStorage:"+uid+" TokenID:"+uuid);
-        //     console.log(uuid);
-
-        //     // if(isNaN(uid)||isNaN(uuid))
-        //     // {
-        //     //     console.log("really skipping the swapping of tokens");
-        //     // }else if(uid!=uuid){
-        //     //     localStorage.setItem('userToken', user.token);
-        //     // }
-        // }
-        // else
         if (user.token != null) {
             localStorage.setItem('userToken', user.token);
         }
@@ -158,15 +162,21 @@ export class AuthenticationService {
         // set the scope (application)
         let scope: string;
 
-        switch(this.configSvc.installationMode || '') {
-          case 'ACET':
-            scope = 'ACET';
-            break;
-          case 'TSA':
-            scope = 'TSA';
-            break;
-          default:
-            scope = environment.appCode
+        switch (this.configSvc.installationMode || '') {
+            case 'ACET':
+                scope = 'ACET';
+                break;
+            case 'TSA':
+                scope = 'TSA';
+                break;
+            case 'RRA':
+                scope = 'RRA';
+                break;
+            case 'CF':
+                scope = 'CF';
+                break;
+            default:
+                scope = environment.appCode
         }
 
         return this.http.post(this.configSvc.apiUrl + 'auth/login',
@@ -188,9 +198,7 @@ export class AuthenticationService {
 
 
     logout() {
-        // remove user from session storage to log user out
-        localStorage.clear();
-        this.router.navigate(['/home/login'], { queryParamsHandling: "preserve" });
+        this.router.navigate(['/home/logout'], { queryParamsHandling: "preserve" });
     }
 
 
@@ -258,6 +266,10 @@ export class AuthenticationService {
         return this.http.post(this.configSvc.apiUrl + 'ResetPassword/ChangePassword', JSON.stringify(data), { 'headers': headers.headers, params: headers.params, responseType: 'text' });
     }
 
+    checkPassword(data: ChangePassword): Observable<any> {
+        return this.http.post(this.configSvc.apiUrl + 'ResetPassword/CheckPassword', JSON.stringify(data), { 'headers': headers.headers, params: headers.params, responseType: 'text' });
+    }
+
     updateUser(data: CreateUser): Observable<CreateUser> {
         return this.http.post(this.configSvc.apiUrl + 'contacts/UpdateUser', data, headers);
     }
@@ -286,6 +298,10 @@ export class AuthenticationService {
         return parseInt(localStorage.getItem('userId'), 10);
     }
 
+    accessKey(): string {
+        return localStorage.getItem('accessKey');
+    }
+
     email() {
         return localStorage.getItem('email');
     }
@@ -304,4 +320,32 @@ export class AuthenticationService {
         localStorage.setItem('email', info.primaryEmail);
     }
 
-  }
+    /**
+     * 
+     */
+    loginWithAccessKey(loginKey) {
+        const req = JSON.stringify(
+            {
+                accessKey: loginKey,
+                tzOffset: new Date().getTimezoneOffset().toString(),
+                Scope: 'CSET'
+            }
+        )
+
+        return this.http.post(this.configSvc.apiUrl + 'auth/login/accesskey', req, headers)
+            .pipe(
+                map((user: LoginResponse) => {
+                    // store user details and jwt token in local storage to keep user logged in between page refreshes
+                    this.storeUserData(user);
+
+                    return user;
+                }));;
+    }
+
+    /**
+     * 
+     */
+    generateAccessKey() {
+        return this.http.get(this.configSvc.apiUrl + 'auth/accesskey', { responseType: 'text' });
+    }
+}

@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,8 @@ import { QuestionsService } from '../../../services/questions.service';
 import { MaturityFilteringService } from '../../../services/filtering/maturity-filtering/maturity-filtering.service';
 import { QuestionGrouping } from '../../../models/questions.model';
 import { AcetFilteringService } from '../../../services/filtering/maturity-filtering/acet-filtering.service';
+import { NCUAService } from '../../../services/ncua.service';
+import { AssessmentService } from '../../../services/assessment.service';
 
 
 /**
@@ -56,6 +58,8 @@ export class DomainMaturityFilterComponent implements OnInit {
     public questionsSvc: QuestionsService,
     public maturityFilteringSvc: MaturityFilteringService,
     public acetFilteringSvc: AcetFilteringService,
+    public assessSvc: AssessmentService,
+    public ncuaSvc: NCUAService
   ) { }
 
   /**
@@ -63,6 +67,10 @@ export class DomainMaturityFilterComponent implements OnInit {
    */
   ngOnInit() {
     this.domainName = this.domain.title;
+
+    if (this.assessSvc.isISE()) {
+      this.determineIseFilter();
+    }
   }
 
 
@@ -70,7 +78,8 @@ export class DomainMaturityFilterComponent implements OnInit {
    * Returns the Value property for the domain and level
    */
   getNgModel(level: any) {
-    return this.acetFilteringSvc.domainFilters?.find(d => d.domainName == this.domainName)?.settings.find(s => s.level == level.level).value;
+    var tmp = this.acetFilteringSvc.domainFilters?.find(d => d.domainName == this.domainName)?.tiers.find( t=>  t.financial_Level_Id == level.level); 
+    return tmp?.isOn ?? false;
   }
 
   /**
@@ -78,8 +87,8 @@ export class DomainMaturityFilterComponent implements OnInit {
    * @param level 
    * @param e event
    */
-  filterChanged(level: number, e: boolean) {
-    this.acetFilteringSvc.filterChanged(this.domainName, level, e);
+  filterChanged(level: number) {
+    this.acetFilteringSvc.filterChanged(this.domainName, level);
     this.changed.emit('');
   }
 
@@ -88,11 +97,22 @@ export class DomainMaturityFilterComponent implements OnInit {
    * @param level 
    */
   isFilterActive(level: any) {
-    const filterForDomain = this.acetFilteringSvc.domainFilters.find(f => f.domainName == this.domain.title);
+    const filterForDomain = this.acetFilteringSvc.domainFilters.find(f => f.domainName == this.domain.title)?.tiers.find( t=> t.financial_Level_Id == level.level);
     if (!filterForDomain) {
       return false;
     }
-    return filterForDomain.settings.find(s => s.level == level.level).value;
+    return filterForDomain.isOn;
   }
+
+  determineIseFilter() {
+    if (this.ncuaSvc.proposedExamLevel === 'SCUEP' || 
+      this.ncuaSvc.chosenOverrideLevel === "No Override" ||
+      this.ncuaSvc.chosenOverrideLevel === 'SCUEP') {
+        this.maturityLevels = [{"level": "1", "label": "SCUEP", "applicable": true}];
+      } else {
+        this.maturityLevels = [{"level": "2", "label": "CORE", "applicable": true}];
+      }
+  }
+
 
 }

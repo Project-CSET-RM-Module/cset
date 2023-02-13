@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -24,9 +24,10 @@
 import { Component, OnInit } from '@angular/core';
 import { Demographic } from '../../../../models/assessment-info.model';
 import { DemographicService } from '../../../../services/demographic.service';
-import { AssessmentService } from '../../../../services/assessment.service'; 
+import { AssessmentService } from '../../../../services/assessment.service';
 import { AssessmentContactsResponse } from "../../../../models/assessment-info.model";
 import { User } from '../../../../models/user.model';
+import { ConfigService } from '../../../../services/config.service';
 
 
 interface DemographicsAssetValue {
@@ -63,11 +64,17 @@ export class AssessmentDemographicsComponent implements OnInit {
     assetValues: DemographicsAssetValue[];
     industryList: Industry[];
     contacts: User[];
-
+    isSLTT:boolean=false;
     demographicData: Demographic = {};
     orgTypes: any[];
 
-    constructor(private demoSvc: DemographicService, public assessSvc: AssessmentService) { }
+    showAsterisk = false;
+
+    constructor(
+        private demoSvc: DemographicService,
+        public assessSvc: AssessmentService,
+        public configSvc: ConfigService
+    ) { }
 
     ngOnInit() {
         this.demoSvc.getAllSectors().subscribe(
@@ -81,6 +88,7 @@ export class AssessmentDemographicsComponent implements OnInit {
         this.demoSvc.getAllAssetValues().subscribe(
             (data: DemographicsAssetValue[]) => {
                 this.assetValues = data;
+
             },
             error => {
                 console.log('Error Getting all asset values: ' + (<Error>error).name + (<Error>error).message);
@@ -100,6 +108,8 @@ export class AssessmentDemographicsComponent implements OnInit {
         }
         this.refreshContacts();
         this.getOrganizationTypes();
+
+        this.showAsterisk = this.showAsterisks();
     }
 
     onSelectSector(sectorId: number) {
@@ -113,7 +123,9 @@ export class AssessmentDemographicsComponent implements OnInit {
         this.demoSvc.getDemographic().subscribe(
             (data: Demographic) => {
                 this.demographicData = data;
-
+                if(this.demographicData.organizationType=="3"){
+                    this.isSLTT=true;
+                }
                 // populate Industry dropdown based on Sector
                 this.populateIndustryOptions(this.demographicData.sectorId);
             },
@@ -182,14 +194,13 @@ export class AssessmentDemographicsComponent implements OnInit {
         this.demographicData.criticalService = event.target.value;
         this.updateDemographics();
     }
-    
+
     changePointOfContact(event: any){
         this.demographicData.pointOfContact = event.target.value;
         this.updateDemographics();
     }
 
     changeIsScoped(event: any){
-        //this.demographicData.isScoped = event.target.value;
         this.updateDemographics();
     }
 
@@ -204,5 +215,31 @@ export class AssessmentDemographicsComponent implements OnInit {
 
     updateDemographics() {
         this.demoSvc.updateDemographic(this.demographicData);
+    }
+
+    showOrganizationName() {
+      return this.configSvc.behaviors.showOrganizationName;
+    }
+
+    showBusinessAgencyName() {
+      return this.configSvc.behaviors.showBusinessAgencyName;
+    }
+
+    showCriticalService() {
+      return this.configSvc.installationMode !== 'RRA' && this.configSvc.behaviors.showCriticalService;
+    }
+
+    
+    showEdmFields() {
+        return this.assessSvc.assessment?.maturityModel?.modelName == 'EDM';
+    }
+
+    showFacilitator() {
+        return this.configSvc.behaviors.showFacilitatorDropDown;
+    }
+
+
+    showAsterisks(): boolean {
+        return this.assessSvc.assessment?.maturityModel?.modelName == 'CPG';
     }
 }

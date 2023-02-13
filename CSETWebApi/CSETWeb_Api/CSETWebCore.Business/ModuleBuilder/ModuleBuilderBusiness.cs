@@ -1,4 +1,10 @@
-﻿using System;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -24,16 +30,21 @@ namespace CSETWebCore.Business.ModuleBuilder
             _question = question;
         }
 
-        public List<SetDetail> GetCustomSetList()
-        {
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public List<SetDetail> GetCustomSetList(bool includeNonCustom = false)
+        {
             List<SetDetail> list = new List<SetDetail>();
 
             var s = _context.SETS
-                .Where(x => x.Is_Custom)
+                .Where(x => x.Is_Custom || includeNonCustom)
                 .Where(x => !x.Is_Deprecated)
                 .OrderBy(x => x.Full_Name)
                 .ToList();
+
             foreach (SETS set in s)
             {
                 SetDetail sr = new SetDetail
@@ -55,9 +66,23 @@ namespace CSETWebCore.Business.ModuleBuilder
             return list;
         }
 
+
+        /// <summary>
+        /// Gets the full list of sets that are being used in an assessment.
+        /// </summary>
+        public List<SetDetail> GetSetsInUseList() 
+        {
+            List<AVAILABLE_STANDARDS> selectedStandards = _context.AVAILABLE_STANDARDS.Where(x => x.Selected).ToList();
+
+            return GetCustomSetList(true).FindAll(x => selectedStandards.Exists(y => y.Set_Name == x.SetName));
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
         public void SetBaseSets(String setName, string[] setNames)
         {
- 
             try
             {
                 _context.usp_CopyIntoSet_Delete(setName);
@@ -185,7 +210,7 @@ namespace CSETWebCore.Business.ModuleBuilder
         {
             string newSetName = GenerateNewSetName();
 
-            ModuleCloner cloner = new ModuleCloner();
+            ModuleCloner cloner = new ModuleCloner(_context);
             bool cloneSuccess = cloner.CloneModule(setName, newSetName);
 
             if (cloneSuccess)
@@ -344,7 +369,13 @@ namespace CSETWebCore.Business.ModuleBuilder
                 q.QuestionID = nqs.Question.Question_Id;
                 q.QuestionText = nqs.Question.Simple_Question;
                 PopulateCategorySubcategory(nqs.Question.Heading_Pair_Id, _context,
-                    ref q.QuestionGroupHeading, ref q.PairID, ref q.Subcategory, ref q.SubHeading);
+                    out string qgh, out int pi, out string subcat1, out string subhead);
+
+                q.QuestionGroupHeading = qgh;
+                q.PairID = pi;
+                q.Subcategory = subcat1;
+                q.SubHeading = subhead;
+
                 q.Title = GetTitle(nqs.Question.Question_Id, _context);
 
                 // Look at the question's original set to determine if the question is 'custom' and can be edited
@@ -447,8 +478,8 @@ namespace CSETWebCore.Business.ModuleBuilder
         /// </summary>
         /// <param name=""></param>
         /// <returns></returns>
-        public void PopulateCategorySubcategory(int headingPairId, CSETContext db, ref string cat,
-            ref int pairID, ref string subcat, ref string subheading)
+        public void PopulateCategorySubcategory(int headingPairId, CSETContext db, out string cat,
+            out int pairID, out string subcat, out string subheading)
         {
             var query = from h in db.UNIVERSAL_SUB_CATEGORY_HEADINGS
                         from h1 in db.QUESTION_GROUP_HEADING.Where(x => x.Question_Group_Heading_Id == h.Question_Group_Heading_Id)
@@ -1125,13 +1156,13 @@ namespace CSETWebCore.Business.ModuleBuilder
 
             var set = _context.SETS.Where(x => x.Set_Name == setName).FirstOrDefault();
             response.SetFullName = set.Full_Name;
-            response.SetShortName = set.Short_Name;
+            response.SetShortName = set.Short_Name; 
             response.SetDescription = set.Standard_ToolTip;
 
 
             var q = from rs in _context.REQUIREMENT_SETS
                     from s in _context.SETS.Where(x => x.Set_Name == rs.Set_Name)
-                    from r in _context.NEW_REQUIREMENT.Where(x => x.Requirement_Id == rs.Requirement_Id)
+                    from r in _context.NEW_REQUIREMENT.Where(x => x.Requirement_Id == rs.Requirement_Id)                    
                     where rs.Set_Name == setName
                     select new { r, rs, s };
             var results = q.Distinct()
@@ -1155,7 +1186,8 @@ namespace CSETWebCore.Business.ModuleBuilder
                 {
                     RequirementID = rq.Requirement_Id,
                     Title = rq.Requirement_Title,
-                    RequirementText = rq.Requirement_Text
+                    RequirementText = rq.Requirement_Text,
+                    SupplementalInfo = rq.Supplemental_Info
                 };
 
                 // Get the SAL levels for this requirement
@@ -1163,6 +1195,22 @@ namespace CSETWebCore.Business.ModuleBuilder
                 foreach (REQUIREMENT_LEVELS l in sals)
                 {
                     r.SalLevels.Add(l.Standard_Level);
+                }
+
+
+                // Get the questions for this requirement
+                var relatedQuestions = _context.REQUIREMENT_QUESTIONS_SETS
+                    .Include(x => x.Question)
+                    .Where(x => x.Requirement_Id == r.RequirementID && x.Set_Name == setName).ToList();
+
+                foreach (var q1 in relatedQuestions)
+                {
+                    r.Questions.Add(new QuestionDetail()
+                    {
+                        QuestionID = q1.Question_Id,
+                        QuestionText = q1.Question.Simple_Question,
+                        IsCustom = _context.SETS.Where(x => x.Set_Name == q1.Question.Original_Set_Name).FirstOrDefault().Is_Custom
+                    });
                 }
 
 
@@ -1314,7 +1362,7 @@ namespace CSETWebCore.Business.ModuleBuilder
             // Get the Reference documents for this requirement
             var allDocs = GetReferencesForRequirement(requirement.RequirementID);
             requirement.SourceDocs = allDocs.SourceDocs;
-            requirement.ResourceDocs = allDocs.ResourceDocs;
+            requirement.AdditionalDocs = allDocs.AdditionalDocs;
 
 
 
@@ -1396,7 +1444,7 @@ namespace CSETWebCore.Business.ModuleBuilder
             // Package the two lists together
             ReferenceDocLists response = new ReferenceDocLists();
             response.SourceDocs = sourceList;
-            response.ResourceDocs = resourceList;
+            response.AdditionalDocs = resourceList;
             return response;
         }
 

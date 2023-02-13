@@ -1,4 +1,10 @@
-﻿using System;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using System;
 using System.Linq;
 using CSETWebCore.Model.Findings;
 using CSETWebCore.DataLayer.Model;
@@ -53,7 +59,15 @@ namespace CSETWebCore.Business.Findings
                     Issue = f.Issue,
                     Recommendations = f.Recommendations,
                     Vulnerabilities = f.Vulnerabilities,
-                    Resolution_Date = f.Resolution_Date
+                    Resolution_Date = f.Resolution_Date,
+                    Title = f.Title,
+                    Type = f.Type,
+                    Risk_Area = f.Risk_Area,
+                    Sub_Risk = f.Sub_Risk,
+                    Description = f.Description,
+                    Citations = f.Citations,
+                    ActionItems = f.ActionItems,
+                    Supp_Guidance = f.Supp_Guidance
                 };
 
                 this._dbFinding = finding;
@@ -125,19 +139,20 @@ namespace CSETWebCore.Business.Findings
         /// <summary>
         /// 
         /// </summary>
-        public void Save()
+        public int Save()
         {
             // safety valve in case this was built without an answerid
             if (this._webFinding.Answer_Id == 0)
             {
-                return;
+                return 0;
             }
 
             if (this._webFinding.IsFindingEmpty())
-                return;
+                return 0;
 
             _context.SaveChanges();
             _webFinding.Finding_Id = _dbFinding.Finding_Id;
+            return _dbFinding.Finding_Id;
         }
     }
 }

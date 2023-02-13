@@ -1,6 +1,6 @@
 /* 
 
-  Copyright 2022 Battelle Energy Alliance, LLC  
+  Copyright 2023 Battelle Energy Alliance, LLC  
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 
@@ -67,4 +67,7 @@ SOFTWARE.
 }
 .cset2-icons-merge2:before {
   content: "\67";
+}
+.cset2-icons-hexbug2:before {
+  content: "\68";
 }

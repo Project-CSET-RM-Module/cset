@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,9 @@ import { ConfigService } from '../../../services/config.service';
 import { QuestionsService } from '../../../services/questions.service';
 import { GroupingDescriptionComponent } from '../grouping-description/grouping-description.component';
 import { AcetFilteringService } from '../../../services/filtering/maturity-filtering/acet-filtering.service';
+import { NCUAService } from '../../../services/ncua.service';
+import { LayoutService } from '../../../services/layout.service';
+import { CompletionService } from '../../../services/completion.service';
 
 
 /**
@@ -38,7 +41,7 @@ import { AcetFilteringService } from '../../../services/filtering/maturity-filte
  */
 @Component({
   selector: 'app-question-block-maturity',
-  templateUrl: './question-block-maturity.component.html', 
+  templateUrl: './question-block-maturity.component.html',
   styleUrls: ['./question-block-maturity.component.scss']
 })
 export class QuestionBlockMaturityComponent implements OnInit {
@@ -57,39 +60,42 @@ export class QuestionBlockMaturityComponent implements OnInit {
 
   showQuestionIds = false;
 
+  maturityModelId: number;
+
+
   /**
    * Constructor.
-   * @param configSvc 
+   * @param configSvc
    */
   constructor(
     public configSvc: ConfigService,
     public questionsSvc: QuestionsService,
-    public assessSvc: AssessmentService, 
-    public acetFilteringSvc: AcetFilteringService
-  ) { 
-    
+    public completionSvc: CompletionService,
+    public assessSvc: AssessmentService,
+    public acetFilteringSvc: AcetFilteringService,
+    public layoutSvc: LayoutService,
+    public ncuaSvc: NCUAService
+  ) {
 
   }
 
   /**
-   * 
+   *
    */
   ngOnInit(): void {
-    this.answerOptions = this.assessSvc.assessment.maturityModel.answerOptions;
+    if (this.assessSvc.assessment.maturityModel.modelName != null) {
+      this.answerOptions = this.assessSvc.assessment.maturityModel.answerOptions;
+      this.maturityModelId = this.assessSvc.assessment.maturityModel.modelId;
+    }
 
     this.refreshReviewIndicator();
     this.refreshPercentAnswered();
 
-    // set sub questions' titles so that they align with their parent when hidden
-    this.myGrouping.questions.forEach(q => {
-      if (!!q.parentQuestionId) {
-        q.displayNumber = this.myGrouping.questions.find(x => x.questionId == q.parentQuestionId).displayNumber;
-      }
-    });
 
     if (this.configSvc.installationMode === "ACET") {
       this.altTextPlaceholder = this.altTextPlaceholder_ACET;
     }
+
     this.acetFilteringSvc.filterAcet.subscribe((filter) => {
       this.refreshReviewIndicator();
       this.refreshPercentAnswered();
@@ -102,7 +108,7 @@ export class QuestionBlockMaturityComponent implements OnInit {
    * Toggles the Expanded property of the question block.
    */
   toggleExpansion() {
-    // dispatch a 'mouseleave' event to all child elements to clear 
+    // dispatch a 'mouseleave' event to all child elements to clear
     // any displayed glossary definitions so that they don't get orphaned
     const evt = new MouseEvent('mouseleave');
     this.groupingDescription?.para.nativeElement.childNodes.forEach(n => {
@@ -124,8 +130,22 @@ export class QuestionBlockMaturityComponent implements OnInit {
   }
 
   /**
-   * 
-   * @param ans 
+   * Determines if the level indicator should show or be
+   * hidden.  Someday this behavior might be stored
+   * in the database as some model-specific behavior.
+   */
+  showLevelIndicator(q): boolean {
+    // CPG does not have levels - don't show it
+    if (q.maturityModelId == 11) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   *
+   * @param ans
    */
   showThisOption(ans: string) {
     return true;
@@ -161,6 +181,8 @@ export class QuestionBlockMaturityComponent implements OnInit {
       componentGuid: q.componentGuid
     };
 
+    this.completionSvc.setAnswer(q.questionId, q.answer);
+
     this.refreshReviewIndicator();
 
     this.refreshPercentAnswered();
@@ -172,28 +194,9 @@ export class QuestionBlockMaturityComponent implements OnInit {
   /**
    *
    */
-  saveMFR(q: Question) {
-    q.markForReview = !q.markForReview; // Toggle Bind
-
-    const newAnswer: Answer = {
-      answerId: q.answer_Id,
-      questionId: q.questionId,
-      questionType: q.questionType,
-      questionNumber: q.displayNumber,
-      answerText: q.answer,
-      altAnswerText: q.altAnswerText,
-      comment: q.comment,
-      feedback: q.feedback,
-      markForReview: q.markForReview,
-      reviewed: q.reviewed,
-      is_Component: q.is_Component,
-      is_Requirement: q.is_Requirement,
-      is_Maturity: q.is_Maturity,
-      componentGuid: q.componentGuid
-    };
-
+  saveMFR(q) {
+    this.questionsSvc.saveMFR(q);
     this.refreshReviewIndicator();
-    this.questionsSvc.storeAnswer(newAnswer).subscribe();
   }
 
   /**
@@ -218,7 +221,7 @@ export class QuestionBlockMaturityComponent implements OnInit {
   /**
    * Calculates the percentage of answered questions for this subcategory.
    * The percentage for maturity questions is calculated using questions
-   * that are within the assessment's target level.  
+   * that are within the assessment's target level.
    * If a maturity model doesn't support target levels, we use a dummy
    * target level of 100 to make the math work.
    */
@@ -231,20 +234,20 @@ export class QuestionBlockMaturityComponent implements OnInit {
         return;
       }
       if (q.visible) {
-        
-          totalCount++;
-          if (q.answer && q.answer !== "U") {
-            answeredCount++;
-          }
-        
-      } 
+
+        totalCount++;
+        if (q.answer && q.answer !== "U") {
+          answeredCount++;
+        }
+
+      }
     });
     this.percentAnswered = (answeredCount / totalCount) * 100;
   }
 
 
   /**
-   * For ACET installations, alt answers require 3 or more characters of 
+   * For ACET installations, alt answers require 3 or more characters of
    * justification.
    */
   isAltTextRequired(q: Question) {
@@ -261,7 +264,6 @@ export class QuestionBlockMaturityComponent implements OnInit {
    * @param altText
    */
   storeAltText(q: Question) {
-
     clearTimeout(this._timeoutId);
     this._timeoutId = setTimeout(() => {
       const answer: Answer = {
@@ -286,6 +288,5 @@ export class QuestionBlockMaturityComponent implements OnInit {
       this.questionsSvc.storeAnswer(answer)
         .subscribe();
     }, 500);
-
   }
 }

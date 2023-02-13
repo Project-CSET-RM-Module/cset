@@ -1,16 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <AssemblyVersion>11.0.1.2</AssemblyVersion>
+    <TargetFramework>net7.0</TargetFramework>
+    <AssemblyVersion>12.0.1.2</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.Data.SqlClient" Version="4.1.0" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.1.0" />
   </ItemGroup>
 
   <ItemGroup>
 	<None Include="VersionUpgrader\SQL\**" CopyToOutputDirectory="PreserveNewest" LinkBase="VersionUpgrader\" />
+	<None Include="..\.editorconfig" />
   </ItemGroup>
 
 </Project>

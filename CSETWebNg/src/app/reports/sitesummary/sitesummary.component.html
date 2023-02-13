@@ -1,6 +1,6 @@
 <!----------------------
 
-   Copyright 2022 Battelle Energy Alliance, LLC
+   Copyright 2023 Battelle Energy Alliance, LLC
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -152,7 +152,7 @@
                     </div>
                     <div
                         style="border: 2px solid #000; border-top: none; border-bottom: none; padding: 1em; box-shadow: 5px 0px 5px #0004;">
-                        <div *ngFor="let s of responseResultsByCategory?.multipleDataSets"
+                        <div *ngFor="let s of responseResultsByCategory?.dataSets"
                             style="display: flex; flex-direction: row; align-items: center;">
                             <div
                                 [ngStyle]="{ 'width': '1.2em', 'height': '1.2em', 'margin': '4px 10px 4px 0', 'box-shadow': 'inset 0 0 0 1000px ' + s.backgroundColor }">
@@ -274,7 +274,7 @@
 
 
 
-    <div class="page-break">
+    <div *ngIf="!usesRAC()" class="page-break">
         <h1>
             Security Assurance Level (SAL)
         </h1>
@@ -569,7 +569,7 @@
                 <th>File Name</th>
             </tr>
             <tr *ngFor="let doc of response?.documentLibraryTable">
-                <td>{{doc.documenttitle}}</td>
+                <td>{{doc.documentTitle}}</td>
                 <td>{{doc.fileName}}</td>
             </tr>
             <tr *ngIf="response?.documentLibraryTable.length === 0">
@@ -646,7 +646,7 @@
             <tr>
                 <td class="tint2" style="width: 10%">Question:</td>
                 <td class="tint2" [innerHTML]="c.question"></td>
-                <td class="tint2" style="width: 20%">{{configSvc.answerLabels[c.answer]}}</td>
+                <td class="tint2" style="width: 20%">{{questionsSvc.answerDisplayLabel(0, c.answer)}}</td>
             </tr>
             <tr>
                 <td class="tint2">Comment:</td>
@@ -696,7 +696,7 @@
             <tr *ngFor="let mfr of response?.questionsMarkedForReview">
                 <td class="tint2" style="width: 20%">{{mfr.categoryAndNumber}}</td>
                 <td [innerHTML]="mfr.question"></td>
-                <td class="tint2" style="width: 20%">{{configSvc.answerLabels[mfr.answer]}}</td>
+                <td class="tint2" style="width: 20%">{{questionsSvc.answerDisplayLabel(0, mfr.answer)}}</td>
             </tr>
         </table>
 

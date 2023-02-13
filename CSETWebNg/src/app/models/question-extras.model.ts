@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -47,6 +47,7 @@ export interface QuestionDocument {
 }
 
 export interface QuestionDetailsContentViewModel {
+  questionId: number;
   selectedStandardTabIndex: number;
   noQuestionInformationText: string;
   showQuestionDetailTab: boolean;
@@ -64,7 +65,7 @@ export interface QuestionInformationTabData {
   showRequirementFrameworkTitle: boolean;
   question_or_Requirement_Id: number;
   requirementsData: RequirementTabData;
-  resourceDocumentList: CustomDocument[];
+  additionalDocumentsList: CustomDocument[];
   sourceDocumentsList: CustomDocument[];
   referenceTextList: string[];
   references: string;

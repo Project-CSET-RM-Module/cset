@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -29,9 +29,12 @@ export interface AssessmentDetail {
     createdDate?: string;
     creatorId?: number;
     assessmentDate?: string;
+    assessmentEffectiveDate?: string;
+    baselineAssessmentId?: number;
     facilityName?: string;
     cityOrSiteName?: string;
     stateProvRegion?: string;
+    postalCode?: string;
     executiveSummary?: string;
     assessmentDescription?: string;
     additionalNotesAndComments?: string;
@@ -42,15 +45,19 @@ export interface AssessmentDetail {
     useStandard?: boolean;
     useMaturity?: boolean;
     useDiagram?: boolean;
-    useCyote?: boolean;
 
     isAcetOnly?: boolean;
     workflow?: string;
+    origin?: string;
+    hiddenScreens?: string[];
 
     maturityModel?: MaturityModel;
 
     // A list of selected standards
     standards?: string[];
+
+    typeTitle?: string;
+    typeDescription?: string;
 }
 
 export interface MaturityModel {
@@ -65,6 +72,9 @@ export interface MaturityModel {
 
     // the options for answering questions in this model
     answerOptions: string[];
+    modelTitle: string;
+    modelDescription: string;
+    iconId: number;
 }
 
 /**
@@ -77,7 +87,7 @@ export interface MaturityLevel {
 }
 
 /**
- * 
+ *
  */
 export interface AssessmentContactsResponse {
     contactList: User[];

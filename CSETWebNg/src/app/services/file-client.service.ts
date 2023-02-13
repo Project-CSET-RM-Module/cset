@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -23,9 +23,9 @@
 ////////////////////////////////
 import { AuthenticationService } from './authentication.service';
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpRequest, HttpHeaders, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpRequest, HttpHeaders, HttpParams, HttpEventType, HttpResponseBase } from '@angular/common/http';
 import { ConfigService } from './config.service';
-import { Observable } from 'rxjs';
+import { Subject, Observable, Subscription } from 'rxjs';
 
 
 /* Naming NOTE
@@ -39,20 +39,23 @@ import { Observable } from 'rxjs';
 export class FileUploadClientService {
 
   downloadUrl: String;
-  reportsUrl: String;
   token: String;
   exportUrl: string;
+
+  continueUpload: boolean = true;
+
+  private obs: Subscription = new Subscription();
+
 
   constructor(private http: HttpClient, private configSvc: ConfigService,
     private authSvc: AuthenticationService) {
     this.downloadUrl = this.configSvc.apiUrl + 'files/download/';
     this.exportUrl = this.configSvc.apiUrl + 'assessment/export';
-    this.reportsUrl = this.configSvc.reportsUrl;
     this.token = this.authSvc.userToken();
   }
 
   /**
-   * 
+   *
    */
   downloadFile(id: number) {
     const headers = {
@@ -64,19 +67,19 @@ export class FileUploadClientService {
   }
 
   /**
-   * 
+   *
    */
   download(url: string): Observable<Blob> {
     return this.http.get(url, { responseType: 'blob' });
   }
 
   /**
-   * 
+   *
    */
   getText(url: string): Observable<string> {
     return this.http.get(url, { responseType: 'text' });
   }
-  
+
   /**
    *
    * @param fileItem
@@ -194,7 +197,7 @@ export class FileUploadClientService {
   }
 
   /**
-   * 
+   *
    */
   uploadAwwaSpreadsheet(fileItem: File, options?: object): any {
     const apiEndpoint = this.configSvc.apiUrl + 'import/AWWA';
@@ -210,6 +213,81 @@ export class FileUploadClientService {
       reportProgress: true // for progress data
     });
     return this.http.request(req);
+  }
+
+  /**
+  * POSTs an array of CSAF json files to the persist in the API
+  */
+  uploadCsafFiles(fileItems: Set<File>): { [key: string]: Observable<number> } {
+    const apiEndpoint = this.configSvc.apiUrl + 'diagram/vulnerabilities';
+    const tmpheader = new HttpHeaders({'Authorization': localStorage.getItem('userToken')});
+    tmpheader.append('Authorization', localStorage.getItem('userToken'));
+
+    // this will be the our resulting map
+    const status = {};
+
+    for (let fileItem of fileItems) {
+      if(!this.continueUpload) {
+        fileItems = null;
+        break;
+      }
+
+      // create a new multipart-form for every file
+      const formData: FormData = new FormData();
+      formData.append('fileItem', fileItem, fileItem.name);
+
+      // create a http-post request and pass the form
+      // tell it to report the upload progress
+      const req = new HttpRequest('POST', apiEndpoint, formData,
+        {
+          headers: tmpheader,
+          reportProgress: true,
+          responseType: 'text'
+        }
+      );
+
+      // create a new progress-subject for every file
+      const progress = new Subject<number>();
+
+      // Save every progress-observable in a map of all observables
+      status[fileItem.name] = {
+        progress: progress.asObservable()
+      };
+
+      // send the http-request and subscribe for progress-updates
+      this.http.request(req).subscribe(event => {
+        if(!this.continueUpload) {
+          fileItems = null;
+          progress.isStopped = true;
+          return status;
+        }
+    
+        if (event.type === HttpEventType.UploadProgress) {
+
+          // calculate the progress percentage
+          const percentDone = Math.round(100 * event.loaded / event.total);
+          // pass the percentage into the progress-stream
+          progress.next(percentDone);
+
+        } else if (event instanceof HttpResponseBase) {
+          if (event.status != 200) { //MAYBE: Make this >= 400
+            let errObj = {
+              message: fileItems.size == 1 ? "File import failed. Ensure the JSON is properly formatted."
+              : "Some files failed to import. Ensure the JSON is properly formatted.",
+            };
+            progress.error(errObj);
+          }
+          
+          // Close the progress-stream if we get an answer form the API
+          // The upload is complete
+          else {
+            progress.complete();
+          }
+        }
+      });
+    };
+
+    return status;
   }
 }
 

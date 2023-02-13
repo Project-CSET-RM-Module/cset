@@ -1,6 +1,6 @@
 <!----------------------
 
-   Copyright 2022 Battelle Energy Alliance, LLC
+   Copyright 2023 Battelle Energy Alliance, LLC
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -126,7 +126,7 @@
             practices range from "Basic Cyber Hygiene" at Level 1 to
             "Advanced/Progressive" at Level 5.</p>
         <div class="pyramidGraphContainer">
-            <div class="levelIndicatorContainer pyramidGraphLevelIndicator">
+            <div class="level-indicator-container pyramidGraphLevelIndicator">
                 <div class="roundedBox">
                     <div class="rbTitle">
                         Target Level
@@ -322,7 +322,7 @@
         </p>
 
         <h1 class="midBlackTitle">Executive Summary</h1>
-        <div [innerHTML]="reportSvc.formatLinebreaks(response?.information?.Executive_Summary)">
+        <div [innerHTML]="reportSvc.formatLinebreaks(response?.information?.executive_Summary)">
         </div>
     </div>
 
@@ -330,7 +330,7 @@
         <h1 class="pageHeader">Level Drill Down</h1>
         <div class="levelBarChart mb-5">
             <div class="flex flex-container barChartRowContainer">
-                <div class="flex levelIndicatorContainer">
+                <div class="flex level-indicator-container">
                     <div class="roundedBox">
                         <div class="rbTitle">
                             Target Level
@@ -365,7 +365,7 @@
                 Test
             </div>
             <div *ngIf="cmmcStyleSvc?.isWithinModelLevel(i)" class="flex-container pieChartRow">
-                <div class="levelIndicatorContainer">
+                <div class="level-indicator-container">
                     <div class="roundedBox">
                         <div class="rbTitle px-3">
                             Level
@@ -512,7 +512,7 @@
                 <td [ngClass]="{'tint3' : reference.answer?.answer_Text == 'N' || reference.answer?.answer_Text == 'U'}"
                     style="width: 40%;padding-left: 1em;">{{reference.question_Text}}</td>
                 <td [ngClass]="{'tint3' : reference.answer?.answer_Text == 'N' || reference.answer?.answer_Text == 'U'}"
-                    [innerHTML]="reference.Supplemental_Info"></td>
+                    [innerHTML]="reference.supplemental_Info"></td>
             </tr>
         </table>
         <div *ngIf="cmmcStyleSvc?.referenceTable?.length === 0" class="cset-table-4">

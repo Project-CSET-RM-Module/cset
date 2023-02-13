@@ -1,6 +1,6 @@
 <!---------------------- 
 
-   Copyright 2022 Battelle Energy Alliance, LLC  
+   Copyright 2023 Battelle Energy Alliance, LLC  
 
   Permission is hereby granted, free of charge, to any person obtaining a copy 
   of this software and associated documentation files (the "Software"), to deal 
@@ -34,11 +34,11 @@
     <div class="data" [hidden]="!initialized">
       <table class="table">
         <th class="align-left">Component</th>
-        <th class="align-right">{{configSvc.answerLabels['Y']}}</th>
-        <th class="align-right">{{configSvc.answerLabels['N']}}</th>
-        <th class="align-right">{{configSvc.answerLabels['NA']}}</th>
-        <th class="align-right">{{configSvc.answerLabels['A']}}</th>
-        <th class="align-right">{{configSvc.answerLabels['U']}}</th>
+        <th class="align-right">{{questionsSvc.answerDisplayLabel(0, 'Y')}}</th>
+        <th class="align-right">{{questionsSvc.answerDisplayLabel(0, 'N')}}</th>
+        <th class="align-right">{{questionsSvc.answerDisplayLabel(0, 'NA')}}</th>
+        <th class="align-right">{{questionsSvc.answerDisplayLabel(0, 'A')}}</th>
+        <th class="align-right">{{questionsSvc.answerDisplayLabel(0, 'U')}}</th>
         <th class="align-right">Total</th>
         <tr class="align-right" *ngFor="let row of dataRows">
           <td class="align-left" style="width: 50%">{{row.title}}</td>

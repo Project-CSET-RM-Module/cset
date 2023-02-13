@@ -1,4 +1,10 @@
-﻿using System.Collections.Generic;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using System.Collections.Generic;
 using System.Linq;
 using CSETWebCore.DataLayer.Model;
 using CSETWebCore.Interfaces.ACETDashboard;
@@ -162,6 +168,16 @@ namespace CSETWebCore.Business.ACETDashboard
                     result.SumRiskLevel = i + 1;
                     maxRisk = result.SumRisk[i];
                 }
+            }
+
+            // If no override, use calculated IRP; Storing IRP as maturity level
+            if (result.Override == 0)
+            {
+                _maturity.PersistMaturityLevel(assessmentId, result.SumRiskLevel);
+            }
+            else 
+            {
+                _maturity.PersistMaturityLevel(assessmentId, result.Override);
             }
 
             return result;

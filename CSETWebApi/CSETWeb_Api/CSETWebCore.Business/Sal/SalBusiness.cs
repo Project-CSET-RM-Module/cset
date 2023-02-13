@@ -1,4 +1,10 @@
-﻿using System;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using System;
 using System.Linq;
 using System.Globalization;
 using CSETWebCore.Interfaces.Helpers;
@@ -17,7 +23,7 @@ namespace CSETWebCore.Business.Sal
         /// <summary>
         /// TSA's default level
         /// </summary>
-        public static readonly string DefaultSalTsa = "Moderate";
+        public static readonly string DefaultSalTsa = "Low";
 
 
         /// <summary>

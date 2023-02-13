@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -22,11 +22,9 @@
 //
 ////////////////////////////////
 import { Injectable } from '@angular/core';
-import { HttpClient } from '../../../node_modules/@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { ConfigService } from './config.service';
 import Chart from 'chart.js/auto';
-import { Utilities } from './utilities.service';
-import { LabelType } from '@angular-slider/ngx-slider';
 import { ChartService } from './chart.service';
 
 @Injectable({

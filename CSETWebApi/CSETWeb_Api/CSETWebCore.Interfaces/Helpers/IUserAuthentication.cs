@@ -1,5 +1,9 @@
-﻿using System;
-using CSETWebCore.DataLayer.Model;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
 using CSETWebCore.Model.Authentication;
 
 namespace CSETWebCore.Interfaces.Helpers
@@ -7,8 +11,10 @@ namespace CSETWebCore.Interfaces.Helpers
     public interface IUserAuthentication
     {
         LoginResponse Authenticate(Login login);
+
         LoginResponse AuthenticateStandalone(Login login, ITokenManager tokenManager);
-        void determineIfUpgradedNeededAndDoSo(int newuserID, CSETContext tmpContext);
-        bool IsLocalInstallation(String app_code);
+
+        LoginResponse AuthenticateAccessKey(AnonymousLogin login);
+        string GenerateAccessKey();
     }
 }

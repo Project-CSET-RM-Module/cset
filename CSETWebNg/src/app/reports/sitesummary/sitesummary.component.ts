@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -30,6 +30,7 @@ import { AcetDashboard } from '../../models/acet-dashboard.model';
 import { AdminTableData, AdminPageData, HoursOverride } from '../../models/admin-save.model';
 import { ACETService } from '../../services/acet.service';
 import { MaturityService } from '../../services/maturity.service';
+import { QuestionsService } from './../../services/questions.service';
 import  Chart  from 'chart.js/auto';
 
 @Component({
@@ -83,11 +84,12 @@ export class SitesummaryComponent implements OnInit, AfterViewChecked {
   constructor(
     public analysisSvc: ReportAnalysisService,
     public reportSvc: ReportService,
+    public questionsSvc: QuestionsService,
     public configSvc: ConfigService,
     private titleService: Title,
     public acetSvc: ACETService,
-    private sanitizer: DomSanitizer, 
-    private maturitySvc: MaturityService
+    private sanitizer: DomSanitizer,
+    private maturitySvc: MaturityService,
   ) { }
 
   ngOnInit() {
@@ -302,5 +304,9 @@ export class SitesummaryComponent implements OnInit, AfterViewChecked {
     comp.statementsReviewed = 0;
     comp.hasSpecifyField = hasSpecifyField;
     components.push(comp);
+  }
+
+  usesRAC() {
+    return !!this.responseResultsByCategory?.dataSets.find(e => e.label === 'RAC');
   }
 }

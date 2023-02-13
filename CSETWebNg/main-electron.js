@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, MenuItem, shell } = require('electron');
+const { app, BrowserWindow, Menu, MenuItem, shell, session, dialog } = require('electron');
 const path = require('path');
 const url = require('url');
 const child = require('child_process').execFile;
@@ -6,15 +6,40 @@ const request = require('request');
 const log = require('electron-log');
 const tcpPortUsed = require('tcp-port-used');
 const findTextPrompt = require('./src/custom-modules/electron-prompt/lib/index');
-
-const angularConfig = require('./dist/assets/config.json');
 const gotTheLock = app.requestSingleInstanceLock();
-let mainWindow = null;
 
-let installationMode = angularConfig.installationMode;
-if (!installationMode || installationMode.length === 0) {
-  installationMode = 'CSET';
+const masterConfig = require('./dist/assets/settings/config.json');
+
+// We can only use one value in the config chain in this script until we figure out an equivalent to fetch for electron
+let installationMode = masterConfig.currentConfigChain[0] || 'CSET';
+
+const subConfig = require(`./dist/assets/settings/config.${installationMode}.json`);
+
+// config is the union of the masterConfig and subconfig file based on installationMode for now
+// Any properties in subconfig will overwrite those in masterConfig
+const config = {...masterConfig, ...subConfig};
+
+let clientCode;
+let appCode;
+switch(installationMode) {
+  case 'ACET':
+    clientCode = 'NCUA';
+    appCode = 'ACET';
+    break;
+  case 'TSA':
+    clientCode = 'TSA';
+    appCode = 'CSET-TSA';
+    break;
+  case 'CF':
+    clientCode = 'CF';
+    appCode = 'CF';
+    break;
+  default:
+    clientCode = 'DHS';
+    appCode = 'CSET';
 }
+
+let mainWindow = null;
 
 // preventing a second instance of Electron from spinning up
 if (!gotTheLock) {
@@ -162,17 +187,8 @@ function createWindow() {
   });
 
   Menu.setApplicationMenu(newMenu);
- if (installationMode =='TSA') {
-      mainWindow.loadFile(path.join(__dirname, 'dist/assets/splashTSA.html'))
-   }
- else if(installationMode =='CYOTE') {
-      mainWindow.loadFile(path.join(__dirname, 'dist/assets/splashCYOTE.html'))
- }else if(installationMode =='ACET'){
-     mainWindow.loadFile(path.join(__dirname, 'dist/assets/splashACET.html'))
- }
-else{
-     mainWindow.loadFile(path.join(__dirname, 'dist/assets/splash.html'))
-}
+
+  mainWindow.loadFile(path.join(__dirname, config.behaviors.splashPageHTML));
 
   let rootDir = app.getAppPath();
 
@@ -185,42 +201,31 @@ else{
   if (app.isPackaged) {
 
     // Check angular config file for initial API port and increment port automatically if designated port is already taken
-    let apiPort = parseInt(angularConfig.api.port);
-    let apiUrl = angularConfig.api.url;
+    let apiPort = parseInt(config.api.port);
+    let apiUrl = config.api.url;
     assignPort(apiPort, null, apiUrl).then(assignedApiPort => {
       log.info('API launching on port', assignedApiPort);
-      launchAPI(rootDir + '/Website', 'CSETWebCore.Api.exe', assignedApiPort);
+      launchAPI(rootDir + '/Website', 'CSETWebCore.Api.exe', assignedApiPort, mainWindow);
       return assignedApiPort;
     }).then(assignedApiPort => {
-
-      // Port checking for reports api...
-      let reportsApiPort = parseInt(angularConfig.reportsApi.substr(angularConfig.reportsApi.length - 6, 5));
-      assignPort(reportsApiPort, assignedApiPort, apiUrl).then(assignedReportsApiPort => {
-        log.info('Reports API launching on port', assignedReportsApiPort);
-        launchAPI(rootDir + '/Website', 'CSETWebCore.Reports.exe', assignedReportsApiPort);
-        return {apiPort: assignedApiPort, reportsApiPort: assignedReportsApiPort};
-      }).then(ports => {
-
-        // Keep attempting to connect to API, every 2 seconds, then load application
-        retryApiConnection(120, 2000, ports.apiPort, error => {
-          if (error) {
-            log.error(error);
-            app.quit();
-          } else {
-             // Load the index.html of the app
-             mainWindow.loadURL(
-              url.format({
-                pathname: path.join(__dirname, 'dist/index.html'),
-                protocol: 'file:',
-                query: {
-                  apiUrl: angularConfig.api.protocol + '://' + angularConfig.api.url + ':' + ports.apiPort,
-                  reportsApiUrl: angularConfig.reportsApi.substr(0, 17) + ports.reportsApiPort + '/'
-                },
-                slashes: true
-              })
-            );
-          }
-        });
+      // Keep attempting to connect to API, every 2 seconds, then load application
+      retryApiConnection(120, 2000, assignedApiPort, error => {
+        if (error) {
+          log.error(error);
+          mainWindow.loadFile(path.join(__dirname, '/dist/assets/app-startup-error.html'));
+        } else {
+           // Load the index.html of the app
+           mainWindow.loadURL(
+            url.format({
+              pathname: path.join(__dirname, 'dist/index.html'),
+              protocol: 'file:',
+              query: {
+                apiUrl: config.api.protocol + '://' + config.api.url + ':' + assignedApiPort,
+              },
+              slashes: true
+            })
+          );
+        }
       });
     });
   } else {
@@ -229,8 +234,7 @@ else{
         pathname: path.join(__dirname, 'dist/index.html'),
         protocol: 'file:',
         query: {
-          apiUrl: angularConfig.api.protocol + '://' + angularConfig.api.url + ':' + angularConfig.api.port,
-          reportsApiUrl: angularConfig.reportsApi
+          apiUrl: config.api.protocol + '://' + config.api.url + ':' + config.api.port
         },
         slashes: true
       })
@@ -248,8 +252,9 @@ else{
 
   // Emitted when the window is going to be closed
   mainWindow.on('close', () => {
-    // Clear local storage before the window is closed
-    mainWindow.webContents.executeJavaScript("localStorage.clear();");
+    // Clear cache & local storage before the window is closed
+    session.defaultSession.clearCache();
+    session.defaultSession.clearStorageData();
   });
 
   // Customize the look of all new windows and handle different types of urls from within angular application
@@ -358,25 +363,6 @@ process.on('uncaughtException', error => {
 
 app.on('ready', () => {
   // set log to output to local appdata folder
-  let clientCode;
-  let appCode;
-  switch(installationMode) {
-    case 'ACET':
-      clientCode = 'NCUA';
-      appCode = 'ACET';
-      break;
-    case 'CYOTE':
-      clientCode = 'DOE';
-      appCode = 'CSET-CYOTE'
-      break;
-    case 'TSA':
-      clientCode = 'TSA';
-      appCode = 'CSET-TSA';
-      break;
-    default:
-      clientCode = 'DHS';
-      appCode = 'CSET';
-  }
   log.transports.file.resolvePath = () => path.join(app.getPath('home'), `AppData/Local/${clientCode}/${appCode}/${appCode}_electron.log`);
   log.catchErrors();
 
@@ -392,13 +378,18 @@ app.on('window-all-closed', () => {
   }
 });
 
-function launchAPI(exeDir, fileName, port) {
+function launchAPI(exeDir, fileName, port, window) {
   let exe = exeDir + '/' + fileName;
   let options = {cwd:exeDir};
-  let args = ['--urls', angularConfig.api.protocol + '://' + angularConfig.api.url + ':' + port]
-  child(exe, args, options, (error, data) => {
-    log.error(error);
-    log.info(data.toString());
+  let args = ['--urls', config.api.protocol + '://' + config.api.url + ':' + port]
+  child(exe, args, options, (error, stdout) => {
+    if (error) {
+      window.loadFile(path.join(__dirname, '/dist/assets/app-startup-error.html'));
+      log.error(error);
+      if (error.stack.includes('DatabaseManager.DatabaseSetupException')) {
+        dialog.showErrorBox(`${appCode} Database Setup Error`, `There was a problem initializing the SQL LocalDB ${appCode} database. Please restart your system and try again.\n\n` + stdout);
+      }
+    }
   })
 }
 

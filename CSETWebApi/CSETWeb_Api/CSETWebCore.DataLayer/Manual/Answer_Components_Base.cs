@@ -20,6 +20,8 @@ namespace CSETWebCore.DataLayer.Model
         public string Comment { get; set; }
         [StringLength(1000)]
         public string Alternate_Justification { get; set; }
+        [StringLength(1000)]
+        public string Free_Response_Answer { get; set; }
         public int? Question_Number { get; set; }
         [StringLength(7338)]
         public string QuestionText { get; set; }        
@@ -29,7 +31,7 @@ namespace CSETWebCore.DataLayer.Model
         [StringLength(100)]
         public string Universal_Sub_Category { get; set; }
         public int SubCategoryId { get; set; }
-        public string Feedback { get; set; }
+        public string FeedBack { get; set; }
         public bool Is_Component { get; set; }
         [StringLength(36)]
         public Guid? Component_Guid { get; set; }
@@ -42,7 +44,7 @@ namespace CSETWebCore.DataLayer.Model
         public string Sub_Heading_Question_Description { get; set; }
         public string Simple_Question { get; set; }
         public bool? Reviewed { get; set; }
-        public string label { get; set; }
+        public string Label { get; set; }
         public string ComponentName { get; set; }
         public string Symbol_Name { get; set; }
         public int Component_Symbol_Id { get; set; }

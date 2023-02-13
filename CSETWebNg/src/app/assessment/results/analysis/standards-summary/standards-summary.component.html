@@ -1,6 +1,6 @@
 <!---------------------- 
 
-   Copyright 2022 Battelle Energy Alliance, LLC  
+   Copyright 2023 Battelle Energy Alliance, LLC  
 
   Permission is hereby granted, free of charge, to any person obtaining a copy 
   of this software and associated documentation files (the "Software"), to deal 
@@ -22,6 +22,7 @@
 --------------------------> 
 <div class="white-panel d-flex flex-column justify-content-start flex-11a">
   <h3>Standards Summary</h3>
+  <p>This graph shows the overall answer percentages for each individual answer type.</p>
   <div id="chart" class="mb-3">
     <canvas id="canvasStandardSummary" style="max-width: 800px; margin: 0 auto;">{{chart}}</canvas>
   </div>
@@ -31,7 +32,7 @@
     </div>
   </div>
   <div class="data" [hidden]="!initialized">
-    <table class="table">
+    <table class="table" [class.fs-smaller]="layoutSvc.hp">
       <th *ngIf="dataSets?.length > 1">Standard</th>
       <th>Answer </th>
       <th class="align-right">Number</th>

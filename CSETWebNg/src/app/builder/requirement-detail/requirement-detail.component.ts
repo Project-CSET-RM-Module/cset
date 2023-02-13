@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -57,14 +57,14 @@ export class RequirementDetailComponent implements OnInit {
   sourceDocs: ReferenceDoc[] = [];
 
   refDocOptions: ReferenceDoc[] = [];
-  newSourceDocID = 0;
+  newSourceDocId = 0;
   newSourceSectionRef = '';
   sourceDocMissing = false;
 
-  resourceDocs: ReferenceDoc[] = [];
-  newResourceDocID = 0;
-  newResourceSectionRef = '';
-  resourceDocMissing = false;
+  additionalDocs: ReferenceDoc[] = [];
+  newAdditionalDocId = 0;
+  newAdditionalSectionRef = '';
+  additionalDocMissing = false;
 
   @ViewChild('editQ') editQControl;
 
@@ -244,13 +244,13 @@ export class RequirementDetailComponent implements OnInit {
       if (isSourceDoc) {
         this.sourceDocMissing = true;
       } else {
-        this.resourceDocMissing = true;
+        this.additionalDocMissing = true;
       }
       return;
     }
 
     this.sourceDocMissing = false;
-    this.resourceDocMissing = false;
+    this.additionalDocMissing = false;
 
     if (sectionRef.startsWith("#")) {
       sectionRef = sectionRef.substring(1);
@@ -259,12 +259,12 @@ export class RequirementDetailComponent implements OnInit {
     this.setBuilderSvc.addDeleteRefDocToRequirement(reqId, docId, isSourceDoc, sectionRef, adddelete)
       .subscribe((lists: RefDocLists) => {
         this.r.sourceDocs = lists.sourceDocs;
-        this.newSourceDocID = 0;
+        this.newSourceDocId = 0;
         this.newSourceSectionRef = '';
 
-        this.r.resourceDocs = lists.resourceDocs;
-        this.newResourceDocID = 0;
-        this.newResourceSectionRef = '';
+        this.r.additionalDocs = lists.additionalDocs;
+        this.newAdditionalDocId = 0;
+        this.newAdditionalSectionRef = '';
       });
   }
 
