@@ -1,4 +1,10 @@
-﻿using System;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,6 +12,7 @@ using System.Threading.Tasks;
 using System.Data;
 using Microsoft.Data.SqlClient;
 using System.IO;
+using System.Runtime.InteropServices;
 
 namespace UpgradeLibrary.Upgrade
 {
@@ -27,8 +34,13 @@ namespace UpgradeLibrary.Upgrade
         /// Constructor.
         /// </summary>
         public ConvertSqlDatabase(string path)
-        {   
-            this.applicationPath = new FileInfo(path).Directory.FullName;
+        {
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                this.applicationPath = path;
+            }
+            else
+                this.applicationPath = new FileInfo(path).Directory.FullName;
         }
 
 

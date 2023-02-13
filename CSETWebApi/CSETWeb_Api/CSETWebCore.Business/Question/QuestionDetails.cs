@@ -1,4 +1,10 @@
-﻿using CSETWebCore.DataLayer.Model;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using CSETWebCore.DataLayer.Model;
 using CSETWebCore.Model.Findings;
 using System.Collections.Generic;
 
@@ -10,6 +16,9 @@ namespace CSETWebCore.Business.Question
     /// </summary>
     public class QuestionDetails
     {
+        public int AssessmentId { get; set; }
+
+        public int QuestionId { get; set; }
 
         public int SelectedStandardTabIndex { get; set; }
 

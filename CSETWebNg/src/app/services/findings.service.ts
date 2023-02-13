@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@
 //  SOFTWARE.
 //
 ////////////////////////////////
-import { Finding } from './../assessment/questions/findings/findings.model';
+import { ActionItemText, ActionItemTextUpdate, Finding } from './../assessment/questions/findings/findings.model';
 import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { ConfigService } from './config.service';
@@ -37,11 +37,13 @@ const headers = {
 })
 export class FindingsService {
 
-
-
   constructor(private http: HttpClient, private configSvc: ConfigService) {
   }
 
+  getSubRisks(): any {
+    const qstring = this.configSvc.apiUrl + 'GetSubRisks';
+    return this.http.get(qstring, headers);
+  }
 
   getImportance(): any {
     const qstring = this.configSvc.apiUrl + 'GetImportance';
@@ -60,6 +62,19 @@ export class FindingsService {
   getAllDiscoveries(answer_id: number) {
     const qstring = 'AnswerAllDiscoveries?Answer_Id=' + answer_id;
     return this.http.post(this.configSvc.apiUrl + qstring, headers);
+  }
+
+  /**
+   * retrieves all the discoveries for an assessment
+   */
+   GetAssessmentFindings() {
+    const qstring = 'GetAssessmentFindings';
+    return this.http.post(this.configSvc.apiUrl + qstring, headers);
+  }
+
+  saveIssueText(actionItem: ActionItemText[], finding_Id: number) {
+    const tmp: ActionItemTextUpdate = {actionTextItems:actionItem, finding_Id:finding_Id};
+    return this.http.post(this.configSvc.apiUrl + 'SaveIssueOverrideText', tmp, headers );
   }
 
   /**

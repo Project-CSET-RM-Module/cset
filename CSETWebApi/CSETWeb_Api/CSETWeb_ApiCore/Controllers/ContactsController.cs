@@ -1,4 +1,10 @@
-﻿using System;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -31,8 +37,7 @@ namespace CSETWebCore.Api.Controllers
         private CSETContext _context;
 
         public ContactsController(ITokenManager token, INotificationBusiness notification,
-            IAssessmentUtil assessmentUtil, IContactBusiness contact,
-            IUserBusiness user, CSETContext context)
+            IAssessmentUtil assessmentUtil, IContactBusiness contact, IUserBusiness user, CSETContext context)
         {
             _token = token;
             _context = context;
@@ -50,7 +55,7 @@ namespace CSETWebCore.Api.Controllers
         public IActionResult GetContactsForAssessment()
         {
             int assessmentId = _token.AssessmentForUser();
-            int userId = _token.GetCurrentUserId();
+            var userId = _token.GetCurrentUserId();
 
             ContactsListResponse resp = new ContactsListResponse
             {
@@ -70,7 +75,7 @@ namespace CSETWebCore.Api.Controllers
         public IActionResult GetCurrentUserContact()
         {
             int assessmentId = _token.AssessmentForUser();
-            int currentUserId = _token.GetUserId();
+            var currentUserId = _token.GetUserId();
 
             var resp = _contact.GetContacts(assessmentId).Find(c => c.UserId == currentUserId);
             return Ok(resp);
@@ -101,7 +106,7 @@ namespace CSETWebCore.Api.Controllers
             ContactsListResponse resp = new ContactsListResponse
             {
                 ContactList = details,
-                CurrentUserRole = _contact.GetUserRoleOnAssessment(_token.GetCurrentUserId(), assessmentId) ?? 0
+                CurrentUserRole = _contact.GetUserRoleOnAssessment((int)_token.GetCurrentUserId(), assessmentId) ?? 0
             };
             return Ok(resp);
         }
@@ -124,7 +129,33 @@ namespace CSETWebCore.Api.Controllers
                 return BadRequest(err);
             }
 
-            int currentUserId = _token.GetUserId();
+            var currentUserId = _token.GetUserId();
+
+            var accessKey = _token.GetAccessKey();
+
+
+            // remove the connection between the assessment and the accesskey
+            if (currentUserId == null && accessKey != null)
+            {
+                var bridge = _context.ACCESS_KEY_ASSESSMENT
+                    .Where(x => x.Assessment_Id == contactRemove.AssessmentId && x.AccessKey == accessKey)
+                    .FirstOrDefault();
+
+                if (bridge != null)
+                {
+                    _context.ACCESS_KEY_ASSESSMENT.Remove(bridge);
+                    _context.SaveChanges();
+                }
+
+                ContactsListResponse resp1 = new ContactsListResponse
+                {
+                    ContactList = _contact.GetContacts(contactRemove.AssessmentId),
+                    CurrentUserRole = 0
+                };
+
+                return Ok(resp1);
+            }
+
 
             ASSESSMENT_CONTACTS ac = null;
 
@@ -151,7 +182,8 @@ namespace CSETWebCore.Api.Controllers
                 return BadRequest(err);
             }
 
-            int currentUserRole = _contact.GetUserRoleOnAssessment(_token.GetCurrentUserId(), ac.Assessment_Id) ?? 0;
+
+            int currentUserRole = _contact.GetUserRoleOnAssessment((int)_token.GetCurrentUserId(), ac.Assessment_Id) ?? 0;
 
             // If they are a USER and are trying to remove anyone but themself, forbid it
             if (currentUserRole == (int)ContactRole.RoleUser && ac.UserId != currentUserId)
@@ -196,7 +228,7 @@ namespace CSETWebCore.Api.Controllers
             ContactsListResponse resp = new ContactsListResponse
             {
                 ContactList = _contact.GetContacts(ac.Assessment_Id),
-                CurrentUserRole = _contact.GetUserRoleOnAssessment(_token.GetCurrentUserId(), ac.Assessment_Id) ?? 0
+                CurrentUserRole = _contact.GetUserRoleOnAssessment((int)_token.GetCurrentUserId(), ac.Assessment_Id) ?? 0
             };
 
             return Ok(resp);
@@ -274,7 +306,7 @@ namespace CSETWebCore.Api.Controllers
         public IActionResult GetUpdateUser()
         {
             _token.IsAuthenticated();
-            int userId = _token.GetUserId();
+            var userId = _token.GetUserId();
 
             var resp = _user.GetUserInfo(userId);
             return Ok(resp);
@@ -286,23 +318,46 @@ namespace CSETWebCore.Api.Controllers
         /// <returns></returns>
         [HttpPost]
         [Route("api/contacts/UpdateUser")]
-        public void PostUpdateUser([FromBody] CreateUser userBeingUpdated)
+        public IActionResult PostUpdateUser([FromBody] CreateUser userBeingUpdated)
         {
             int userid = 0;
             if (_token.IsAuthenticated())
             {
-                userid = _token.GetUserId();
+                userid = (int)_token.GetUserId();
             }
 
             // If an edit is happening to a brand-new user, it is possible that the UI does not yet
             // know its UserId. In that case we will attempt to determine it via the primary email.
 
-            if (userBeingUpdated.UserId == 0 || userBeingUpdated.UserId == 1)
+            if (userBeingUpdated.UserId == null || userBeingUpdated.UserId == 0 || userBeingUpdated.UserId == 1)
             {
                 var u = _context.USERS.Where(x => x.PrimaryEmail == userBeingUpdated.saveEmail).FirstOrDefault();
                 if (u != null)
                 {
                     userBeingUpdated.UserId = u.UserId;
+                }
+                else
+                {
+                    // This contact's user record does not exist ... create one
+                    UserDetail userDetail = new UserDetail
+                    {
+                        Email = userBeingUpdated.PrimaryEmail,
+                        FirstName = userBeingUpdated.FirstName,
+                        LastName = userBeingUpdated.LastName,
+                        IsSuperUser = false,
+                        PasswordResetRequired = true
+                    };            
+
+                    var uuu = _user.CreateUser(userDetail, _context);
+                    userBeingUpdated.UserId = uuu.UserId;
+                }
+
+                // save the assessment_contacts record with the new userid before things start getting updated
+                var ac = _context.ASSESSMENT_CONTACTS.Where(x => x.Assessment_Contact_Id == userBeingUpdated.AssessmentContactId).FirstOrDefault();
+                if (ac != null)
+                {
+                    ac.UserId = userBeingUpdated.UserId;
+                    _context.SaveChanges();
                 }
             }
 
@@ -321,28 +376,54 @@ namespace CSETWebCore.Api.Controllers
 
             if (userid != userBeingUpdated.UserId)
             {
+                // I (current user) am updating another contact
+
                 if (assessmentId >= 0)
                 {
                     // Updating a Contact in the context of the current Assessment.  
                     (_token).AuthorizeAdminRole();
 
-                    _contact.UpdateContact(new ContactDetail
+                    int newUserId = (int)userBeingUpdated.UserId;
+
+                    // If there is already a user with the same email as the newly updated email, use that existing user's id to connect them
+                    // to the assessment after editing a contact
+                    var existingUser = _context.USERS.Where(x => x.PrimaryEmail == userBeingUpdated.PrimaryEmail).FirstOrDefault();
+                    if (existingUser != null) 
                     {
+                        newUserId = existingUser.UserId;
+                    }
+
+                    ContactDetail updatedContact = new ContactDetail
+                    {
+                        AssessmentContactId = userBeingUpdated.AssessmentContactId,
                         AssessmentId = assessmentId,
                         AssessmentRoleId = userBeingUpdated.AssessmentRoleId,
                         FirstName = userBeingUpdated.FirstName,
                         LastName = userBeingUpdated.LastName,
                         PrimaryEmail = userBeingUpdated.PrimaryEmail,
-                        UserId = userBeingUpdated.UserId,
+                        UserId = newUserId,
                         Title = userBeingUpdated.Title,
-                        Phone = userBeingUpdated.Phone
-                    });
+                        Phone = userBeingUpdated.Phone,
+                        CellPhone = userBeingUpdated.CellPhone,
+                        ReportsTo = userBeingUpdated.ReportsTo,
+                        OrganizationName = userBeingUpdated.OrganizationName,
+                        SiteName = userBeingUpdated.SiteName,
+                        IsPrimaryPoc = userBeingUpdated.IsPrimaryPoc,
+                        IsSiteParticipant = userBeingUpdated.IsSiteParticipant,
+                        EmergencyCommunicationsProtocol = userBeingUpdated.EmergencyCommunicationsProtocol
+                    };
+
+                    _contact.UpdateContact(updatedContact, (int)userBeingUpdated.UserId);
                     _assessmentUtil.TouchAssessment(assessmentId);
+
+                    return Ok(updatedContact);
                 }
+
+                return Unauthorized();
             }
             else
             {
-                // Updating myself
+                // I (current user) am updating myself
 
                 // update user detail                    
                 var user = _context.USERS.Where(x => x.UserId == userBeingUpdated.UserId).FirstOrDefault();
@@ -417,6 +498,7 @@ namespace CSETWebCore.Api.Controllers
                     log4net.LogManager.GetLogger(this.GetType()).Error($"... {exc}");
                 }
 
+                return Ok();
             }
         }
 

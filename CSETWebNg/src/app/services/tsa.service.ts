@@ -1,3 +1,26 @@
+////////////////////////////////
+//
+//   Copyright 2023 Battelle Energy Alliance, LLC
+//
+//  Permission is hereby granted, free of charge, to any person obtaining a copy
+//  of this software and associated documentation files (the "Software"), to deal
+//  in the Software without restriction, including without limitation the rights
+//  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+//  copies of the Software, and to permit persons to whom the Software is
+//  furnished to do so, subject to the following conditions:
+//
+//  The above copyright notice and this permission notice shall be included in all
+//  copies or substantial portions of the Software.
+//
+//  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+//  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+//  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+//  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+//  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+//  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+//  SOFTWARE.
+//
+////////////////////////////////
 import { Injectable } from '@angular/core';
 import { ConfigService } from './config.service';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
@@ -35,9 +58,9 @@ export class TsaService {
   cmmcData = null;
 
   /**
-   * 
-   * @param http 
-   * @param configSvc 
+   *
+   * @param http
+   * @param configSvc
    */
   constructor(
     private http: HttpClient,
@@ -56,7 +79,7 @@ export class TsaService {
       headers
     );
   }
-  
+
   TSAtogglerra(assessment: AssessmentDetail){
     this.assessment = assessment;
     return this.http.post<MaturityModel>(
@@ -65,8 +88,15 @@ export class TsaService {
       headers
     )
   }
+  TSAtogglevadr(assessment: AssessmentDetail){
+    this.assessment = assessment;
+    return this.http.post<MaturityModel>(
+      this.configSvc.apiUrl + "tsa/togglevadr",
+      JSON.stringify(assessment),
+      headers
+    )
+  }
 
-   
   TSAtogglestandard(assessment: AssessmentDetail){
     this.assessment = assessment;
     this.selectedStandards=assessment.standards;
@@ -74,13 +104,28 @@ export class TsaService {
       this.configSvc.apiUrl + "tsa/togglestandard",
       JSON.stringify(assessment),
       headers
-      
+
     ).pipe(map(resp=>{
-      
+
       for(const key in resp){
         this.selectedStandards.push(key);
       }
       return this.selectedStandards;
     }))
   }
+    /**
+   * Posts the current selections to the server.
+   */
+     postSelections(selections: string[]) {
+      return this.http.post(
+        this.configSvc.apiUrl + "tsa/standard",
+        selections,
+        headers
+
+      )
+    }
+   TSAGetModelsName(){
+    return this.http.get(this.configSvc.apiUrl + 'tsa/getModelsName');
+
+   }
 }

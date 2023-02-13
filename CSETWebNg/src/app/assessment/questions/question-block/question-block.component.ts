@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,9 @@ import { InlineParameterComponent } from '../../../dialogs/inline-parameter/inli
 import { ConfigService } from '../../../services/config.service';
 import { AssessmentService } from '../../../services/assessment.service';
 import { QuestionFilterService } from '../../../services/filtering/question-filter.service';
+import { LayoutService } from '../../../services/layout.service';
+import { CompletionService } from '../../../services/completion.service';
+
 
 /**
  * Represents the display container of a single subcategory with its member questions.
@@ -59,20 +62,24 @@ export class QuestionBlockComponent implements OnInit {
 
   showQuestionIds = false;
 
+
   /**
-   * 
-   * @param questionsSvc 
-   * @param filterSvc 
-   * @param dialog 
-   * @param configSvc 
-   * @param assessSvc 
+   *
+   * @param questionsSvc
+   * @param filterSvc
+   * @param dialog
+   * @param configSvc
+   * @param assessSvc
    */
   constructor(
     public questionsSvc: QuestionsService,
+    public completionSvc: CompletionService,
     public filterSvc: QuestionFilterService,
     private dialog: MatDialog,
     public configSvc: ConfigService,
-    public assessSvc: AssessmentService) {
+    public assessSvc: AssessmentService,
+    public layoutSvc: LayoutService
+    ) {
     this.matLevelMap.set("B", "Baseline");
     this.matLevelMap.set("E", "Evolving");
     this.matLevelMap.set("Int", "Intermediate");
@@ -81,7 +88,7 @@ export class QuestionBlockComponent implements OnInit {
   }
 
   /**
-   * 
+   *
    */
   ngOnInit() {
     this.answerOptions = this.questionsSvc.questions?.answerOptions;
@@ -114,23 +121,23 @@ export class QuestionBlockComponent implements OnInit {
   }
 
   /**
-   * 
-   * @param q 
+   *
+   * @param q
    */
   baselineLevel(q: Question) {
     return this.matLevelMap.get(q.maturityLevel.toString());
   }
 
   /**
-   * 
+   *
    */
   refreshComponentOverrides() {
     this.changeComponents.emit();
   }
 
   /**
-   * 
-   * @param ans 
+   *
+   * @param ans
    */
   showThisOption(ans: string) {
     if (!this.questionsSvc.questions) {
@@ -143,7 +150,7 @@ export class QuestionBlockComponent implements OnInit {
    * Spawns a dialog to capture the new substitution text.
    */
   questionTextClicked(q: Question, e: Event) {
-    const target: Element = (e.target || e.srcElement || e.currentTarget) as Element;
+    const target: Element = (e.target || e.target || e.currentTarget) as Element;
     const parameterId = this.getParameterId(target);
 
     // If they did not click on a parameter, do nothing
@@ -155,7 +162,7 @@ export class QuestionBlockComponent implements OnInit {
       {
         data: {
           question: q,
-          clickedToken: e.srcElement,
+          clickedToken: e.target,
           parameterId: parameterId
         },
         disableClose: false
@@ -190,6 +197,14 @@ export class QuestionBlockComponent implements OnInit {
   }
 
   /**
+   *
+   */
+  saveMFR(q) {
+    this.questionsSvc.saveMFR(q);
+    this.refreshReviewIndicator();
+  }
+
+  /**
    * Looks at all questions in the subcategory to see if any
    * are marked for review.
    * Also returns true if alt text is required but not supplied.
@@ -211,7 +226,7 @@ export class QuestionBlockComponent implements OnInit {
   /**
    * Calculates the percentage of answered questions for this subcategory.
    * The percentage for maturity questions is calculated using questions
-   * that are within the assessment's target level.  
+   * that are within the assessment's target level.
    */
   refreshPercentAnswered() {
     let answeredCount = 0;
@@ -281,6 +296,8 @@ export class QuestionBlockComponent implements OnInit {
         componentGuid: q.componentGuid
       };
 
+      this.completionSvc.setAnswer(q.questionId, q.answer);
+
       subCatAnswers.answers.push(answer);
     });
 
@@ -322,16 +339,20 @@ export class QuestionBlockComponent implements OnInit {
       componentGuid: q.componentGuid
     };
 
+    this.completionSvc.setAnswer(q.questionId, q.answer);
+
     this.refreshReviewIndicator();
 
     this.refreshPercentAnswered();
 
     this.questionsSvc.storeAnswer(answer)
-      .subscribe();
+      .subscribe((ansId: number) => {
+        q.answer_Id = ansId;
+      });
   }
 
   /**
-   * For ACET installations, alt answers require 3 or more characters of 
+   * For ACET installations, alt answers require 3 or more characters of
    * justification.
    */
   isAltTextRequired(q: Question) {
@@ -371,7 +392,9 @@ export class QuestionBlockComponent implements OnInit {
       this.refreshReviewIndicator();
 
       this.questionsSvc.storeAnswer(answer)
-        .subscribe();
+        .subscribe((ansId: number) => {
+          q.answer_Id = ansId;
+        });
     }, 500);
 
   }
@@ -392,34 +415,5 @@ export class QuestionBlockComponent implements OnInit {
       return "normal";
     }
     return "break-all";
-  }
-
-
-
-  /**
-   *
-   */
-  saveMFR(q: Question) {
-    q.markForReview = !q.markForReview; // Toggle Bind
-
-    const newAnswer: Answer = {
-      answerId: q.answer_Id,
-      questionId: q.questionId,
-      questionType: q.questionType,
-      questionNumber: q.displayNumber,
-      answerText: q.answer,
-      altAnswerText: q.altAnswerText,
-      comment: q.comment,
-      feedback: q.feedback,
-      markForReview: q.markForReview,
-      reviewed: q.reviewed,
-      is_Component: q.is_Component,
-      is_Requirement: q.is_Requirement,
-      is_Maturity: q.is_Maturity,
-      componentGuid: q.componentGuid
-    };
-
-    this.refreshReviewIndicator();
-    this.questionsSvc.storeAnswer(newAnswer).subscribe();
   }
 }

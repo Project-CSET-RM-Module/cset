@@ -1,6 +1,6 @@
 ﻿//////////////////////////////// 
 // 
-//   Copyright 2022 Battelle Energy Alliance, LLC  
+//   Copyright 2023 Battelle Energy Alliance, LLC  
 // 
 // 
 //////////////////////////////// 
@@ -16,10 +16,12 @@ using CSETWebCore.Interfaces.Notification;
 using CSETWebCore.Model.Password;
 using CSETWebCore.Model.User;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using CSETWebCore.Model.Auth;
 
 
 namespace CSETWebCore.Api.Controllers
@@ -36,9 +38,11 @@ namespace CSETWebCore.Api.Controllers
         private readonly IReportsDataBusiness _reports;
         private readonly IUserBusiness _userBusiness;
         private readonly INotificationBusiness _notificationBusiness;
+        private readonly IConfiguration _configuration;
 
         public ResetPasswordController(IUserAuthentication userAuthentication, ITokenManager tokenManager, CSETContext context,
-             IAssessmentUtil assessmentUtil, IAdminTabBusiness adminTabBusiness, IReportsDataBusiness reports, IUserBusiness userBusiness, INotificationBusiness notificationBusiness)
+             IAssessmentUtil assessmentUtil, IAdminTabBusiness adminTabBusiness, IReportsDataBusiness reports,
+             IUserBusiness userBusiness, INotificationBusiness notificationBusiness, IConfiguration configuration)
         {
             _userAuthentication = userAuthentication;
             _tokenManager = tokenManager;
@@ -48,6 +52,7 @@ namespace CSETWebCore.Api.Controllers
             _reports = reports;
             _userBusiness = userBusiness;
             _notificationBusiness = notificationBusiness;
+            _configuration = configuration;
         }
 
 
@@ -62,15 +67,23 @@ namespace CSETWebCore.Api.Controllers
                 {
                     return BadRequest("Invalid Model State");
                 }
-                int userid = _tokenManager.GetUserId();
-                var rval = _context.USERS.Where(x => x.UserId == userid).FirstOrDefault();
+
+                var userId = _tokenManager.GetUserId();
+                var rval = _context.USERS.Where(x => x.UserId == userId).FirstOrDefault();
                 if (rval != null)
                 {
                     var resetRequired = rval.PasswordResetRequired;
                     return Ok(resetRequired);
                 }
-                else
-                    return BadRequest("Unknown error");
+
+
+                // if an access key is used, there is no password to expire
+                if (_tokenManager.GetAccessKey() != null)
+                {
+                    return Ok(false);
+                }
+
+                return BadRequest("Unknown error");
 
             }
             catch (Exception ce)
@@ -94,11 +107,21 @@ namespace CSETWebCore.Api.Controllers
             {
                 if (!ModelState.IsValid)
                 {
-                    return BadRequest("Invalid Model State");
+                    return Ok(
+                        new PasswordResponse()
+                        {
+                            IsValid = false,
+                            Message = "Invalid Model State"
+                        });
                 }
                 if (!emailvalidator.IsMatch(changePass.PrimaryEmail.Trim()))
                 {
-                    return BadRequest("Invalid PrimaryEmail");
+                    return Ok(
+                        new PasswordResponse()
+                        {
+                            IsValid = false,
+                            Message = "Invalid Primary Email"
+                        });
                 }
 
                 Login login = new Login()
@@ -110,26 +133,75 @@ namespace CSETWebCore.Api.Controllers
                 LoginResponse resp = _userAuthentication.Authenticate(login);
                 if (resp == null)
                 {
-                    return BadRequest("Current password is invalid. Try again or request a new temporary password.");
+                    return Ok(
+                        new PasswordResponse()
+                        {
+                            IsValid = false,
+                            Message = "Current password is invalid.<br>Correct it or request a new temporary password."
+                        });
                 }
 
-                UserAccountSecurityManager resetter = new UserAccountSecurityManager(_context, _userBusiness, _notificationBusiness);
+                UserAccountSecurityManager resetter = new UserAccountSecurityManager(_context, _userBusiness, _notificationBusiness, _configuration);
+
+                // does this new password follow the complexity rules?
+                PasswordResponse respComplex = resetter.ComplexityRulesMet(changePass);
+                if (!respComplex.PasswordContainsLower || !respComplex.PasswordContainsUpper || !respComplex.PasswordLengthMet ||
+                    !respComplex.PasswordContainsSpecial || !respComplex.PasswordNotReused)
+                {
+                    respComplex.IsValid = false;
+                    return Ok(respComplex);
+                }
+
 
                 bool rval = resetter.ChangePassword(changePass);
                 if (rval)
                 {
                     resp.ResetRequired = false;
                     _context.SaveChanges();
-                    return Ok("Created Successfully");
+                    return Ok(new PasswordResponse()
+                    {
+                        IsValid = true,
+                        Message = "Created Successfully"
+                    });
                 }
                 else
-                    return BadRequest("Unknown error");
-
+                    return Ok(new PasswordResponse()
+                    {
+                        IsValid = false,
+                        Message = "Unknown error"
+                    });
             }
             catch (Exception e)
             {
                 return BadRequest(e.Message);
             }
+        }
+
+        [HttpPost]
+        [Route("api/ResetPassword/CheckPassword")]
+        public IActionResult CheckPassword([FromBody] ChangePassword changePass)
+        {
+            UserAccountSecurityManager resetter = new UserAccountSecurityManager(_context, _userBusiness, _notificationBusiness, _configuration);
+
+            // does this new password follow the complexity rules?
+            if (changePass.NewPassword == null)
+            {
+                return Ok(new PasswordResponse
+                {
+                    PasswordLengthMin = resetter.PasswordLengthMin,
+                    PasswordLengthMax = resetter.PasswordLengthMax,
+                    NumberOfHistoricalPasswords = resetter.NumberOfHistoricalPasswords,
+                    PasswordLengthMet = false,
+                    PasswordContainsNumbers = false,
+                    PasswordContainsLower = false,
+                    PasswordContainsUpper = false,
+                    PasswordContainsSpecial = false,
+                    PasswordNotReused = false
+                });
+            }
+
+            PasswordResponse complexEnough = resetter.ComplexityRulesMet(changePass);
+            return Ok(complexEnough);
         }
 
 
@@ -162,7 +234,7 @@ namespace CSETWebCore.Api.Controllers
                     return BadRequest("An account already exists for that email address");
                 }
 
-                UserAccountSecurityManager resetter = new UserAccountSecurityManager(_context, _userBusiness, _notificationBusiness);
+                UserAccountSecurityManager resetter = new UserAccountSecurityManager(_context, _userBusiness, _notificationBusiness, _configuration);
                 bool rval = resetter.CreateUserSendEmail(user);
                 if (rval)
                     return Ok("Created Successfully");
@@ -193,7 +265,7 @@ namespace CSETWebCore.Api.Controllers
 
                 if (IsSecurityAnswerCorrect(answer))
                 {
-                    UserAccountSecurityManager resetter = new UserAccountSecurityManager(_context, _userBusiness, _notificationBusiness);
+                    UserAccountSecurityManager resetter = new UserAccountSecurityManager(_context, _userBusiness, _notificationBusiness, _configuration);
                     bool rval = resetter.ResetPassword(answer.PrimaryEmail, "Password Reset", answer.AppCode);
                     if (rval)
                         return Ok();
@@ -219,7 +291,7 @@ namespace CSETWebCore.Api.Controllers
         {
             try
             {
-                UserAccountSecurityManager resetter = new UserAccountSecurityManager(_context, _userBusiness, _notificationBusiness);
+                UserAccountSecurityManager resetter = new UserAccountSecurityManager(_context, _userBusiness, _notificationBusiness, _configuration);
                 return Ok(resetter.GetSecurityQuestionList());
             }
             catch (Exception e)
@@ -236,7 +308,7 @@ namespace CSETWebCore.Api.Controllers
             try
             {
                 if (_context.USERS.Where(x => String.Equals(x.PrimaryEmail, email)).FirstOrDefault() == null)
-                { 
+                {
                     return BadRequest();
                 }
 
@@ -257,7 +329,7 @@ namespace CSETWebCore.Api.Controllers
                 if (questions.Count == 0
                     || (questions[0].SecurityQuestion1 == null && questions[0].SecurityQuestion2 == null))
                 {
-                    UserAccountSecurityManager resetter = new UserAccountSecurityManager(_context, _userBusiness, _notificationBusiness);
+                    UserAccountSecurityManager resetter = new UserAccountSecurityManager(_context, _userBusiness, _notificationBusiness, _configuration);
                     bool rval = resetter.ResetPassword(email, "Password Reset", appCode);
 
                     return Ok(new List<SecurityQuestions>());

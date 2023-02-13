@@ -1,6 +1,6 @@
 //////////////////////////////// 
 // 
-//   Copyright 2022 Battelle Energy Alliance, LLC  
+//   Copyright 2023 Battelle Energy Alliance, LLC  
 // 
 // 
 //////////////////////////////// 
@@ -101,6 +101,8 @@ namespace CSETWebCore.Business.ImportAssessment.Models.Version_10_1
         public Int32 AssessmentCreatorId { get; set; }
 
         public DateTime LastAccessedDate { get; set; }
+        
+        public DateTime AssessmentEffectiveDate { get; set; }
 
         [MaxLength(50)]
         public String Alias { get; set; }
@@ -383,6 +385,32 @@ namespace CSETWebCore.Business.ImportAssessment.Models.Version_10_1
 
         public Int32 Importance_Id { get; set; }
 
+        public String Title { get; set; }
+
+        public String Type { get; set; }
+
+        public String Risk_Area { get; set; }
+
+        public String Sub_Risk { get; set; }
+
+        public String Description { get; set; }
+
+        public String Citations { get; set; }
+
+        public String ActionItems { get; set; }
+
+        public String Auto_Generated { get; set; }
+
+        public String Supp_Guidance { get; set; }
+
+    }
+
+    public class jISE_ACTIONS_FINDINGS
+    {
+        public Int32 Finding_Id { get; set; }
+        public Int32 Mat_Question_Id { get; set; }
+        public String Action_Items_Override { get; set; }
+
     }
 
     public class jANSWER
@@ -431,8 +459,13 @@ namespace CSETWebCore.Business.ImportAssessment.Models.Version_10_1
 
         public int Old_Answer_Id { get; internal set; }
 
-        public string Feedback { get; set; }
+        public string FeedBack { get; set; }
+
         public bool Is_Maturity { get; set; }
+
+        public String Free_Response_Answer { get; set; }
+
+        public Nullable<Int32> Mat_Option_Id { get; set; }
     }
 
     public class jAVAILABLE_MATURITY_MODELS
@@ -562,6 +595,9 @@ namespace CSETWebCore.Business.ImportAssessment.Models.Version_10_1
 
         [MaxLength(4000)]
         public String Assessment_Description { get; set; }
+        
+        [MaxLength(100)]
+        public string Workflow { get; set; }
 
         [MaxLength(4000)]
         public String Additional_Notes_And_Comments { get; set; }
@@ -579,6 +615,8 @@ namespace CSETWebCore.Business.ImportAssessment.Models.Version_10_1
         public String Real_Property_Unique_Id { get; set; }
 
         public Int32 eMass_Document_Id { get; set; }
+
+        public Nullable<Int32> Baseline_Assessment_Id { get; set; }
 
     }
 

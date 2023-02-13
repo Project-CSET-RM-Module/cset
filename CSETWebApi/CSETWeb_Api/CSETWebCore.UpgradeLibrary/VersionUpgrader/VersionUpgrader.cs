@@ -1,4 +1,10 @@
-﻿using System;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using System;
 using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using System.Diagnostics;
@@ -49,7 +55,32 @@ namespace UpgradeLibrary.Upgrade
             converters.Add("10.3.1.3", new ConvertDatabase10314(path));
             converters.Add("10.3.1.4", new ConvertDatabase11000(path));
             converters.Add("11.0.0.0", new ConvertDatabase11010(path));
-
+            converters.Add("11.0.1.0", new ConvertDatabase11012(path));
+            converters.Add("11.0.1.2", new ConvertDatabase11013(path));
+            converters.Add("11.0.1.3", new ConvertDatabase11100(path));
+            converters.Add("11.1.0.0", new ConvertDatabase11200(path));
+            converters.Add("11.2.0.0", new ConvertDatabase11210(path));
+            converters.Add("11.2.1.0", new ConvertDatabase12000(path));
+            converters.Add("12.0.0.0", new ConvertDatabase12001(path));
+            converters.Add("12.0.0.1", new ConvertDatabase12002(path));
+            converters.Add("12.0.0.2", new ConvertDatabase12003(path));
+            converters.Add("12.0.0.3", new ConvertDatabase12004(path));
+            converters.Add("12.0.0.4", new ConvertDatabase12005(path));
+            converters.Add("12.0.0.5", new ConvertDatabase12006(path));
+            converters.Add("12.0.0.6", new ConvertDatabase12007(path));
+            converters.Add("12.0.0.7", new ConvertDatabase12008(path));
+            converters.Add("12.0.0.8", new ConvertDatabase12009(path));
+            converters.Add("12.0.0.9", new ConvertDatabase120010(path));
+            converters.Add("12.0.0.10", new ConvertDatabase120011(path));
+            converters.Add("12.0.0.11", new ConvertDatabase120012(path));
+            converters.Add("12.0.0.12", new ConvertDatabase120013(path));
+            converters.Add("12.0.0.13", new ConvertDatabase120014(path));
+            converters.Add("12.0.0.14", new ConvertDatabase120015(path));
+            converters.Add("12.0.0.15", new ConvertDatabase120016(path));
+            converters.Add("12.0.0.16", new ConvertDatabase120017(path));
+            converters.Add("12.0.0.17", new ConvertDatabase120018(path));
+            converters.Add("12.0.0.18", new ConvertDatabase120019(path));
+            converters.Add("12.0.0.19", new ConvertDatabase12012(path));
         }
 
         public void UpgradeOnly(Version currentVersion, string tempConnect)

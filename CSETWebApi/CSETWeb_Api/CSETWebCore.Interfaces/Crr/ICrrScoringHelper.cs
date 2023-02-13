@@ -1,4 +1,10 @@
-﻿using System.Collections.Generic;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using System.Collections.Generic;
 using System.Xml.Linq;
 using CSETWebCore.DataLayer.Model;
 using CSETWebCore.Model.Crr;
@@ -20,7 +26,8 @@ namespace CSETWebCore.Interfaces.Crr
         public void GetSubgroups(XElement xE, int? parentID,
             List<MATURITY_GROUPINGS> allGroupings,
             List<MATURITY_QUESTIONS> questions,
-            List<FullAnswer> answers);
+            List<FullAnswer> answers,
+            List<MATURITY_DOMAIN_REMARKS> domainRemarks);
 
         public void ManipulateStructure();
         public void Rollup();

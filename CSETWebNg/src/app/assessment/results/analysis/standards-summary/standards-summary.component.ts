@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -29,7 +29,8 @@ import { AnalysisService } from '../../../../services/analysis.service';
 import { AssessmentService } from '../../../../services/assessment.service';
 import { ChartService } from '../../../../services/chart.service';
 import { ConfigService } from '../../../../services/config.service';
-import { NavigationService } from '../../../../services/navigation.service';
+import { LayoutService } from '../../../../services/layout.service';
+import { NavigationService } from '../../../../services/navigation/navigation.service';
 import { Utilities } from '../../../../services/utilities.service';
 
 @Component({
@@ -45,11 +46,13 @@ export class StandardsSummaryComponent implements OnInit, AfterViewInit {
   dataSets: { dataRows: { Answer_Full_Name: string; qc: number; Total: number; Percent: number; }[], label: string, Colors: string[], backgroundColor: string[] }[];
   initialized = false;
 
+
   constructor(
     private analysisSvc: AnalysisService,
     private chartSvc: ChartService,
     public navSvc: NavigationService,
     public configSvc: ConfigService,
+    public layoutSvc: LayoutService
   ) { }
 
   ngOnInit() {

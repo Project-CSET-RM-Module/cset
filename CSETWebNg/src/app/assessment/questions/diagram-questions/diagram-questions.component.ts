@@ -1,6 +1,7 @@
+import { CompletionService } from './../../../services/completion.service';
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +27,7 @@ import { Category, Domain } from '../../../models/questions.model';
 import { QuestionResponse } from '../../../models/questions.model';
 import { AssessmentService } from '../../../services/assessment.service';
 import { MaturityService } from '../../../services/maturity.service';
-import { NavigationService } from '../../../services/navigation.service';
+import { NavigationService } from '../../../services/navigation/navigation.service';
 import { QuestionsService } from '../../../services/questions.service';
 import { MatDialogRef, MatDialog } from '@angular/material/dialog';
 import { QuestionFiltersComponent } from '../../../dialogs/question-filters/question-filters.component';
@@ -50,6 +51,7 @@ export class DiagramQuestionsComponent implements OnInit {
     public configSvc: ConfigService,
     public maturitySvc: MaturityService,
     public questionsSvc: QuestionsService,
+    public completionSvc: CompletionService,
     public filterSvc: QuestionFilterService,
     public navSvc: NavigationService,
     private dialog: MatDialog
@@ -64,8 +66,8 @@ export class DiagramQuestionsComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.loadQuestions();
     this.assessSvc.currentTab = 'questions';
+    this.loadQuestions();
   }
 
   /**
@@ -85,6 +87,8 @@ export class DiagramQuestionsComponent implements OnInit {
         this.questionsSvc.questions = response;
         this.categories = response.categories;
         this.loaded = true;
+
+        this.completionSvc.setQuestionArray(response);
 
         this.refreshQuestionVisibility();
       },
@@ -113,7 +117,7 @@ export class DiagramQuestionsComponent implements OnInit {
   }
 
   /**
- * 
+ *
  */
   showFilterDialog() {
     this.filterDialogRef = this.dialog.open(QuestionFiltersComponent);

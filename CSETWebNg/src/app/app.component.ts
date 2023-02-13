@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -97,32 +97,25 @@ export class AppComponent implements OnInit, AfterViewInit {
   hasPath(rpath: string) {
     if (rpath != null) {
       localStorage.removeItem("returnPath");
-      this.router.navigate([rpath], { queryParamsHandling: "preserve" });
+      const qParams = this.processParams(rpath);
+      rpath = rpath.split('?')[0];
+      this.router.navigate([rpath], {queryParams: qParams, queryParamsHandling: 'merge' });
     }
   }
 
-  /**
-   * Indicates if the user is currently within the Module Builder pages.
-   * TODO:  Hard-coded paths could be replaced by asking the BreadcrumbComponent
-   * or the SetBuilderService for Module Builder paths.
-   */
-  isModuleBuilder(rpath: string) {
-    if (!rpath) {
-      return false;
-    }
-    if (rpath === '/set-list'
-      || rpath.indexOf('/set-detail') > -1
-      || rpath.indexOf('/requirement-list') > -1
-      || rpath.indexOf('/standard-documents') > -1
-      || rpath.indexOf('/ref-document') > -1
-      || rpath.indexOf('/requirement-detail') > -1
-      || rpath.indexOf('/question-list') > -1
-      || rpath.indexOf('/add-question') > -1) {
-      return true;
-    }
-    return false;
-  }
+  processParams(url: string) {
+    if (!url.includes('?'))
+      return null
 
+    let queryParams = url.split('?')[1];
+    let params = queryParams.split('&');
+    let queryParamsObj = {};
+    params.forEach((d) => {
+      let pair = d.split('=');
+      queryParamsObj[`${pair[0]}`] = pair[1];
+    });
+    return queryParamsObj;
+  }
 
   goHome() {
     this.assessSvc.dropAssessment();

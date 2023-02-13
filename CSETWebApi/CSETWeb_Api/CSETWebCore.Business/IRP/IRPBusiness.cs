@@ -1,4 +1,10 @@
-﻿using System.Linq;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using System.Linq;
 using CSETWebCore.DataLayer.Model;
 using CSETWebCore.Interfaces.Helpers;
 using CSETWebCore.Interfaces.IRP;
@@ -40,7 +46,8 @@ namespace CSETWebCore.Business.IRP
                         Risk_3_Description = irp.Risk_3_Description,
                         Risk_4_Description = irp.Risk_4_Description,
                         Risk_5_Description = irp.Risk_5_Description,
-                        Validation_Approach = irp.Validation_Approach
+                        Validation_Approach = irp.Validation_Approach,
+                        Risk_Type = irp.Risk_Type
                     };
 
                     // Get the existing answer or create a blank 

@@ -1,6 +1,6 @@
 ﻿//////////////////////////////// 
 // 
-//   Copyright 2022 Battelle Energy Alliance, LLC  
+//   Copyright 2023 Battelle Energy Alliance, LLC  
 // 
 // 
 //////////////////////////////// 
@@ -53,7 +53,7 @@ namespace CSETWebCore.Business.Notification
 
         //public string GetConfiguration()
         //{
-        //    return _configuration.GetSection("SMTP Port").Value;
+        //    return _configuration.GetSection("SmtpPort").Value;
         //}
 
         /// <summary>
@@ -64,6 +64,8 @@ namespace CSETWebCore.Business.Notification
             // Populate the app display names.
             this._appDisplayName.Add("CSET", "CSET");
             this._appDisplayName.Add("ACET", "ACET");
+            this._appDisplayName.Add("RRA", "RRA");
+            this._appDisplayName.Add("CF", "Cyber Florida");
         }
 
         /// <summary>
@@ -80,10 +82,15 @@ namespace CSETWebCore.Business.Notification
             string bodyHtml = _resourceHelper.GetEmbeddedResource(@"App_Data\assessmentInviteTemplate_" + this._scope + ".html");
             var emailConfig = _configuration.GetSection("Email").AsEnumerable();
             // Build the name if supplied.  
-            string contactName = string.Empty;
+            string contactName = String.Empty;
             if (!string.IsNullOrEmpty(contact.FirstName) || !string.IsNullOrEmpty(contact.FirstName))
             {
                 contactName = (contact.FirstName + " " + contact.LastName).Trim() + ",";
+            }
+
+            if (contact.Body == null)
+            {
+                contact.Body = String.Empty;
             }
 
             bodyHtml = bodyHtml.Replace("{{name}}", contactName);
@@ -98,8 +105,8 @@ namespace CSETWebCore.Business.Notification
             message.IsBodyHtml = true;
             message.To.Add(new MailAddress(contact.PrimaryEmail));
             message.From = new MailAddress(
-            emailConfig.FirstOrDefault(x => x.Key == "Email:Sender Email").Value,
-            emailConfig.FirstOrDefault(x => x.Key == "Email:Sender Display Name").Value);
+            emailConfig.FirstOrDefault(x => x.Key == "Email:SenderEmail").Value,
+            emailConfig.FirstOrDefault(x => x.Key == "Email:SenderDisplayName").Value);
             SendMail(message);
         }
 
@@ -125,8 +132,8 @@ namespace CSETWebCore.Business.Notification
             message.Body = bodyHtml;
             message.To.Add(new MailAddress(email));
             message.From = new MailAddress(
-            emailConfig.FirstOrDefault(x => x.Key == "Email:Sender Email").Value,
-            emailConfig.FirstOrDefault(x => x.Key == "Email:Sender Display Name").Value);
+            emailConfig.FirstOrDefault(x => x.Key == "Email:SenderEmail").Value,
+            emailConfig.FirstOrDefault(x => x.Key == "Email:SenderDisplayName").Value);
 
             message.IsBodyHtml = true;
 
@@ -156,8 +163,8 @@ namespace CSETWebCore.Business.Notification
             message.Body = bodyHtml;
             message.To.Add(new MailAddress(email));
             message.From = new MailAddress(
-            emailConfig.FirstOrDefault(x => x.Key == "Email:Sender Email").Value,
-            emailConfig.FirstOrDefault(x => x.Key == "Email:Sender Display Name").Value);
+            emailConfig.FirstOrDefault(x => x.Key == "Email:SenderEmail").Value,
+            emailConfig.FirstOrDefault(x => x.Key == "Email:SenderDisplayName").Value);
 
             message.IsBodyHtml = true;
 
@@ -176,6 +183,7 @@ namespace CSETWebCore.Business.Notification
         /// <param name="subject"></param>
         public void SendPasswordResetEmail(string email, string firstName, string lastName, string password, string subject, string appCode)
         {
+            SetAppCode(appCode);
             string bodyHtml = _resourceHelper.GetEmbeddedResource(@"App_Data\passwordResetTemplate_" + appCode + ".html");
             string name = (firstName + " " + lastName).Trim();
             var emailConfig = _configuration.GetSection("Email").AsEnumerable();
@@ -190,8 +198,8 @@ namespace CSETWebCore.Business.Notification
             message.Body = bodyHtml;
             message.To.Add(new MailAddress(email));
             message.From = new MailAddress(
-                emailConfig.FirstOrDefault(x => x.Key == "Email:Sender Email").Value,
-                emailConfig.FirstOrDefault(x => x.Key == "Email:Sender Display Name").Value);
+                emailConfig.FirstOrDefault(x => x.Key == "Email:SenderEmail").Value,
+                emailConfig.FirstOrDefault(x => x.Key == "Email:SenderDisplayName").Value);
 
             message.IsBodyHtml = true;
 
@@ -212,25 +220,27 @@ namespace CSETWebCore.Business.Notification
             mail.Body = mail.Body.Replace("{{inline-stylesheet}}", inlineStylesheet);
 
             // apply corresponding footer
-            string footer = _resourceHelper.GetEmbeddedResource(@"App_Data\EmailFooter.html");
-            mail.Body = mail.Body.Replace("{{email-footer}}", footer);
+
             string footerACET = _resourceHelper.GetEmbeddedResource(@"App_Data\EmailFooter_ACET.html");
             mail.Body = mail.Body.Replace("{{email-footer-ACET}}", footerACET);
-
+            string footerCF = _resourceHelper.GetEmbeddedResource(@"App_Data\EmailFooter_CF.html");
+            mail.Body = mail.Body.Replace("{{email-footer-CF}}", footerCF);
+            string footer = _resourceHelper.GetEmbeddedResource(@"App_Data\EmailFooter.html");
+            mail.Body = mail.Body.Replace("{{email-footer}}", footer);
 
             SmtpClient client = new SmtpClient
             {
                 DeliveryMethod = SmtpDeliveryMethod.Network,
-                Host = emailConfig.FirstOrDefault(x => x.Key == "Email:SMTP Host").Value,
-                Port = int.Parse(emailConfig.FirstOrDefault(x => x.Key == "Email:SMTP Port").Value),
+                Host = emailConfig.FirstOrDefault(x => x.Key == "Email:SmtpHost").Value,
+                Port = int.Parse(emailConfig.FirstOrDefault(x => x.Key == "Email:SmtpPort").Value),
                 UseDefaultCredentials = false
             };
 
-            bool.TryParse(emailConfig.FirstOrDefault(x => x.Key == "Email:SMTP SSL").Value, out bool ssl);
+            bool.TryParse(emailConfig.FirstOrDefault(x => x.Key == "Email:SmtpSsl").Value, out bool ssl);
             client.EnableSsl = ssl;
 
-            var smtpUsername = emailConfig.FirstOrDefault(x => x.Key == "Email:SMTP Username").Value;
-            var smtpPassword = emailConfig.FirstOrDefault(x => x.Key == "Email:SMTP Password").Value;
+            var smtpUsername = emailConfig.FirstOrDefault(x => x.Key == "Email:SmtpUsername").Value;
+            var smtpPassword = emailConfig.FirstOrDefault(x => x.Key == "Email:SmtpPassword").Value;
             if (smtpUsername != null)
             {
                 client.Credentials = new NetworkCredential(smtpUsername, smtpPassword);
@@ -260,7 +270,7 @@ namespace CSETWebCore.Business.Notification
             // only send the email if configured to do so (unpublished app setting)
             var emailConfig = _configuration.GetSection("Email").AsEnumerable();
             bool allowed = false;
-            string allowSetting = emailConfig.FirstOrDefault(x => x.Key == "Email:Allow Test Email").Value;
+            string allowSetting = emailConfig.FirstOrDefault(x => x.Key == "Email:AllowTestEmail").Value;
             if (allowSetting == null || !bool.TryParse(allowSetting, out allowed))
             {
                 if (!allowed)
@@ -272,12 +282,12 @@ namespace CSETWebCore.Business.Notification
             MailMessage m = new MailMessage();
             m.Subject = _appDisplayName[_scope] + " Test Message";
             m.Body = string.Format("Testing email server {0} on port {1}",
-                emailConfig.FirstOrDefault(x => x.Key == "Email:SMTP Host").Value,
-                emailConfig.FirstOrDefault(x => x.Key == "Email:SMTP Port").Value);
+                emailConfig.FirstOrDefault(x => x.Key == "Email:SmtpHost").Value,
+                emailConfig.FirstOrDefault(x => x.Key == "Email:SmtpPort").Value);
             m.To.Add(new MailAddress(recip));
             m.From = new MailAddress(
-                emailConfig.FirstOrDefault(x => x.Key == "Email:Sender Email").Value,
-                emailConfig.FirstOrDefault(x => x.Key == "Email:Sender Display Name").Value);
+                emailConfig.FirstOrDefault(x => x.Key == "Email:SenderEmail").Value,
+                emailConfig.FirstOrDefault(x => x.Key == "Email:SenderDisplayName").Value);
             this.SendMail(m);
         }
     }

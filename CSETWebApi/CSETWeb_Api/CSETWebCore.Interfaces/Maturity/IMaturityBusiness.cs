@@ -1,4 +1,10 @@
-﻿using System.Collections.Generic;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using System.Collections.Generic;
 using CSETWebCore.Model.Maturity;
 using CSETWebCore.Model.Question;
 using CSETWebCore.DataLayer.Model;
@@ -19,7 +25,7 @@ namespace CSETWebCore.Interfaces.Maturity
         void PersistMaturityLevel(int assessmentId, int level);
         AVAILABLE_MATURITY_MODELS ProcessModelDefaults(int assessmentId, string installationMode);
         object GetEdmPercentScores(int assessmentId);
-        MaturityResponse GetMaturityQuestions(int assessmentId, string installationMode, bool fill);
+        MaturityResponse GetMaturityQuestions(int assessmentId, string installationMode, bool fill, int groupingId);
 
         void BuildSubGroupings(MaturityGrouping g, int? parentID,
             List<MATURITY_GROUPINGS> allGroupings,
@@ -36,8 +42,11 @@ namespace CSETWebCore.Interfaces.Maturity
             int assessmentId);
 
         List<string> GetMaturityRange(int assessmentId);
+        List<string> GetIseMaturityRange(int assessmentId);
         List<int> GetMaturityRangeIds(int assessmentId);
+        List<int> GetIseMaturityRangeIds(int assessmentId);
         List<string> IrpSwitch(int irpRating);
+        List<string> IrpSwitchIse(int irpRating);
         Dictionary<int, MaturityMap> GetRequirementMaturityLevels();
         object GetEdmScores(int assessmentId, string section);
         object GetReferenceText(string modelName);

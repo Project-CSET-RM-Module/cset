@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,8 @@
 //  SOFTWARE.
 //
 ////////////////////////////////
-import { Component, EventEmitter, Input, OnInit, Output } from "@angular/core";
+import { BreakpointObserver, Breakpoints } from "@angular/cdk/layout";
+import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from "@angular/core";
 import { MatDialog, MatDialogRef } from "@angular/material/dialog";
 import { AlertComponent } from "../../../../../dialogs/alert/alert.component";
 import { EmailComponent } from "../../../../../dialogs/email/email.component";
@@ -31,6 +32,7 @@ import { AssessmentService, Role } from "../../../../../services/assessment.serv
 import { AuthenticationService } from "../../../../../services/authentication.service";
 import { ConfigService } from "../../../../../services/config.service";
 import { EmailService } from "../../../../../services/email.service";
+import { LayoutService } from "../../../../../services/layout.service";
 
 @Component({
   selector: "app-contact-item",
@@ -58,17 +60,21 @@ export class ContactItemComponent implements OnInit {
   @Output()
   edit = new EventEmitter<EditableUser>();
 
+  @ViewChild('topScrollAnchor') topScroll;
+
   emailDialog: MatDialogRef<EmailComponent>;
   results: EditableUser[];
   roles: Role[];
   editMode: boolean;
+
 
   constructor(
     private configSvc: ConfigService,
     private emailSvc: EmailService,
     public auth: AuthenticationService,
     private assessSvc: AssessmentService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    public layoutSvc: LayoutService
   ) {
     this.editMode = true;
   }
@@ -102,6 +108,8 @@ export class ContactItemComponent implements OnInit {
     const body = this.configSvc.config.defaultInviteTemplate;
 
     this.emailDialog = this.dialog.open(EmailComponent, {
+      width: this.layoutSvc.hp ? '90%' : '',
+      maxWidth: this.layoutSvc.hp ? '90%' : '',
       data: {
         showContacts: false,
         contacts: [this.contact],
@@ -117,14 +125,18 @@ export class ContactItemComponent implements OnInit {
   search(
     fname: string = this.contact.firstName,
     lname: string = this.contact.lastName,
-    email: string = this.contact.primaryEmail
+    email: string = this.contact.primaryEmail,
+    poc: boolean = this.contact.isPrimaryPoc,
+    siteParticipant: boolean = this.contact.isSiteParticipant,
   ) {
     this.assessSvc
       .searchContacts({
         firstName: fname,
         lastName: lname,
         primaryEmail: email,
-        assessmentId: this.assessSvc.id()
+        assessmentId: this.assessSvc.id(),
+        isPrimaryPoc: poc,
+        isSiteParticipant: siteParticipant
       })
       .subscribe((data: User[]) => {
         this.results = [];
@@ -143,6 +155,13 @@ export class ContactItemComponent implements OnInit {
     this.contact.primaryEmail = result.primaryEmail;
     this.contact.contactId = result.contactId;
     this.contact.saveEmail = result.primaryEmail;
+    this.contact.cellPhone = result.cellPhone;
+    this.contact.organizationName = result.organizationName;
+    this.contact.siteName = result.siteName;
+    this.contact.emergencyCommunicationsProtocol = result.emergencyCommunicationsProtocol;
+    this.contact.isPrimaryPoc = result.isPrimaryPoc;
+    this.contact.isSiteParticipant = result.isSiteParticipant;
+    this.contact.reportsTo = result.reportsTo;
     this.contact.assessmentRoleId = 1;
   }
 
@@ -234,5 +253,19 @@ export class ContactItemComponent implements OnInit {
   contactRoleSelected(assessmentRoleId) {
     this.contact.assessmentRoleId = assessmentRoleId;
   }
-}
 
+  getRoleFromId(assessmentRoleId: number) {
+    return this.roles.find(x => x.assessmentRoleId === assessmentRoleId).assessmentRole;
+  }
+
+  shouldDisablePrimaryPoc() {
+    return !!this.contactsList.find(x => x.isPrimaryPoc) && !this.contact.isPrimaryPoc;
+  }
+
+  /**
+   * Scrolls to the top of this contact item
+   */
+  scrollToTop() {
+    this.topScroll?.nativeElement.scrollIntoView({ behavior: 'smooth', alignToTop: true });
+  }
+}

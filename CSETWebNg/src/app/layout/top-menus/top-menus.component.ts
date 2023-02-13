@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -21,7 +21,7 @@
 //  SOFTWARE.
 //
 ////////////////////////////////
-import { Component, Input, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, Input, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { Hotkey, HotkeysService } from 'angular2-hotkeys';
@@ -33,6 +33,7 @@ import { ConfirmComponent } from '../../dialogs/confirm/confirm.component';
 import { EditUserComponent } from '../../dialogs/edit-user/edit-user.component';
 import { EnableProtectedComponent } from '../../dialogs/enable-protected/enable-protected.component';
 import { ExcelExportComponent } from '../../dialogs/excel-export/excel-export.component';
+import { GlobalConfigurationComponent } from '../../dialogs/global-configuration/global-configuration.component';
 import { GlobalParametersComponent } from '../../dialogs/global-parameters/global-parameters.component';
 import { KeyboardShortcutsComponent } from '../../dialogs/keyboard-shortcuts/keyboard-shortcuts.component';
 import { RraMiniUserGuideComponent } from '../../dialogs/rra-mini-user-guide/rra-mini-user-guide.component';
@@ -43,6 +44,8 @@ import { AssessmentService } from '../../services/assessment.service';
 import { AuthenticationService } from '../../services/authentication.service';
 import { ConfigService } from '../../services/config.service';
 import { FileUploadClientService } from '../../services/file-client.service';
+import { SetBuilderService } from './../../services/set-builder.service';
+
 
 @Component({
   selector: 'app-top-menus',
@@ -63,14 +66,15 @@ export class TopMenusComponent implements OnInit {
     public configSvc: ConfigService,
     public aggregationSvc: AggregationService,
     public fileSvc: FileUploadClientService,
+    public setBuilderSvc: SetBuilderService,
     public dialog: MatDialog,
     public router: Router,
     private _hotkeysService: HotkeysService
   ) { }
 
   ngOnInit(): void {
+    ChangeDetectionStrategy.OnPush;
     this.docUrl = this.configSvc.docUrl;
-
     if (localStorage.getItem("returnPath")) {
       if (!Number(localStorage.getItem("redirectid"))) {
         this.hasPath(localStorage.getItem("returnPath"));
@@ -151,7 +155,9 @@ export class TopMenusComponent implements OnInit {
     }));
     // Keyboard Shortcuts
     this._hotkeysService.add(new Hotkey('?', (event: KeyboardEvent): boolean => {
-      this.showKeyboardShortcuts();
+      if (!this.configSvc.isMobile()) {
+        this.showKeyboardShortcuts();
+      }
       return false; // Prevent bubbling
     }));
 
@@ -159,31 +165,67 @@ export class TopMenusComponent implements OnInit {
 
   /**
    * Indicates if the user is currently within the Module Builder pages.
-   * TODO:  Hard-coded paths could be replaced by asking the BreadcrumbComponent
-   * or the SetBuilderService for Module Builder paths.
    */
   isModuleBuilder(rpath: string) {
     if (!rpath) {
       return false;
     }
-    if (rpath === '/set-list'
-      || rpath.indexOf('/set-detail') > -1
-      || rpath.indexOf('/requirement-list') > -1
-      || rpath.indexOf('/standard-documents') > -1
-      || rpath.indexOf('/ref-document') > -1
-      || rpath.indexOf('/requirement-detail') > -1
-      || rpath.indexOf('/question-list') > -1
-      || rpath.indexOf('/add-question') > -1) {
-      return true;
+
+    rpath = rpath.split('/')[1];
+    return this.setBuilderSvc.moduleBuilderPaths.includes(rpath);
+  }
+
+  /**
+   * Considers whether the app is running as CSET Online
+   * or on a mobile device and decides if the item should show.
+   */
+  showMenuItem(item: string) {
+
+    // This is not applicable to a large enterprise setup.
+    // Also, we are hiding the FAA gallery cards for now.
+    if (item == 'enable protected features') {
+      return (this.configSvc.behaviors?.showEnableProtectedFeatures ?? true);
     }
-    return false;
+
+    if (item == 'reconfigure unc path') {
+      return (this.configSvc.behaviors?.showReconfigureUncPath ?? true);
+    }
+
+    if (item == 'parameter editor') {
+      var show = this.configSvc.behaviors?.showMenuParameterEditor ?? true;
+      show = show && !this.configSvc.isMobile();
+      return (show);
+    }
+
+    // This should not be offered in mobile or CSET Online
+    if (item == 'import modules') {
+      return (!this.configSvc.isMobile() && (this.configSvc.behaviors?.showModuleImport ?? true));
+    }
+
+    // This should not be offered in mobile or CSET Online
+    if (item == 'module builder') {
+      return (this.configSvc.behaviors?.showModuleBuilder);
+    }
+
+    if (item == 'module content report') {
+      return (!this.configSvc.isMobile() && (this.configSvc.behaviors?.showModuleContentReport ?? true));
+    }
+
+    if (item == 'trend') {
+      return (!this.configSvc.isMobile() && (this.configSvc.behaviors?.showTrend ?? true));
+    }
+
+    if (item == 'compare') {
+      return (!this.configSvc.isMobile() && (this.configSvc.behaviors?.showCompare ?? true));
+    }
+
+    return true;
   }
 
   /**
    * Allows us to hide items for certain skins
    */
-   showItem(item: string) {
-
+  showItemForCurrentSkin(item: string) {
     // custom behavior for ACET
     if (this.skin === 'ACET') {
       if (item === 'assessment documents') {
@@ -191,15 +233,39 @@ export class TopMenusComponent implements OnInit {
       }
     }
 
-    return true;
+    var show = this.configSvc.config.behaviors?.showAssessmentDocuments ?? true;
+    return show;
   }
 
+  /**
+   *
+   */
   showUserMenuItem() {
     if (this.auth.isLocal) {
       return false;
     }
 
     return this.router.url !== '/resource-library';
+  }
+
+  /**
+   * Hides User Guide menu items that are not relevant to the current assessment.
+   */
+  isGuideVisible(module: string) {
+    // we hide these on the phone
+    if (this.configSvc.isMobile()) {
+      return false;
+    }
+
+    if (this.assessSvc.assessment?.maturityModel?.modelName == module) {
+      return true;
+    }
+
+    if (module == 'TSA') {
+      return this.assessSvc.assessment?.workflow == 'TSA';
+    }
+
+    return false;
   }
 
   showMenuStrip() {
@@ -209,17 +275,36 @@ export class TopMenusComponent implements OnInit {
   }
 
   showResourceLibraryLink() {
-    return this.router.url !== '/resource-library'
+    return !this.configSvc.isMobile()
+      && this.router.url !== '/resource-library'
       && this.router.url !== '/importModule'
       && !this.isModuleBuilder(this.router.url);
   }
 
+  /**
+   * Determines if the user menu should display.
+   */
   showUserMenu() {
+    if (this.configSvc.config.isRunningAnonymous) {
+      return false;
+    }
+
     return this.router.url !== '/resource-library'
       && this.router.url !== '/importModule'
       && !this.isModuleBuilder(this.router.url);
   }
 
+  /**
+   * Determines if the 'anonymous' version of the user menu
+   * should display.
+   */
+  showAnonymousMenu() {
+    return this.configSvc.config.isRunningAnonymous;
+  }
+
+  /**
+   * 
+   */
   editParameters() {
     if (this.dialog.openDialogs[0]) {
 
@@ -237,6 +322,14 @@ export class TopMenusComponent implements OnInit {
       return;
     }
     this.dialogRef = this.dialog.open(EnableProtectedComponent);
+  }
+
+  setMeritExportPath() {
+    if (this.dialog.openDialogs[0]) {
+
+      return;
+    }
+    this.dialogRef = this.dialog.open(GlobalConfigurationComponent);
   }
 
   showKeyboardShortcuts() {
@@ -268,7 +361,7 @@ export class TopMenusComponent implements OnInit {
   /**
    * Show the RRA tutorial in a dialog.  This is temporary, until
    * a proper User Guide is written for RRA.
-   * @returns 
+   * @returns
    */
   ransomwareReadiness() {
     if (this.dialog.openDialogs[0]) {
@@ -281,8 +374,8 @@ export class TopMenusComponent implements OnInit {
   }
 
   /**
-   * 
-   * @returns 
+   *
+   * @returns
    */
   about() {
     if (this.dialog.openDialogs[0]) {
@@ -295,8 +388,8 @@ export class TopMenusComponent implements OnInit {
   }
 
   /**
-   * 
-   * @returns 
+   *
+   * @returns
    */
   termsOfUse() {
     if (this.dialog.openDialogs[0]) {
@@ -372,6 +465,6 @@ export class TopMenusComponent implements OnInit {
 
   goHome() {
     this.assessSvc.dropAssessment();
-    this.router.navigate(['/home']);
+    this.router.navigate(['/home'], { queryParams: { tab: 'myAssessments' } });
   }
 }

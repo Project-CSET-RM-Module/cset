@@ -1,4 +1,10 @@
-﻿using CSETWebCore.Business.Findings;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using CSETWebCore.Business.Findings;
 using CSETWebCore.DataLayer.Model;
 using CSETWebCore.Enum;
 using CSETWebCore.Enum.EnumHelper;
@@ -61,6 +67,11 @@ namespace CSETWebCore.Business.Question
         /// <returns></returns>
         public QuestionDetails GetQuestionDetails(int? questionId, int assessmentId, string questionType)
         {
+            if (_context.MATURITY_QUESTION_TYPES.ToList().Exists(x => x.Mat_Question_Type.Equals(questionType, StringComparison.OrdinalIgnoreCase))) 
+            {
+                questionType = "Maturity";
+            }
+
             _documentBusiness.SetUserAssessmentId(assessmentId);
             if (questionId == null)
             {
@@ -68,6 +79,8 @@ namespace CSETWebCore.Business.Question
                 return response;
             }
 
+            response.AssessmentId = assessmentId;
+            response.QuestionId = (int)questionId;
             response.IsNoQuestion = false;
             response.IsDetailAndInfo = true;
             response.ShowQuestionDetailTab = false;
@@ -110,11 +123,11 @@ namespace CSETWebCore.Business.Question
                 if (questionType == "Maturity")
                 {
                     var matQuestion = _context.MATURITY_QUESTIONS.Where(q => q.Mat_Question_Id == questionId).FirstOrDefault();
-                    qp = new QuestionPoco(newAnswer, matQuestion);
+                    qp = new QuestionPoco(_context, newAnswer, matQuestion);
                 }
                 else
                 {
-                    qp = new QuestionPoco(newAnswer, newqp);
+                    qp = new QuestionPoco(_context, newAnswer, newqp);
                 }
 
                 qp.DictionaryStandards = (from a in _context.AVAILABLE_STANDARDS
@@ -196,7 +209,7 @@ namespace CSETWebCore.Business.Question
                     Set = question.SetName == null ? null : question.DictionaryStandards[question.SetName],
                     Sets = question.DictionaryStandards,
                     Question = question.Question,
-                    Requirement = question.NEW_REQUIREMENT ?? question.Question.NEW_REQUIREMENTs().FirstOrDefault(t => t.REQUIREMENT_SETS.Select(s => s.Set_Name).Contains(question.SetName ?? question.DictionaryStandards.Keys.FirstOrDefault()))
+                    Requirement = question.NEW_REQUIREMENT ?? question.Question.NEW_REQUIREMENTs(_context).FirstOrDefault(t => t.REQUIREMENT_SETS.Select(s => s.Set_Name).Contains(question.SetName ?? question.DictionaryStandards.Keys.FirstOrDefault()))
                 };
                 list = _informationTabBuilder.CreateQuestionInformationTab(questionInfoData);
             }

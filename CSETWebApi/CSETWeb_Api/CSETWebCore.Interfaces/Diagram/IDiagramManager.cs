@@ -1,4 +1,10 @@
-﻿using System.Collections.Generic;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using System.Collections.Generic;
 using System.IO;
 using System.Xml;
 using CSETWebCore.DataLayer.Model;
@@ -20,10 +26,10 @@ namespace CSETWebCore.Interfaces
         StringReader GetDiagramXml(int assessmentId);
         List<mxGraphModelRootObject> ProcessDiagramVertices(StringReader stream, int assessment_id);
         List<mxGraphModelRootMxCell> ProcessDiagramShapes(StringReader stream, int assessment_id);
-        List<mxGraphModelRootMxCell> ProcessDiagramEdges(StringReader stream, int assessment_id);
+        List<mxGraphModelRootObject> ProcessDiagramEdges(StringReader stream, int assessment_id);
         LayerVisibility getLayerVisibility(string drawIoId, int assessment_id);
         List<mxGraphModelRootObject> GetDiagramComponents(List<mxGraphModelRootObject> vertices);
-        List<mxGraphModelRootMxCell> GetDiagramLinks(List<mxGraphModelRootMxCell> edges);
+        List<mxGraphModelRootObject> GetDiagramLinks(List<mxGraphModelRootObject> edges);
         List<mxGraphModelRootObject> GetDiagramZones(List<mxGraphModelRootObject> vertices);
         List<mxGraphModelRootMxCell> GetDiagramShapes(List<mxGraphModelRootMxCell> vertices);
         List<mxGraphModelRootMxCell> GetDiagramText(List<mxGraphModelRootMxCell> vertices);
@@ -35,5 +41,9 @@ namespace CSETWebCore.Interfaces
         void SaveDiagramXml(int assessmentId, mxGraphModel diagramXml);
         string SetImage(int Component_Symbol_Id, string style);
         IEnumerable<DiagramTemplate> GetDiagramTemplates();
+        IEnumerable<CommonSecurityAdvisoryFrameworkVendor> GetCsafVendors();
+        public CommonSecurityAdvisoryFrameworkVendor SaveCsafVendor(CommonSecurityAdvisoryFrameworkVendor vendor);
+        public void DeleteCsafVendor(string vendorName);
+        public void DeleteCsafProduct(string vendorName, string productName);
     }
 }

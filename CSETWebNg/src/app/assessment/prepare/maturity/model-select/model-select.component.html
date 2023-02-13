@@ -1,6 +1,6 @@
 <!----------------------
 
-   Copyright 2022 Battelle Energy Alliance, LLC
+   Copyright 2023 Battelle Energy Alliance, LLC
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -21,140 +21,124 @@
   SOFTWARE.
 -------------------------->
 <div class="white-panel d-flex justify-content-start flex-column flex-11a">
-  <h3 class="wrap-text">Maturity Models</h3>
+  <h3 class="wrap-text mb-3">Cybersecurity Assessment Modules</h3>
+  <h4 class="wrap-text">Maturity Models</h4>
+  <hr class="w-100 mt-0 mb-3 hr-sal">
 
-  <mat-card class="maturity-model-card mb-5" (click)="changeSelection($event, 'ACET')" (keydown.enter)="changeSelection($event, 'ACET')" tabindex="0"
+  <mat-card class="maturity-model-card mb-5" (click)="changeSelection($event, 'ACET')"
+    (keydown.enter)="changeSelection($event, 'ACET')" tabindex="0"
     [ngClass]="{ 'mat-elevation-z8': getSelection('ACET') }">
-    <h4>Automated Cybersecurity Evaluation Toolbox (ACET)</h4>
+    <h4>{{getModelTitle('ACET')}}</h4>
     <div class="d-flex flex-row">
-      <div>
-        The Automated Cybersecurity Evaluation Toolbox (ACET)
-        provides a repeatable, measurable and transparent process that
-        improves and standardizes supervision related to cybersecurity in
-        all federally insured credit unions.
-      </div>
+      <div [innerHTML]="getModelDescription('ACET') | safe"></div>
       <div style="max-width: 50%; min-width: 10rem" class="text-center pl-3">
         <img src="assets/images/ACET/ACET_shield_only.png" alt="acet" style="width: 100%" />
       </div>
     </div>
   </mat-card>
 
-
-  <mat-card class="maturity-model-card mb-5" (click)="changeSelection($event, 'CMMC')" (keydown.enter)="changeSelection($event, 'CMMC')" tabindex="0"
+  <mat-card class="maturity-model-card mb-5" (click)="changeSelection($event, 'CMMC')"
+    (keydown.enter)="changeSelection($event, 'CMMC')" tabindex="0"
     [ngClass]="{ 'mat-elevation-z8': getSelection('CMMC') }">
     <div>
-      <h4>Cybersecurity Maturity Model Certification (CMMC) 1.0</h4>
+      <h4>{{getModelTitle('CMMC')}}</h4>
     </div>
     <div class="d-flex flex-row">
-      <div>
-        <p>
-          The Cybersecurity Maturity Model Certification (CMMC) 1.0 measures cybersecurity maturity with five levels and
-          aligns a set of processes and practices with the type and sensitivity of information to be protected and the
-          associated range of threats. The model consists of maturity processes and cybersecurity best practices from
-          multiple cybersecurity standards, frameworks and other references, as well as inputs from the broader
-          community. CMMC is broken into five different levels of Processes and Capabilities (which are further broken
-          down into Practices).
-        </p>
-      </div>
+      <div [innerHTML]="getModelDescription('CMMC') | safe"></div>
     </div>
   </mat-card>
 
-
-  <mat-card class="maturity-model-card mb-5" (click)="changeSelection($event, 'CMMC2')" (keydown.enter)="changeSelection($event, 'CMMC2')" tabindex="0"
+  <mat-card class="maturity-model-card mb-5" (click)="changeSelection($event, 'CMMC2')"
+    (keydown.enter)="changeSelection($event, 'CMMC2')" tabindex="0"
     [ngClass]="{ 'mat-elevation-z8': getSelection('CMMC2') }">
     <div>
-      <h4>Draft CMMC 2.0 w/SPRS Scorecard</h4>
+      <h4>{{getModelTitle('CMMC2')}}</h4>
     </div>
     <div class="d-flex flex-row">
-      <div style="max-width: 100%">
-        <p>
-          The new Cybersecurity Maturity Model Certification (CMMC) 2.0 streamlines the number of levels from 5 to 3.
-          The most critical change is the removal of the third-party facilitated assessment certifications for Level 1
-          certification (and a subset of non-prioritized acquisitions assigned by DoD as Level 2) which now require only
-          an <strong>annual self-assessment</strong> and <strong>accompanying contractor affirmation</strong> in the
-          Supplier Performance Risk System (SPRS).
-        </p>
-      </div>
+      <div style="max-width: 100%" [innerHTML]="getModelDescription('CMMC2') | safe"></div>
       <div style="max-width: 50%" class="text-center pl-3">
         <img src="assets/images/CMMC/Levels_cmmc2_200px.png" alt="CMMC levels" style="height: 210px; width: auto" />
       </div>
     </div>
   </mat-card>
 
-
-  <mat-card class="maturity-model-card mb-5" (click)="changeSelection($event, 'CRR')" (keydown.enter)="changeSelection($event, 'CRR')" tabindex="0"
-      [ngClass]="{ 'mat-elevation-z8': getSelection('CRR') }">
-    <h4>Cyber Resilience Review (CRR)</h4>
+  <mat-card class="maturity-model-card mb-5" (click)="changeSelection($event, 'CRR')"
+    (keydown.enter)="changeSelection($event, 'CRR')" tabindex="0"
+    [ngClass]="{ 'mat-elevation-z8': getSelection('CRR') }">
+    <h4>{{getModelTitle('CRR')}}</h4>
     <div class="d-flex flex-row">
-      <div class="w-100">
-        The CRR is a no-cost, voluntary, non-technical assessment to evaluate an organization’s operational resilience
-        and cybersecurity practices. The CRR may be conducted as a self-assessment or as a facilitated assessment. The
-        CRR assesses enterprise programs and practices across a range of ten domains including risk management, incident
-        management, service continuity, and others. The assessment is designed to measure existing organizational
-        resilience as well as provide a gap analysis for improvement based on recognized best practices.
-      </div>
+      <div class="w-100" [innerHTML]="getModelDescription('CRR') | safe"></div>
       <div style="max-width: 50%" class="text-center pl-3">
         <img src="assets/images/CRR/CRR_logo.png" alt="CRR logo" style="width: 100%" />
       </div>
     </div>
   </mat-card>
 
-
   <mat-card class="maturity-model-card mb-5" (click)="changeSelection($event, 'EDM')" tabindex="0"
     [ngClass]="{ 'mat-elevation-z8': getSelection('EDM') }">
-    <h4>External Dependency Management Assessment (EDM)</h4>
+    <h4>{{getModelTitle('EDM')}}</h4>
     <div class="d-flex flex-row">
-      <div class="w-100">
-        The External Dependencies Management (EDM) Assessment evaluates an organization’s management of external
-        dependencies. This assessment focuses on the relationship between an organization’s high-value services and
-        assets—such as people technology, facilities, and information—and evaluates how the organization manages risks
-        derived from its use of the Information and Communications Technology (ICT) Supply Chain in the deliverance of
-        services.
-      </div>
+      <div class="w-100" [innerHTML]="getModelDescription('EDM') | safe"></div>
       <div style="max-width: 50%" class="text-center pl-3">
         <img src="assets/images/EDM/EDM_logo.png" alt="EDM logo" style="width: 100%" />
       </div>
     </div>
   </mat-card>
 
+  <h4 class="wrap-text">Best Practices and Critical Infrastructure/Industry</h4>
+  <hr class="w-100 mt-0 mb-3 hr-sal">
 
-  <mat-card class="maturity-model-card mb-5" (click)="changeSelection($event, 'RRA')" (keydown.enter)="changeSelection($event, 'RRA')" tabindex="0"
-    [ngClass]="{ 'mat-elevation-z8': getSelection('RRA') }">
-    <h4>Ransomware Readiness Assessment (RRA)</h4>
-    <div>
-        <img src="assets/images/RRA/RRA_logo.png" alt="Ransomware Readiness logo" style="width: 13rem; float: right; margin: 0 0 .5rem .5rem;" />
-        <p>
-          Ransomware poses an increasing threat and continues to rise as a top
-          cyber threat impacting both businesses and government agencies.
-          Ransomware is a type of malicious attack where attackers encrypt an
-          organization's data and demand payment to restore access. In some
-          instances, attackers may also steal an organization's information and
-          demand an additional payment in return for not disclosing the
-          information to authorities, competitors, or the public. Ransomware
-          disrupts or halts an organization's operations and poses a dilemma for
-          management: pay the ransom and hope that the attackers keep their word
-          about restoring access and not disclosing data, or do not pay the
-          ransom and restore operations themselves. The methods used to gain
-          access to an organization's information and systems are common to
-          cyberattacks more broadly, but they are aimed at forcing a ransom to
-          be paid. Ransomware attacks target the organization's data.
-        </p>
-        <p>
-          To understand your cybersecurity posture and assess how well your
-          organization is equipped to defend and recover from a ransomware
-          incident, take the Ransomware Readiness Assessment (RRA).
-        </p>
+  <mat-card *ngIf="!isTSA" class="maturity-model-card mb-5" (click)="changeSelection($event, 'CIS')"
+    (keydown.enter)="changeSelection($event, 'CIS')" tabindex="0"
+    [ngClass]="{ 'mat-elevation-z8': getSelection('CIS') }">
+    <h4>{{getModelTitle('CIS')}}</h4>
+    <div class="d-flex flex-row">
+      <div style="max-width: 100%" [innerHTML]="getModelDescription('CIS') | safe"></div>
+      <div style="max-width: 50%" class="text-center pl-3">
+        <img src="assets/images/CIS/CISA_Infrastructure_Security.png" alt="Cyber Infrastructure Survey logo"
+          style="height: 102px; width: auto" />
+      </div>
     </div>
   </mat-card>
 
-  <mat-card class="maturity-model-card mb-5" (click)="changeSelection($event, 'VADR')" (keydown.enter)="changeSelection($event, 'VADR')" tabindex="0"
-    [ngClass]="{ 'mat-elevation-z8': getSelection('VADR') }">
-    <h4>VADR</h4>
+
+  <mat-card class="maturity-model-card mb-5" (click)="changeSelection($event, 'RRA')"
+    (keydown.enter)="changeSelection($event, 'RRA')" tabindex="0"
+    [ngClass]="{ 'mat-elevation-z8': getSelection('RRA') }">
+    <h4>{{getModelTitle('RRA')}}</h4>
     <div>
-        <p>
-          VADR
-        </p>
+      <img src="assets/images/RRA/RRA_logo.png" alt="Ransomware Readiness logo"
+        style="width: 13rem; float: right; margin: 0 0 .5rem .5rem;" />
+      <div [innerHTML]="getModelDescription('RRA') | safe"></div>
     </div>
+  </mat-card>
+
+
+  <!-- Quick card to allow MVRA to be selected -->
+  <mat-card class="maturity-model-card mb-5" (click)="changeSelection($event, 'MVRA')"
+    (keydown.enter)="changeSelection($event, 'MVRA')" tabindex="0"
+    [ngClass]="{ 'mat-elevation-z8': getSelection('MVRA') }">
+    <h4>{{getModelTitle('MVRA')}}</h4>
+    <div>
+      <div [innerHTML]="getModelDescription('MVRA') | safe"></div>
+    </div>
+</mat-card>
+=======
+
+  <mat-card *ngIf="false" class="maturity-model-card mb-5" (click)="changeSelection($event, 'VADR')"
+    (keydown.enter)="changeSelection($event, 'VADR')" tabindex="0"
+    [ngClass]="{ 'mat-elevation-z8': getSelection('VADR') }">
+    <h4>{{getModelTitle('VADR')}}</h4>
+    <div [innerHTML]="getModelDescription('VADR') | safe"></div>
+  </mat-card>
+>>>>>>> 650460e5047a3f1d0d137c86e25b6b74c3c371f8
+
+
+  <mat-card *ngIf="false" class="maturity-model-card mb-5" (click)="changeSelection($event, 'VADR')"
+    (keydown.enter)="changeSelection($event, 'VADR')" tabindex="0"
+    [ngClass]="{ 'mat-elevation-z8': getSelection('VADR') }">
+    <h4>{{getModelTitle('VADR')}}</h4>
+    <div [innerHTML]="getModelDescription('VADR') | safe"></div>
   </mat-card>
 
   <mat-card class="maturity-model-card mb-5" (click)="changeSelection($event, 'CRMP')" (keydown.enter)="changeSelection($event, 'CRMP')" tabindex="0"
@@ -189,4 +173,5 @@
 </mat-card>
 
   <app-nav-back-next [page]="'model-select'"></app-nav-back-next>
+
 </div>

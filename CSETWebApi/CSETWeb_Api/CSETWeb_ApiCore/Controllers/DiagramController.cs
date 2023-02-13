@@ -1,9 +1,14 @@
-﻿using Microsoft.AspNetCore.Mvc;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using Microsoft.AspNetCore.Mvc;
 using System;
+using System.IO;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading;
 using System.Xml;
 using CSETWebCore.Business.Authorization;
@@ -19,8 +24,15 @@ using CSETWebCore.Interfaces.ReportEngine;
 using CSETWebCore.Model.Diagram;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
-using System.Net.Http.Headers;
+using System.Text;
+using Microsoft.AspNetCore.Hosting;
+using Newtonsoft.Json;
+using Microsoft.AspNetCore.Http.Extensions;
+using CSETWebCore.Helpers;
+using CSETWebCore.Model.Document;
+using DocumentFormat.OpenXml.Office2021.DocumentTasks;
+using System.ComponentModel.Design;
+using System.Numerics;
 
 namespace CSETWebCore.Api.Controllers
 {
@@ -34,6 +46,7 @@ namespace CSETWebCore.Api.Controllers
         private readonly IHttpContextAccessor _http;
         private readonly IDataHandling _dataHandling;
         private readonly IACETDashboardBusiness _acet;
+        private readonly IWebHostEnvironment _webHost;
 
         private CSETContext _context;
 
@@ -41,7 +54,7 @@ namespace CSETWebCore.Api.Controllers
 
         public DiagramController(IDiagramManager diagram, ITokenManager token, 
             IAssessmentBusiness assessment, IDataHandling dataHandling, IMaturityBusiness maturity, 
-            IHttpContextAccessor http, IACETDashboardBusiness acet, CSETContext context)
+            IHttpContextAccessor http, IACETDashboardBusiness acet, IWebHostEnvironment webHost, CSETContext context)
         {
             _diagram = diagram;
             _token = token;
@@ -50,6 +63,7 @@ namespace CSETWebCore.Api.Controllers
             _maturity = maturity;
             _http = http;
             _acet = acet;
+            _webHost = webHost;
             _context = context;
             _object = new object();
         }
@@ -60,8 +74,8 @@ namespace CSETWebCore.Api.Controllers
         public void SaveDiagram([FromBody] DiagramRequest req)
         {
             // get the assessment ID from the JWT
-            int userId = (int)_token.PayloadInt(Constants.Constants.Token_UserId);
-            int? assessmentId = _token.PayloadInt(Constants.Constants.Token_AssessmentId);
+            var assessmentId = _token.PayloadInt(Constants.Constants.Token_AssessmentId);
+            DecodeDiagram(req);
             lock (_object)
             {
                 try
@@ -80,7 +94,15 @@ namespace CSETWebCore.Api.Controllers
                 }
 
             }
+        }
 
+        [CsetAuthorize]
+        [Route("api/diagram/saveComponent")]
+        [HttpPost]
+        public void SaveDiagram([FromBody] mxGraphModelRootObject component)
+        {
+            int? assessmentId = _token.PayloadInt(Constants.Constants.Token_AssessmentId);
+            _diagram.SaveComponent(component, (int)assessmentId);
         }
 
         [CsetAuthorize]
@@ -90,8 +112,26 @@ namespace CSETWebCore.Api.Controllers
         {
             // get the assessment ID from the JWT
             int? assessmentId = _token.PayloadInt(Constants.Constants.Token_AssessmentId);
+            DecodeDiagram(req);
             return PerformAnalysis(req, assessmentId ?? 0);
+        }
 
+        private void DecodeDiagram(DiagramRequest req)
+        {
+            if (req.DiagramSvg != null)
+            {
+                byte[] data = Convert.FromBase64String(req.DiagramSvg);
+                string decodedString = Encoding.UTF8.GetString(data);
+                req.DiagramSvg = decodedString;
+
+
+            }
+            if (req.DiagramXml != null)
+            {
+                byte[] data = Convert.FromBase64String(req.DiagramXml);
+                string decodedString = Encoding.UTF8.GetString(data);
+                req.DiagramXml = decodedString;
+            }
         }
 
         private List<IDiagramAnalysisNodeMessage> PerformAnalysis(DiagramRequest req, int assessmentId)
@@ -135,8 +175,7 @@ namespace CSETWebCore.Api.Controllers
         public DiagramResponse GetDiagram()
         {
             // get the assessment ID from the JWT
-            int userId = (int)_token.PayloadInt(Constants.Constants.Token_UserId);
-            int? assessmentId = _token.PayloadInt(Constants.Constants.Token_AssessmentId);
+            var assessmentId = _token.PayloadInt(Constants.Constants.Token_AssessmentId);
 
             var response = _diagram.GetDiagram((int)assessmentId);
 
@@ -172,8 +211,7 @@ namespace CSETWebCore.Api.Controllers
         public IActionResult HasDiagram()
         {
             // get the assessment ID from the JWT
-            int userId = (int)_token.PayloadInt(Constants.Constants.Token_UserId);
-            int? assessmentId = _token.PayloadInt(Constants.Constants.Token_AssessmentId);
+            var assessmentId = _token.PayloadInt(Constants.Constants.Token_AssessmentId);
 
             return Ok(_diagram.HasDiagram((int)assessmentId));
         }
@@ -194,8 +232,7 @@ namespace CSETWebCore.Api.Controllers
                 return string.Empty;//BadRequest("request payload not sent");
             }
 
-            int userId = (int)_token.PayloadInt(Constants.Constants.Token_UserId);
-            int? assessmentId = _token.PayloadInt(Constants.Constants.Token_AssessmentId);
+            var assessmentId = _token.PayloadInt(Constants.Constants.Token_AssessmentId);
 
             try
             {
@@ -300,7 +337,7 @@ namespace CSETWebCore.Api.Controllers
         [CsetAuthorize]
         [Route("api/diagram/getLinks")]
         [HttpGet]
-        public List<mxGraphModelRootMxCell> GetLinks()
+        public List<mxGraphModelRootObject> GetLinks()
         {
             try
             {
@@ -388,7 +425,7 @@ namespace CSETWebCore.Api.Controllers
         [Route("api/diagram/exportExcel")]
         public IActionResult GetExcelExportDiagram()
         {
-            int? assessmentId = _token.PayloadInt(Constants.Constants.Token_AssessmentId);
+            var assessmentId = _token.PayloadInt(Constants.Constants.Token_AssessmentId);
             var stream = new ExcelExporter(_context,_dataHandling, _maturity, _acet, _http).ExportToExcellDiagram(assessmentId ?? 0);
             stream.Flush();
             stream.Seek(0, System.IO.SeekOrigin.Begin);
@@ -404,10 +441,181 @@ namespace CSETWebCore.Api.Controllers
         [HttpGet]
         public IEnumerable<DiagramTemplate> GetTemplates()
         {
-            var userId = _token.PayloadInt(Constants.Constants.Token_UserId);
+            var assessmentId = _token.PayloadInt(Constants.Constants.Token_AssessmentId);
 
             var templates = _diagram.GetDiagramTemplates();
             return templates;
+        }
+
+        /// <summary>
+        /// Get all availabes alerts & advisories from the stored CSAF json files.
+        /// Vendor is the top level class that houses products, which then holds vulnerabilites.
+        /// </summary>
+        /// <returns></returns>
+        [CsetAuthorize]
+        [Route("api/diagram/vulnerabilities")]
+        [HttpGet]
+        public IActionResult GetDiagramVulnerabilities()
+        {
+            try
+            {
+                return Ok(_diagram.GetCsafVendors());
+            }
+            catch (Exception exc)
+            {
+                log4net.LogManager.GetLogger(this.GetType()).Error($"... {exc}");
+
+                return StatusCode(500);
+            }
+        }
+
+        /// <summary>
+        /// uploads new CSAF json files to Documents/DiagramVulnerabilities/CSAF to be used for network diagram alerts & advisories
+        /// </summary>
+        /// <returns></returns>
+        [CsetAuthorize]
+        [Route("api/diagram/vulnerabilities")]
+        [HttpPost]
+        public async System.Threading.Tasks.Task<IActionResult> UpdateDiagramVulnerabilities()
+        {
+            var multipartBoundary = HttpRequestMultipartExtensions.GetMultipartBoundary(Request);
+
+            if (multipartBoundary == null)
+            {
+                // unsupported media type
+                return StatusCode(415);
+            }
+
+            try
+            {
+                FileUploadStream fileUploader = new FileUploadStream();
+                Dictionary<string, string> formValues = new Dictionary<string, string>();
+                formValues.Add("fileItem", null);
+
+                FileUploadStreamResult streamResult = await fileUploader.ProcessUploadStream(HttpContext.Request.HttpContext, formValues);
+                foreach (var file in streamResult.FileResultList)
+                {
+                    if (!file.FileName.EndsWith(".json"))
+                    {
+                        return StatusCode(415);
+                    }
+
+                    if (!(file.FileSize > 0))
+                    {
+                        return BadRequest("JSON file cannot be empty.");
+                    }
+
+                    // Verfiy the json is a valid CommonSecurityAdvisoryFrameworkObject.
+                    JsonSerializerSettings settings = new JsonSerializerSettings() { MissingMemberHandling = MissingMemberHandling.Error };
+                    CommonSecurityAdvisoryFrameworkObject csafObj;
+                    try 
+                    { 
+                        // This line will throw an error if the uploaded json does not follow the CSAF format.
+                        csafObj = JsonConvert.DeserializeObject<CommonSecurityAdvisoryFrameworkObject>(Encoding.UTF8.GetString(file.FileBytes), settings);
+                    }
+                    catch (Exception e) 
+                    {
+                        return BadRequest(e.Message);
+                    }
+
+                    var csafFile = _context.CSAF_FILE.FirstOrDefault(csafFile => csafFile.File_Name.ToLower() == file.FileName.ToLower());
+
+                    if (csafFile == null)
+                    {
+                        csafFile = new CSAF_FILE
+                        {
+                            File_Name = file.FileName,
+                            Data = file.FileBytes,
+                            File_Size = file.FileSize,
+                            Upload_Date = DateTime.Now,
+                        };
+
+                        _context.CSAF_FILE.Add(csafFile);
+                    }
+                    else
+                    {
+                        csafFile.Data = file.FileBytes;
+                        csafFile.File_Size = file.FileSize;
+                        csafFile.Upload_Date = DateTime.Now;
+                    }
+
+                    _context.SaveChanges();
+                }
+            }
+            catch(Exception e)
+            {
+                return StatusCode(500, e.Message);
+            }
+
+            return Ok("CSAF file upload success.");
+        }
+
+        /// <summary>
+        /// Saves a new vendor / updates a vendor that was added manually by the user.
+        /// </summary>
+        /// <param name="vendor">New vendor to persist</param>
+        /// <returns></returns>
+        [CsetAuthorize]
+        [Route("api/diagram/vulnerabilities/saveVendor")]
+        [HttpPost]
+        public IActionResult SaveCsafVendor([FromBody] CommonSecurityAdvisoryFrameworkVendor vendor) 
+        {
+            try
+            {
+                return Ok(_diagram.SaveCsafVendor(vendor));
+            }
+            catch (Exception exc)
+            {
+                log4net.LogManager.GetLogger(this.GetType()).Error($"... {exc}");
+
+                return StatusCode(500);
+            }
+        }
+
+        /// <summary>
+        /// Deletes all CSAF files than contain a given vendor (this assumes each CSAF file only contains a single vendor).
+        /// </summary>
+        /// <param name="vendorName">Name of the vendor to be deleted</param>
+        /// <returns></returns>
+        [CsetAuthorize]
+        [Route("api/diagram/vulnerabilities/deleteVendor")]
+        [HttpPost]
+        public IActionResult DeleteCsafVendor([FromQuery] string vendorName) 
+        {
+            try
+            {
+                _diagram.DeleteCsafVendor(vendorName);
+                return Ok();
+            }
+            catch (Exception exc)
+            {
+                log4net.LogManager.GetLogger(this.GetType()).Error($"... {exc}");
+
+                return StatusCode(500);
+            }
+        }
+
+        /// <summary>
+        /// Deletes given product from CSAF files.
+        /// </summary>
+        /// <param name="productName">Name of the product to be deleted</param>
+        /// <returns></returns>
+        [CsetAuthorize]
+        [Route("api/diagram/vulnerabilities/deleteProduct")]
+        [HttpPost]
+        public IActionResult DeleteCsafProduct([FromQuery] string vendorName, [FromQuery] string productName)
+        {
+            try
+            {
+                _diagram.DeleteCsafProduct(vendorName, productName);
+                return Ok();
+            }
+            catch (Exception exc)
+            {
+                log4net.LogManager.GetLogger(this.GetType()).Error($"... {exc}");
+
+                return StatusCode(500);
+            }
         }
 
         /// <summary>

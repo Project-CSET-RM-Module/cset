@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -28,6 +28,7 @@ import { Answer, DefaultParameter, ParameterForAnswer, Domain, Category, SubCate
 import { ConfigService } from './config.service';
 import { AssessmentService } from './assessment.service';
 import { QuestionFilterService } from './filtering/question-filter.service';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 const headers = {
   headers: new HttpHeaders()
@@ -55,17 +56,22 @@ export class QuestionsService {
   public scrollToTarget: any;
 
   /**
-   * Persists the current selection of the 'auto load supplemental' preference.
+   * Contains the state of the "Auto-load Supplemental" checkbox on the
+   * Standard Questions screen.
    */
-  autoLoadSupplementalSetting: boolean;
+  public autoLoadSuppCheckboxState = false;
 
+
+  /**
+   * 
+   */
   constructor(
     private http: HttpClient,
     private configSvc: ConfigService,
     private assessmentSvc: AssessmentService,
     private questionFilterSvc: QuestionFilterService
   ) {
-    this.autoLoadSupplementalSetting = (this.configSvc.config.supplementalAutoloadInitialValue || false);
+    this.initializeAnswerButtonDefs();
   }
 
   /**
@@ -77,7 +83,6 @@ export class QuestionsService {
    * A reference to the current question list.
    */
   questions: QuestionResponse = null;
-
 
 
   /**
@@ -95,17 +100,57 @@ export class QuestionsService {
   }
 
   /**
-   * 
+   *
    */
   getComponentQuestionsList() {
     return this.http.get(this.configSvc.apiUrl + 'componentquestionlist', headers);
   }
 
   /**
-   * 
+   *
    */
   getQuestionListOverridesOnly() {
     return this.http.get(this.configSvc.apiUrl + 'QuestionListComponentOverridesOnly', headers);
+  }
+
+  /**
+   * Grab all the child question's answers for a specific parent question.
+   * Currently set up for use in an ISE assessment.
+  */
+  getChildAnswers(parentId: number, assessId: number) {
+    headers.params = headers.params.set('parentId', parentId).set('assessId', assessId);
+    return this.http.get(this.configSvc.apiUrl + 'GetChildAnswers', headers);
+  }
+
+  /**
+   * Grab all the child question's answers for a specific parent question.
+   * Currently set up for use in an ISE assessment.
+  */
+  getActionItems(parentId: number, finding_id: number) {
+    headers.params = headers.params.set('parentId', parentId);
+    return this.http.get(this.configSvc.apiUrl + 'GetActionItems?finding_id=' + finding_id, headers);
+  }
+
+  /**
+   * Analyzes the current 'auto load supplemental' preference and the maturity model
+   */
+  autoLoadSupplemental(modelId?: number) {
+    // first see if it should be forced on by configuration
+    if (this.configSvc.config.supplementalAutoloadInitialValue) {
+      return true;
+    }
+
+    // standards (modelid is null) - check the checkbox state
+    if (!modelId) {
+      return this.autoLoadSuppCheckboxState;
+    }
+
+    // CPG - auto load supplemental
+    if (modelId == 11) {
+      return true;
+    }
+    
+    return false;
   }
 
   /**
@@ -116,6 +161,15 @@ export class QuestionsService {
     answer.questionType = localStorage.getItem('questionSet');
     return this.http.post(this.configSvc.apiUrl + 'answerquestion', answer, headers);
   }
+
+  /**
+   * Posts multiple (all) Answers to the API.
+   * @param answers
+   */
+  storeAllAnswers(answers: Answer[]) {
+    return this.http.post(this.configSvc.apiUrl + 'storeAllAnswers', answers, headers);
+  }
+
 
   /**
    * Posts a block of answers to the API.
@@ -150,16 +204,14 @@ export class QuestionsService {
   }
 
   /**
-   * 
+   *
    */
   getQuestionsForDocument(id: number) {
     return this.http.get(this.configSvc.apiUrl + 'questionsfordocument?id=' + id, headers);
   }
 
-
-
   /**
-   * 
+   *
    */
   getDefaultParametersForAssessment() {
     return this.http.get(this.configSvc.apiUrl + 'ParametersForAssessment', headers);
@@ -224,6 +276,43 @@ export class QuestionsService {
   }
 
   /**
+   * Save the answer with the Marked for Review flag flipped.
+   */
+  saveMFR(q: Question) {
+    q.markForReview = !q.markForReview;
+
+    const newAnswer: Answer = {
+      answerId: q.answer_Id,
+      questionId: q.questionId,
+      questionType: q.questionType,
+      questionNumber: q.displayNumber,
+      answerText: q.answer,
+      altAnswerText: q.altAnswerText,
+      comment: q.comment,
+      feedback: q.feedback,
+      markForReview: q.markForReview,
+      freeResponseAnswer: q.freeResponseAnswer,
+      reviewed: q.reviewed,
+      is_Component: q.is_Component,
+      is_Requirement: q.is_Requirement,
+      is_Maturity: q.is_Maturity,
+      componentGuid: q.componentGuid
+    };
+
+    this.storeAnswer(newAnswer).subscribe();
+  }
+
+  /**
+   * The service can emit the question extras object that is given to it.
+   * This was originally built to broadcast changes to documents/artifacts
+   * but could be expanded for other changes as well.
+   */
+  extrasChanged$: BehaviorSubject<number> = new BehaviorSubject(0);
+  broadcastExtras(qe: any) {
+    this.extrasChanged$.next(qe);
+  }
+
+  /**
    * 
    */
   buildNavTargetID(target: any): string {
@@ -234,5 +323,103 @@ export class QuestionsService {
       return target.parent.toLowerCase().replace(/ /g, '-') + '-' + target.categoryID;
     }
     return '';
+  }
+
+
+  private answerButtonDefs: any[] = [];
+
+  /**
+   * Incorporates settings from config.json into the
+   * service so that answer button properties can be searched.
+   */
+  initializeAnswerButtonDefs() {
+    // load default answer set
+    this.answerButtonDefs.push({
+      modelId: 0,
+      answers: this.configSvc.config.answersDefault
+    });
+
+    this.answerButtonDefs.push({
+      modelId: 9,
+      answers: this.configSvc.config.answersMVRA
+    });
+
+    this.answerButtonDefs.push({
+      modelId: 10,
+      answers: this.configSvc.config.answersISE
+    });
+
+    this.answerButtonDefs.push({
+      modelId: 11,
+      answers: this.configSvc.config.answersCPG
+    });
+
+    // ACET labels are only used in the ACET skin
+    this.answerButtonDefs.push({
+      skin: 'ACET',
+      modelId: 1,
+      answers: this.configSvc.config.answersACET
+    });
+  }
+
+  /**
+   * Finds the button definition and return its CSS
+   */
+  answerOptionCss(modelId: Number, answerCode: string) {
+    return this.findAnsDefinition(modelId, answerCode).buttonCss;
+  }
+
+  /**
+   * Finds the button definition and returns its label
+   */
+  answerButtonLabel(modelId: Number, answerCode: string): string {
+    return this.findAnsDefinition(modelId, answerCode).buttonLabel;
+  }
+
+  /**
+   * Finds the button definition and returns its tooltip, if defined.
+   * If a tooltip is not defined, the button label is returned.
+   */
+  answerButtonTooltip(modelId: Number, answerCode: string): string {
+    var t = this.findAnsDefinition(modelId, answerCode);
+      if (!!t.buttonTooltip) {
+        return t.buttonTooltip;
+      }
+      return t.buttonLabel;
+  }
+
+  /**
+   * Finds the button definition and returns its full label (tooltip)
+   */
+  answerDisplayLabel(modelId: Number, answerCode: string) {
+    return this.findAnsDefinition(modelId, answerCode).answerLabel;
+  }
+
+  /**
+   * Finds the answer in the default object or the model-specific object.
+   * Standards questions screen pass '0' for the modelId.
+   */
+  findAnsDefinition(modelId: Number, answerCode: string) {
+
+    // first look for a skin-specific label set
+    let ans = this.answerButtonDefs.find(x => x.skin == this.configSvc.installationMode
+      && x.modelId == modelId)?.answers.find(y => y.code == answerCode);
+    if (ans) {
+      return ans;
+    }
+
+    // next, look for a model-specific label set with no skin defined
+    ans = this.answerButtonDefs.find(x => !x.skin && x.modelId == modelId)?.answers.find(y => y.code == answerCode);
+    if (ans) {
+      return ans;
+    }
+
+    // fallback to default definition set
+    ans = this.answerButtonDefs[0].answers.find(x => x.code == answerCode);
+    if (ans) {
+      return ans;
+    }
+
+    return answerCode;
   }
 }

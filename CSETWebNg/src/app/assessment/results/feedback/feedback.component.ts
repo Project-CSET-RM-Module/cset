@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -27,10 +27,9 @@
 import { Component, OnInit } from '@angular/core';
 import { AnalysisService } from '../../../services/analysis.service';
 import { ConfigService } from '../../../services/config.service';
-import { NavigationService } from '../../../services/navigation.service';
+import { NavigationService } from '../../../services/navigation/navigation.service';
 import { ActivatedRoute, Router } from '../../../../../node_modules/@angular/router';
 import { AssessmentService } from '../../../services/assessment.service';
-import { AnalyticsService } from '../../../services/analytics.service';
 
 
 @Component({
@@ -49,7 +48,7 @@ export class FeedbackComponent implements OnInit {
   feedbackEmailBody: string;
   initialized = false;
   docUrl: string;
-  analyticsIsUp: boolean; 
+
 
   constructor(
     private assessSvc: AssessmentService,
@@ -57,7 +56,6 @@ export class FeedbackComponent implements OnInit {
     private route: ActivatedRoute,
     private analysisSvc: AnalysisService,
     public navSvc: NavigationService,
-    public analyticsSvc: AnalyticsService, 
     private configSvc: ConfigService
   ) { }
 
@@ -68,10 +66,6 @@ export class FeedbackComponent implements OnInit {
 
     this.navSvc.navItemSelected.asObservable().subscribe((value: string) => {
       this.router.navigate([value], { relativeTo: this.route.parent });
-    });
-
-    this.analyticsSvc.pingAnalyticsService().subscribe(data => {
-      this.analyticsIsUp = true;
     });
   }
 

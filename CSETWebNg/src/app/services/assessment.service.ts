@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -67,7 +67,6 @@ export class AssessmentService {
 
   static allMaturityModels: MaturityModel[];
 
-
   /**
    * Indicates if a brand-new assessment is being created.
    * This will allow the assessment-detail page to do certain
@@ -121,10 +120,28 @@ export class AssessmentService {
   }
 
   /**
+   * If a custom set name is found on the gallery item, include it in the query string.
+   * Custom set gallery items are built on the fly and don't have a gallery ID.
+   */
+  createNewAssessmentGallery(workflow: string, galleryItem: any) {
+    let queryString: string = 'workflow=' + workflow + '&galleryId=' + galleryItem.gallery_Item_Id;
+
+    if (!!galleryItem.custom_Set_Name) {
+      queryString += '&csn=' + galleryItem.custom_Set_Name
+    }
+
+    return this.http.get(this.apiUrl + 'createassessment/gallery?' + queryString, headers)
+  }
+
+  /**
    *
    */
   getAssessments() {
     return this.http.get(this.apiUrl + 'assessmentsforuser');
+  }
+
+  getAssessmentsCompletion() {
+    return this.http.get(this.apiUrl + 'assessmentsCompletionForUser');
   }
 
   /**
@@ -219,8 +236,17 @@ export class AssessmentService {
       this.apiUrl + 'contacts/addnew',
       {
         firstName: contact.firstName,
-        lastname: contact.lastName,
+        lastName: contact.lastName,
         primaryEmail: contact.primaryEmail,
+        title: contact.title,
+        phone: contact.phone,
+        cellPhone: contact.cellPhone,
+        reportsTo: contact.reportsTo,
+        organizationName: contact.organizationName,
+        siteName: contact.siteName,
+        emergencyCommunicationsProtocol: contact.emergencyCommunicationsProtocol,
+        isSiteParticipant: contact.isSiteParticipant,
+        isPrimaryPoc: contact.isPrimaryPoc,
         assessmentRoleId: contact.assessmentRoleId,
         subject: this.configSvc.config.defaultInviteSubject,
         body: body
@@ -308,8 +334,8 @@ export class AssessmentService {
    * Create a new assessment.
    */
   newAssessment() {
-    let workflow : string;
-    switch(this.configSvc.installationMode || '') {
+    let workflow: string;
+    switch (this.configSvc.installationMode || '') {
       case 'ACET':
         workflow = 'ACET';
         break;
@@ -325,7 +351,6 @@ export class AssessmentService {
         (response: any) => {
           // set the brand new flag
           this.isBrandNew = true;
-
           this.loadAssessment(response.id);
         },
         error =>
@@ -335,6 +360,35 @@ export class AssessmentService {
       );
   }
 
+  newAssessmentGallery(galleryItem: any) {
+    let workflow = 'BASE';
+    switch (this.configSvc.installationMode || '') {
+      case 'ACET':
+        workflow = 'ACET';
+        break;
+      case 'TSA':
+        workflow = 'TSA';
+        break;
+      default:
+        workflow = 'BASE';
+    }
+
+    this.createNewAssessmentGallery(workflow, galleryItem)
+      .toPromise()
+      .then(
+        (response: any) => {
+          // set the brand new flag
+          this.isBrandNew = true;
+          this.loadAssessment(response.id);
+        },
+        error =>
+          console.log(
+            'Unable to create new assessment: ' + (<Error>error).message
+          )
+      );
+  }
+
+
   /**
    *
    */
@@ -343,7 +397,11 @@ export class AssessmentService {
 
       this.getAssessmentDetail().subscribe(data => {
         this.assessment = data;
-
+        if (this.assessment.baselineAssessmentId) {
+          localStorage.setItem("baseline", this.assessment.baselineAssessmentId.toString());
+        } else {
+          localStorage.setItem("baseline", "0");
+        }
         // make sure that the acet only switch is turned off when in standard CSET
         if (this.configSvc.installationMode !== 'ACET') {
           this.assessment.isAcetOnly = false;
@@ -379,6 +437,30 @@ export class AssessmentService {
     }
   }
 
+
+  /**
+   *
+   */
+  setRraDefaults() {
+    if (!!this.assessment) {
+      this.assessment.useMaturity = true;
+      this.assessment.maturityModel = AssessmentService.allMaturityModels.find(m => m.modelName == 'RRA');
+
+      this.assessment.useStandard = false;
+      this.assessment.useDiagram = false;
+    }
+  }
+
+  setNcuaDefaults() {
+    if (!!this.assessment) {
+      this.assessment.useMaturity = true;
+      this.assessment.maturityModel = AssessmentService.allMaturityModels.find(m => m.modelName == 'ACET');
+      //this.assessment.isAcetOnly = true;
+
+      this.assessment.useStandard = false;
+      this.assessment.useDiagram = false;
+    }
+  }
 
   /**
    *
@@ -443,11 +525,11 @@ export class AssessmentService {
   }
 
   /**
-   * Sets the maturity model name on the assessment
+   * Sets the maturity model name on the local assessment model.
    * @param modelName
    */
   setModel(modelName: string) {
-    this.assessment.maturityModel = AssessmentService.allMaturityModels.find(m => m.modelName == modelName);
+    this.assessment.maturityModel = AssessmentService.allMaturityModels.find(m => m.modelName.toUpperCase() == modelName.toUpperCase());
   }
 
   /**
@@ -468,5 +550,22 @@ export class AssessmentService {
       return '';
     }
     return text.replace(/(?:\r\n|\r|\n)/g, '<br />');
+  }
+
+  /**
+  * A check for when we need custom ISE functionaltiy
+  * but prevents other assessments (like standards) from
+  * throwing an error when maturity model is undefined
+  */
+  isISE() {
+    if (this.assessment === undefined || this.assessment === null ||
+      this.assessment.maturityModel == null || this.assessment.maturityModel.modelName == null) {
+      return false;
+    }
+    if (this.assessment.maturityModel.modelName === 'ISE') {
+      return true;
+    }
+
+    return false;
   }
 }

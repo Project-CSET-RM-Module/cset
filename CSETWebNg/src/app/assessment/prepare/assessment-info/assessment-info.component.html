@@ -1,6 +1,6 @@
 <!----------------------
 
-   Copyright 2022 Battelle Energy Alliance, LLC
+   Copyright 2023 Battelle Energy Alliance, LLC
 
   Permission is hereby granted, free of charge, to any person obtaining a copy
   of this software and associated documentation files (the "Software"), to deal
@@ -22,14 +22,18 @@
 -------------------------->
 
 <div class="white-panel d-flex flex-column justify-content-start flex-11a">
-  <h3 class="mb-3">Assessment Configuration</h3>
+  <h3 *ngIf="this.configSvc.installationMode !== 'ACET'" class="mb-3">Assessment Configuration</h3>
+  <h3 *ngIf="this.configSvc.installationMode === 'ACET'" class="mb-3">Demographics</h3>
 
-  <app-assessment-detail *ngIf="this.configSvc.installationMode !== 'CYOTE'"
-    class="mb-5 d-flex justify-content-end flex-00a"></app-assessment-detail>
-  <app-assessment-detail-cyote *ngIf="this.configSvc.installationMode === 'CYOTE'"
-    class="mb-5 d-flex justify-content-end flex-00a"></app-assessment-detail-cyote>
+  <app-assessment-detail *ngIf="configSvc.installationMode != 'CF' && !this.ncuaSvc.switchStatus" class="mb-5 d-flex justify-content-end flex-00a"></app-assessment-detail>
+  <app-assessment-detail-ncua *ngIf="configSvc.installationMode != 'CF' && this.ncuaSvc.switchStatus" class="mb-5 d-flex justify-content-end flex-00a"></app-assessment-detail-ncua>
+  <app-assessment-detail-cf *ngIf="configSvc.installationMode == 'CF'"></app-assessment-detail-cf>
 
-  <app-assessment-config class="mb-5"></app-assessment-config>
+
+  <!-- app-assessment-config has been deprecated with implementation of gallery -->
+  <app-assessment-config *ngIf="false && this.configSvc.installationMode !== 'RRA' && this.configSvc.installationMode !== 'ACET'" class="mb-5"></app-assessment-config>
+  <app-assessment-config-ncua *ngIf="false && this.configSvc.installationMode === 'ACET'" class="mb-5"></app-assessment-config-ncua>
+
 
   <app-nav-back-next [page]="'info1'" [hide]="'back'"></app-nav-back-next>
 

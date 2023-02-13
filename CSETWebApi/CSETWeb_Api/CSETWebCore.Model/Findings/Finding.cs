@@ -1,4 +1,10 @@
-﻿using System;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,6 +23,15 @@ namespace CSETWebCore.Model.Findings
         public Nullable<System.DateTime> Resolution_Date { get; set; }
         public Nullable<int> Importance_Id { get; set; }
         public Importance Importance { get; set; }
+        public string Title { get; set; }
+        public string Type { get; set; }
+        public string Risk_Area { get; set; }
+        public string Sub_Risk { get; set; }
+        public string Description { get; set; }
+        public string Citations { get; set; }
+        public string ActionItems { get; set; }
+        public int Auto_Generated { get; set; }
+        public string Supp_Guidance { get; set; }
         public List<FindingContact> Finding_Contacts { get; set; }
 
         public bool IsFindingEmpty()
@@ -31,7 +46,9 @@ namespace CSETWebCore.Model.Findings
             noValue = noValue && String.IsNullOrWhiteSpace(Summary);
             noValue = noValue && String.IsNullOrWhiteSpace(Vulnerabilities);
             noValue = noValue && Resolution_Date == null;
-            noValue = noValue && Finding_Contacts.Count(x => x.Selected) == 0;
+            noValue = noValue && String.IsNullOrWhiteSpace(Title);
+            noValue = noValue && Type == null;
+            noValue = noValue && String.IsNullOrWhiteSpace(Description);
 
             return noValue;
         }

@@ -1,6 +1,6 @@
 ﻿//////////////////////////////// 
 // 
-//   Copyright 2022 Battelle Energy Alliance, LLC  
+//   Copyright 2023 Battelle Energy Alliance, LLC  
 // 
 // 
 ////////////////////////////////
@@ -17,17 +17,23 @@ using CSETWebCore.Model.Diagram;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Hosting;
+using Newtonsoft.Json;
+using System.Text;
+using DocumentFormat.OpenXml.Bibliography;
+using static CSETWebCore.Model.Diagram.CommonSecurityAdvisoryFrameworkObject;
 
 namespace CSETWebCore.Business.Diagram
 {
     public class DiagramManager : IDiagramManager
     {
         private CSETContext _context;
-        
+        static readonly log4net.ILog _logger = log4net.LogManager.GetLogger(typeof(DiagramManager));
+
         //private IHttpContextAccessor _httpContext;
 
         public DiagramManager(CSETContext context)
-        { 
+        {
             _context = context;
             //_httpContext = httpContext;
         }
@@ -86,7 +92,7 @@ namespace CSETWebCore.Business.Diagram
                     }
                     differenceManager.buildDiagramDictionaries(xDoc, oldDoc);
                     differenceManager.SaveDifferences(assessmentID);
-                
+
                 }
                 catch (Exception exc)
                 {
@@ -118,20 +124,20 @@ namespace CSETWebCore.Business.Diagram
         /// <returns></returns>
         public DiagramResponse GetDiagram(int assessmentID)
         {
-           
-                var assessmentRecord = _context.ASSESSMENTS.Where(x => x.Assessment_Id == assessmentID).FirstOrDefault();
 
-                DiagramResponse resp = new DiagramResponse();
+            var assessmentRecord = _context.ASSESSMENTS.Where(x => x.Assessment_Id == assessmentID).FirstOrDefault();
 
-                if (assessmentRecord != null)
-                {
-                    resp.DiagramXml = assessmentRecord.Diagram_Markup;
-                    resp.LastUsedComponentNumber = assessmentRecord.LastUsedComponentNumber;
-                    resp.AnalyzeDiagram = assessmentRecord.AnalyzeDiagram;
-                    return resp;
-                }
+            DiagramResponse resp = new DiagramResponse();
 
-                return null;           
+            if (assessmentRecord != null)
+            {
+                resp.DiagramXml = assessmentRecord.Diagram_Markup;
+                resp.LastUsedComponentNumber = assessmentRecord.LastUsedComponentNumber;
+                resp.AnalyzeDiagram = assessmentRecord.AnalyzeDiagram;
+                return resp;
+            }
+
+            return null;
         }
 
 
@@ -142,7 +148,7 @@ namespace CSETWebCore.Business.Diagram
         /// <returns></returns>
         public bool HasDiagram(int assessmentID)
         {
-           
+
             var assessmentRecord = _context.ASSESSMENTS.Where(x => x.Assessment_Id == assessmentID).FirstOrDefault();
 
             DiagramResponse resp = new DiagramResponse();
@@ -185,7 +191,7 @@ namespace CSETWebCore.Business.Diagram
 
 
             // Make sure any paths to embedded svg images are correctly qualified with this server's URL
-            
+
             //var serverHostUrl = System.Web.HttpContext.Current.Request.Url;
             //var contextFeature = http.HttpContext.Features.Get<IHttpRequestFeature>();
             //var urlContext = url.ActionContext.HttpContext.Request.Scheme;
@@ -239,10 +245,10 @@ namespace CSETWebCore.Business.Diagram
                 foreach (COMPONENT_SYMBOLS s in symbols)
                 {
                     var symbol = new ComponentSymbol
-                    {   
+                    {
                         Symbol_Name = s.Symbol_Name,
                         Abbreviation = s.Abbreviation,
-                        FileName = s.File_Name,                            
+                        FileName = s.File_Name,
                         ComponentFamilyName = s.Component_Family_Name,
                         Search_Tags = s.Search_Tags,
                         Width = (int)s.Width,
@@ -252,19 +258,19 @@ namespace CSETWebCore.Business.Diagram
                     group.Symbols.Add(symbol);
                 }
             }
-            
+
             return resp;
         }
 
         public string ImportOldCSETDFile(string diagramXml, int assessmentId)
         {
             var t = new TranslateCsetdToDrawio();
-            string newDiagramXml = t.Translate(diagramXml).OuterXml;
+            string newDiagramXml = t.Translate(_context, diagramXml).OuterXml;
             _context.ASSESSMENTS.Where(x => x.Assessment_Id == assessmentId).First().Diagram_Markup = null;
             //string sql =
             //"delete ASSESSMENT_DIAGRAM_COMPONENTS  where assessment_id = @id;" +
             //"delete [DIAGRAM_CONTAINER] where assessment_id = @id;";
-            
+
             //db.Database.ExecuteSqlCommand(sql,
             //    new SqlParameter("@Id", assessmentId));
             var diagramComponents = _context.ASSESSMENT_DIAGRAM_COMPONENTS.Where(x => x.Assessment_Id == assessmentId);
@@ -297,7 +303,7 @@ namespace CSETWebCore.Business.Diagram
             foreach (COMPONENT_SYMBOLS s in symbols)
             {
                 var symbol = new ComponentSymbol
-                {   
+                {
                     Abbreviation = s.Abbreviation,
                     FileName = s.File_Name,
                     Symbol_Name = s.Symbol_Name,
@@ -309,7 +315,7 @@ namespace CSETWebCore.Business.Diagram
                 };
 
                 resp.Add(symbol);
-            
+
             }
 
             return resp;
@@ -323,7 +329,7 @@ namespace CSETWebCore.Business.Diagram
         public StringReader GetDiagramXml(int assessmentId)
         {
             var diagram = _context.ASSESSMENTS.FirstOrDefault(a => a.Assessment_Id == assessmentId)?.Diagram_Markup;
-           
+
             if (diagram != null)
             {
                 var stream = new StringReader(diagram);
@@ -355,14 +361,17 @@ namespace CSETWebCore.Business.Diagram
                 {
                     if (item.GetType() == objectType)
                     {
-                       
-                        var addLayerVisible = (mxGraphModelRootObject) item;
-                        string parentId = !string.IsNullOrEmpty(addLayerVisible.mxCell.parent) ? addLayerVisible.mxCell.parent : addLayerVisible.parent??"0";
+
+                        var addLayerVisible = (mxGraphModelRootObject)item;
+                        string parentId = !string.IsNullOrEmpty(addLayerVisible.mxCell.parent) ? addLayerVisible.mxCell.parent : addLayerVisible.parent ?? "0";
                         var layerVisibility = layers.GetLastLayer(parentId);
-                        addLayerVisible.visible = layerVisibility.visible??"true";
-                        addLayerVisible.layerName = layerVisibility.layerName??string.Empty;
-                        
-                        vertices.Add(addLayerVisible);
+                        if (layerVisibility != null) 
+                        {
+                            addLayerVisible.visible = layerVisibility.visible ?? "true";
+                            addLayerVisible.layerName = layerVisibility.layerName ?? string.Empty;
+
+                            vertices.Add(addLayerVisible);
+                        }
                     }
 
                 }
@@ -395,9 +404,12 @@ namespace CSETWebCore.Business.Diagram
                     {
                         var addLayerVisible = (mxGraphModelRootMxCell)item;
                         var layerVisibility = getLayerVisibility(addLayerVisible.parent, assessment_id);
-                        addLayerVisible.visible = layerVisibility.visible;
-                        addLayerVisible.layerName = layerVisibility.layerName;
-                        vertices.Add(addLayerVisible);
+                        if (layerVisibility != null) 
+                        { 
+                            addLayerVisible.visible = layerVisibility.visible;
+                            addLayerVisible.layerName = layerVisibility.layerName;
+                            vertices.Add(addLayerVisible);
+                        }
                     }
 
                 }
@@ -411,26 +423,28 @@ namespace CSETWebCore.Business.Diagram
         /// </summary>
         /// <param name="stream"></param>
         /// <returns></returns>
-        public List<mxGraphModelRootMxCell> ProcessDiagramEdges(StringReader stream, int assessment_id)
+        public List<mxGraphModelRootObject> ProcessDiagramEdges(StringReader stream, int assessment_id)
         {
-            List<mxGraphModelRootMxCell> edges = new List<mxGraphModelRootMxCell>();
+            List<mxGraphModelRootObject> edges = new List<mxGraphModelRootObject>();
             if (stream != null)
             {
                 XmlSerializer deserializer = new XmlSerializer(typeof(mxGraphModel));
                 var diagramXml = (mxGraphModel)deserializer.Deserialize((stream));
 
-                mxGraphModelRootObject o = new mxGraphModelRootObject();
-                Type objectType = typeof(mxGraphModelRootMxCell);
+                Type objectType = typeof(mxGraphModelRootObject);
 
                 foreach (var item in diagramXml.root.Items)
                 {
                     if (item.GetType() == objectType)
                     {
-                        var addLayerVisible = (mxGraphModelRootMxCell)item;
+                        var addLayerVisible = (mxGraphModelRootObject)item;
                         var layerVisibility = getLayerVisibility(addLayerVisible.parent, assessment_id);
-                        addLayerVisible.visible = layerVisibility.visible;
-                        addLayerVisible.layerName = layerVisibility.layerName;
-                        edges.Add(addLayerVisible);
+                        if (layerVisibility != null) 
+                        {
+                            addLayerVisible.visible = layerVisibility.visible;
+                            addLayerVisible.layerName = layerVisibility.layerName;
+                            edges.Add(addLayerVisible);
+                        }
                     }
                 }
             }
@@ -479,8 +493,8 @@ namespace CSETWebCore.Business.Diagram
                 var symbols = GetAllComponentSymbols();
                 for (int i = 0; i < diagramComponents.Count(); i++)
                 {
-                    var imageTag = diagramComponents[i].mxCell.style.Split(';').FirstOrDefault(x=>x.Contains("image="));
-                   
+                    var imageTag = diagramComponents[i].mxCell.style.Split(';').FirstOrDefault(x => x.Contains("image="));
+
                     if (!string.IsNullOrEmpty(imageTag))
                     {
                         var image = imageTag.Split('/').LastOrDefault();
@@ -489,14 +503,9 @@ namespace CSETWebCore.Business.Diagram
 
                     mxGraphModelRootObject parent = diagramZones.FirstOrDefault(x => x.id == diagramComponents[i].mxCell.parent);
 
-                    if (string.IsNullOrEmpty(diagramComponents[i].SAL)) 
+                    if (string.IsNullOrEmpty(diagramComponents[i].SAL))
                     {
                         diagramComponents[i].SAL = parent?.SAL;
-                    }
-
-                    if (string.IsNullOrEmpty(diagramComponents[i].Criticality))
-                    {
-                        diagramComponents[i].Criticality = parent?.Criticality;
                     }
 
                     diagramComponents[i].zoneLabel = parent?.label;
@@ -520,9 +529,9 @@ namespace CSETWebCore.Business.Diagram
         /// </summary>
         /// <param name="edges"></param>
         /// <returns></returns>
-        public List<mxGraphModelRootMxCell> GetDiagramLinks(List<mxGraphModelRootMxCell> edges)
+        public List<mxGraphModelRootObject> GetDiagramLinks(List<mxGraphModelRootObject> edges)
         {
-            var diagramLines = edges.Where(l => l.edge == "1").ToList();
+            var diagramLines = edges.Where(l => l.mxCell.edge == "1").ToList();
             return diagramLines;
         }
 
@@ -620,7 +629,7 @@ namespace CSETWebCore.Business.Diagram
 
                     if (diagramXml.root.Items[i].GetType() == objectType)
                     {
-                        item = (mxGraphModelRootObject) diagramXml.root.Items[i];
+                        item = (mxGraphModelRootObject)diagramXml.root.Items[i];
                     }
 
                     if (item.id == vertice.id)
@@ -633,6 +642,11 @@ namespace CSETWebCore.Business.Diagram
                         item.Criticality = vertice.Criticality;
                         item.Description = vertice.Description;
                         item.HostName = vertice.HostName;
+                        item.PhysicalLocation = vertice.PhysicalLocation;
+                        item.VendorName = vertice.VendorName;
+                        item.ProductName = vertice.ProductName;
+                        item.VersionName = vertice.VersionName;
+                        item.SerialNumber = vertice.SerialNumber;
                         diagramXml.root.Items[i] = (object)item;
                     }
                 }
@@ -642,28 +656,25 @@ namespace CSETWebCore.Business.Diagram
             catch (Exception ex)
             {
                 var message = ex.Message;
+                _logger.Error(message);
             }
             finally
             {
             }
 
-            
+
         }
 
-        private static Dictionary<string, COMPONENT_SYMBOLS> legacyNamesList =null; 
+        private static Dictionary<string, COMPONENT_SYMBOLS> legacyNamesList = null;
 
         public COMPONENT_SYMBOLS getFromLegacyName(string name)
         {
             if (legacyNamesList == null)
             {
-                using (CSETContext db = new CSETContext())
-                {
-
-                    legacyNamesList =  (from a in db.COMPONENT_NAMES_LEGACY
-                            join b in db.COMPONENT_SYMBOLS on a.Component_Symbol_id equals
-                            b.Component_Symbol_Id
-                            select new { a, b }).ToDictionary(x => x.a.Old_Symbol_Name, x => x.b);
-                }
+                legacyNamesList = (from a in _context.COMPONENT_NAMES_LEGACY
+                                   join b in _context.COMPONENT_SYMBOLS on a.Component_Symbol_id equals
+                                   b.Component_Symbol_Id
+                                   select new { a, b }).ToDictionary(x => x.a.Old_Symbol_Name, x => x.b);
             }
             return legacyNamesList[name];
 
@@ -694,7 +705,7 @@ namespace CSETWebCore.Business.Diagram
                     if (item.id == vertice.id)
                     {
                         item.label = vertice.label;
-                        item.zoneType = vertice.zoneType;
+                        item.ZoneType = vertice.ZoneType;
                         item.SAL = vertice.SAL;
                         item.internalLabel = vertice.label;
                         diagramXml.root.Items[i] = (object)item;
@@ -767,8 +778,9 @@ namespace CSETWebCore.Business.Diagram
                     var xDoc = new XmlDocument();
                     xDoc.LoadXml(xml);
                     if (assessment != null)
-                        SaveDiagram(assessmentId, xDoc, new DiagramRequest(){
-                           LastUsedComponentNumber =  assessment.LastUsedComponentNumber,
+                        SaveDiagram(assessmentId, xDoc, new DiagramRequest()
+                        {
+                            LastUsedComponentNumber = assessment.LastUsedComponentNumber,
                             DiagramSvg = assessment.Diagram_Image
                         });
                 }
@@ -791,7 +803,7 @@ namespace CSETWebCore.Business.Diagram
 
             foreach (var s in styles)
             {
-                newStyle += !string.IsNullOrEmpty(s) ? s + ";": string.Empty;
+                newStyle += !string.IsNullOrEmpty(s) ? s + ";" : string.Empty;
             }
 
             return newStyle;
@@ -804,19 +816,180 @@ namespace CSETWebCore.Business.Diagram
         public IEnumerable<DiagramTemplate> GetDiagramTemplates()
         {
             var templates = Enumerable.Empty<DiagramTemplate>();
-            using (var db = new CSETContext())
-            {
-                templates = db.DIAGRAM_TEMPLATES
-                    .Where(x => x.Is_Visible ?? false)
-                    .OrderBy(x => x.Id)
-                    .Select(x => new DiagramTemplate {
-                        Name = x.Template_Name,
-                        ImageSource = x.Image_Source,
-                        Markup = x.Diagram_Markup
-                    })
-                    .ToArray();
-            }
+
+            templates = _context.DIAGRAM_TEMPLATES
+                .Where(x => x.Is_Visible ?? false)
+                .OrderBy(x => x.Id)
+                .Select(x => new DiagramTemplate
+                {
+                    Name = x.Template_Name,
+                    ImageSource = x.Image_Source,
+                    Markup = x.Diagram_Markup
+                })
+                .ToArray();
+
             return templates;
+        }
+
+        /// <summary>
+        /// Gets all of the vendors from the uploaded CSAF_FILE records in the DB.
+        /// </summary>
+        /// <returns></returns>
+        public IEnumerable<CommonSecurityAdvisoryFrameworkVendor> GetCsafVendors() 
+        {
+            List<CSAF_FILE> csafList = _context.CSAF_FILE.ToList();
+            List<CommonSecurityAdvisoryFrameworkVendor> vendors = new List<CommonSecurityAdvisoryFrameworkVendor>();
+
+            foreach (var csaf in csafList)
+            {
+                var csafObj = JsonConvert.DeserializeObject<CommonSecurityAdvisoryFrameworkObject>(Encoding.UTF8.GetString(csaf.Data));
+
+                var vendor = new CommonSecurityAdvisoryFrameworkVendor(csafObj);
+                var existingVendor = vendors.Find(v => v.Name.Trim() == vendor.Name.Trim());
+
+                // Use existing vendor from list if present
+                if (existingVendor != null)
+                {
+                    vendor = existingVendor;
+                }
+
+                if (csafObj.Product_Tree.Branches[0].Branches == null)
+                {
+                    csafObj.Product_Tree.Branches[0].Branches = new List<Branch>();
+                }
+                    
+                foreach (var branch in csafObj.Product_Tree.Branches[0].Branches)
+                {
+                    // Add newly found products, else add new vulnerabilites to existing product
+                    var newProduct = new CommonSecurityAdvisoryFrameworkProduct(csafObj, branch);
+                    if (!vendor.Products.Exists(p => p.Name == newProduct.Name))
+                    {
+                        vendor.Products.Add(newProduct);
+                    }
+                    else
+                    {
+                        var existingProduct = vendor.Products.Find(p => p.Name == newProduct.Name);
+                        existingProduct.AffectedVersions += " / " + branch.Branches?[0].Name;
+                        foreach (var vulnerability in newProduct.Vulnerabilities)
+                        {
+                            if (!existingProduct.Vulnerabilities.Exists(v => v.Cve == vulnerability.Cve))
+                            {
+                                existingProduct.Vulnerabilities.Add(vulnerability);
+                            }
+                        }
+                    }
+                }
+
+                if (existingVendor == null)
+                {
+                    vendors.Add(vendor);
+                }
+            }
+
+            vendors.Sort((a, b) => string.Compare(a.Name, b.Name, true));
+
+            foreach (var vendor in vendors)
+            {
+                vendor.Products.Sort((a, b) => string.Compare(a.Name, b.Name, true));
+            }
+
+            return vendors;
+        }
+
+        /// <summary>
+        /// Adds a new / modifies an existing CSAF vendor and persists it to the database.
+        /// Currently, users can only manually add vendors and products (not vulnerabilities);
+        /// </summary>
+        /// <param name="vendor"></param>
+        /// <returns>The newly added / edited vendor</returns>
+        public CommonSecurityAdvisoryFrameworkVendor SaveCsafVendor(CommonSecurityAdvisoryFrameworkVendor vendor) 
+        {
+            var currentVendors = GetCsafVendors();
+
+            var existingVendor = currentVendors.FirstOrDefault(v => v.Name == vendor.Name);
+
+            if (existingVendor != null)
+            {
+                var allCsafs = _context.CSAF_FILE.ToList();
+
+                var dbCsafFile = allCsafs.FirstOrDefault(
+                    csaf => JsonConvert.DeserializeObject<CommonSecurityAdvisoryFrameworkObject>(Encoding.UTF8.GetString(csaf.Data))
+                    .Product_Tree.Branches[0].Name == existingVendor.Name
+                    );
+
+                var csafObj = JsonConvert.DeserializeObject<CommonSecurityAdvisoryFrameworkObject>(Encoding.UTF8.GetString(dbCsafFile.Data));
+
+                foreach (var product in vendor.Products)
+                {
+                    var existingProduct = existingVendor.Products.Find(p => p.Name == product.Name);
+                    if (existingProduct == null)
+                    {
+                        existingVendor.Products.Add(product);
+
+                        if (csafObj.Product_Tree.Branches[0].Branches == null)
+                        {
+                            csafObj.Product_Tree.Branches[0].Branches = new List<Branch>();
+                        }
+
+                        csafObj.Product_Tree.Branches[0].Branches.Add(new Branch { Name = product.Name });
+                    }
+                }
+
+                existingVendor.Products.Sort((a, b) => string.Compare(a.Name, b.Name, true));
+
+                dbCsafFile.Data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(csafObj));
+
+                _context.SaveChanges();
+
+                return existingVendor;
+            }
+            else
+            {
+                CommonSecurityAdvisoryFrameworkObject newCsafObj = new CommonSecurityAdvisoryFrameworkObject(vendor);
+
+                var bytes = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(newCsafObj));
+
+                CSAF_FILE csafFile = new CSAF_FILE
+                {
+                    File_Name = vendor.Name + "-CUSTOM.json",
+                    Data = bytes,
+                    File_Size = bytes.LongLength,
+                    Upload_Date = DateTime.Now,
+                };
+
+                _context.CSAF_FILE.Add(csafFile);
+                _context.SaveChanges();
+
+                return vendor;
+            }
+        }
+
+        public void DeleteCsafVendor(string vendorName) 
+        {
+            var allCsafs = _context.CSAF_FILE.ToList();
+            var csafFilesToRemove = allCsafs.Where(csaf => JsonConvert.DeserializeObject<CommonSecurityAdvisoryFrameworkObject>(Encoding.UTF8.GetString(csaf.Data))
+                    .Product_Tree.Branches[0].Name == vendorName);
+
+            _context.CSAF_FILE.RemoveRange(csafFilesToRemove);
+
+            _context.SaveChanges();
+        }
+
+        public void DeleteCsafProduct(string vendorName, string productName) 
+        {
+            var allCsafs = _context.CSAF_FILE.ToList();
+            var csafFilesWithTargetVendor = allCsafs.Where(csaf => JsonConvert.DeserializeObject<CommonSecurityAdvisoryFrameworkObject>(Encoding.UTF8.GetString(csaf.Data))
+                    .Product_Tree.Branches[0].Name == vendorName);
+
+            foreach (CSAF_FILE csafFile in csafFilesWithTargetVendor) 
+            {
+                CommonSecurityAdvisoryFrameworkObject csafObj = JsonConvert.DeserializeObject<CommonSecurityAdvisoryFrameworkObject>(Encoding.UTF8.GetString(csafFile.Data));
+                csafObj.Product_Tree.Branches[0].Branches.RemoveAll(branch => branch.Name == productName);
+
+                csafFile.Data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(csafObj));
+            }
+
+            _context.SaveChanges();
         }
     }
 }

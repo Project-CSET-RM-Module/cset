@@ -1,0 +1,16 @@
+<div>Type Enter to Update a value <Select (change)="layoutChange($event)">
+  <option></option>
+  <option *ngFor="let layout of layouts">{{layout.layoutName}}</option>
+</Select> 
+</div>
+<div class="section-bdy">  
+  <app-list-items [listTest]="{ children: list }" [unusedList]="unusedListCopy" (treeNeedsRefreshed)="parentEventHandlerFunction()" [isRoot]="true"></app-list-items>
+</div>
+
+
+<div>
+  THESE ARE CURRENTLY UNUSED ITEMS
+</div>
+<div>  
+  <app-list-items [listTest]="{ children: unusedList }" (treeNeedsRefreshed)="parentEventHandlerFunction()" [isRoot]="false"></app-list-items>
+</div>

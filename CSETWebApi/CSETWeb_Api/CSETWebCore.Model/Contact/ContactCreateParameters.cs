@@ -1,4 +1,10 @@
-﻿namespace CSETWebCore.Model.Contact
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+namespace CSETWebCore.Model.Contact
 {
     public class ContactCreateParameters
     {
@@ -10,6 +16,13 @@
         public int AssessmentId { get; set; }
         public string Title { get; set; }
         public string Phone { get; set; }
+        public string CellPhone { get; set; }
+        public string ReportsTo { get; set; }
+        public string OrganizationName { get; set; }
+        public string SiteName { get; set; }
+        public string EmergencyCommunicationsProtocol { get; set; }
+        public bool IsSiteParticipant { get; set; }
+        public bool IsPrimaryPoc { get; set; }
 
         /// <summary>
         /// The subject of the invitation email.

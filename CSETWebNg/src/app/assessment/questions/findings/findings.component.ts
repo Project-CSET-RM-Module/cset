@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -28,10 +28,14 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Finding, Importance, FindingContact } from './findings.model';
 import * as _ from 'lodash';
 import { Router } from '@angular/router';
+import { ConfigService } from '../../../services/config.service';
 
 @Component({
   selector: 'app-findings',
-  templateUrl: './findings.component.html'
+  templateUrl: './findings.component.html',
+  host: {
+    'style': 'max-width: 100%'
+  }
 })
 export class FindingsComponent implements OnInit {
 
@@ -43,10 +47,11 @@ export class FindingsComponent implements OnInit {
 
   constructor(
     private findSvc: FindingsService,
+    private configSvc: ConfigService,
     private dialog: MatDialogRef<FindingsComponent>,
     @Inject(MAT_DIALOG_DATA) public data: Finding,
     private router: Router,
-    private assessSvc: AssessmentService
+    public assessSvc: AssessmentService
   ) {
     this.finding = data;
     this.answerID = data.answer_Id;
@@ -78,23 +83,45 @@ export class FindingsComponent implements OnInit {
     });
   }
 
-  refreshContacts():void{
-    let questionType = localStorage.getItem('questionSet');
-    this.findSvc.getFinding(this.finding.answer_Id, this.finding.finding_Id, this.finding.question_Id, questionType)
-        .subscribe((response: Finding) => {
-          this.finding = response;
-          this.contactsmodel = _.map(_.filter(this.finding.finding_Contacts,
-            { 'selected': true }),
-            'Assessment_Contact_Id');
-        });
+  /**
+   * 
+   */
+  showContacts(): boolean {
+    if (this.configSvc.config.isRunningAnonymous) {
+      return false;
+    }
+
+    return true;
   }
 
+  /**
+   * 
+   */
+  refreshContacts(): void {
+    let questionType = localStorage.getItem('questionSet');
+    this.findSvc.getFinding(this.finding.answer_Id, this.finding.finding_Id, this.finding.question_Id, questionType)
+      .subscribe((response: Finding) => {
+        this.finding = response;
+        this.contactsmodel = _.map(_.filter(this.finding.finding_Contacts,
+          { 'selected': true }),
+          'Assessment_Contact_Id');
+      });
+  }
+
+  /**
+   * 
+   */
   clearMulti() {
     this.finding.finding_Contacts.forEach(c => {
       c.selected = false;
     });
   }
 
+  /**
+   * 
+   * @param finding 
+   * @returns 
+   */
   checkFinding(finding: Finding) {
     // and a bunch of fields together
     // if they are all null then false
@@ -112,7 +139,9 @@ export class FindingsComponent implements OnInit {
     return !finding;
   }
 
-
+  /**
+   * 
+   */
   update() {
     this.finding.answer_Id = this.answerID;
     this.finding.question_Id = this.questionID;
@@ -132,4 +161,5 @@ export class FindingsComponent implements OnInit {
       }
     });
   }
+
 }

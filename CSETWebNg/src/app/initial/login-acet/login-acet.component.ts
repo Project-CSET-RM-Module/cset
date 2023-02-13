@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -62,13 +62,13 @@ export class LoginAcetComponent implements OnInit {
 
   ngOnInit() {
     this.browserIsIE = /msie\s|trident\//i.test(window.navigator.userAgent);
-    this.isRunningInElectron = localStorage.getItem('isRunningInElectron') === 'true' ? true : false;
+    this.isRunningInElectron = this.configSvc.isRunningInElectron;
     if (this.authenticationService.isLocal) {
       this.mode = 'LOCAL';
       this.continueStandAlone();
     } else {
       // reset login status
-      this.authenticationService.logout();
+      //this.authenticationService.logout();
 
       // default the page as 'login'
       this.mode = 'LOGIN';
@@ -142,6 +142,10 @@ export class LoginAcetComponent implements OnInit {
 
   continueStandAlone() {
     this.router.navigate(['/home']);
+  }
+
+  refreshWindow() {
+    window.location.reload();
   }
 
   exit() {

@@ -1,4 +1,10 @@
-﻿using System;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using CSETWebCore.Business.Sal;
@@ -14,6 +20,8 @@ using CSETWebCore.Interfaces.Standards;
 using CSETWebCore.Model.Acet;
 using CSETWebCore.Model.Assessment;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
+using Nelibur.ObjectMapper;
 
 namespace CSETWebCore.Business.Assessment
 {
@@ -47,7 +55,7 @@ namespace CSETWebCore.Business.Assessment
         }
 
 
-        public AssessmentDetail CreateNewAssessment(int currentUserId, string workflow)
+        public AssessmentDetail CreateNewAssessment(int? currentUserId, string workflow)
         {
             DateTime nowUTC = _utilities.UtcToLocal(DateTime.UtcNow);
 
@@ -64,38 +72,43 @@ namespace CSETWebCore.Business.Assessment
                 CreatorId = currentUserId,
                 CreatedDate = nowUTC,
                 LastModifiedDate = nowUTC,
+                AssessmentEffectiveDate = nowUTC,
                 Workflow = workflow,
                 ExecutiveSummary = defaultExecSumm
 
             };
 
-            if (newAssessment.Workflow == "TSA")
-            {
-                SetDefaultTsaStuff(newAssessment);
-            }
 
             // Commit the new assessment
             int assessment_id = SaveAssessmentDetail(0, newAssessment);
             newAssessment.Id = assessment_id;
 
+
             // Add the current user to the new assessment as an admin that has already been 'invited'
-            _contactBusiness.AddContactToAssessment(assessment_id, currentUserId, Constants.Constants.AssessmentAdminId, true);
+            if (currentUserId != null)
+            {
+                _contactBusiness.AddContactToAssessment(assessment_id, (int)currentUserId, Constants.Constants.AssessmentAdminId, true);
+            }
+
+            // Add a connection to the AccessKey if that's how the user is using CSET
+            if (_tokenManager.GetAccessKey() != null)
+            {
+                var aka = new ACCESS_KEY_ASSESSMENT()
+                {
+                    AccessKey = _tokenManager.GetAccessKey(),
+                    Assessment_Id = assessment_id
+                };
+
+                _context.Add(aka);
+                _context.SaveChanges();
+            }
 
 
             string defaultSal = "Low";
-            if (newAssessment.Workflow == "TSA")
-            {
-                defaultSal = SalBusiness.DefaultSalTsa;
-            }
             _salBusiness.SetDefaultSALs(assessment_id, defaultSal);
 
 
             _standardsBusiness.PersistSelectedStandards(assessment_id, null);
-
-            if (newAssessment.Workflow == "TSA")
-            {
-                _standardsBusiness.PersistDefaultSelectedStandard(assessment_id);
-            }
 
 
             CreateIrpHeaders(assessment_id);
@@ -105,7 +118,7 @@ namespace CSETWebCore.Business.Assessment
 
 
 
-        public AssessmentDetail CreateNewAssessmentForImport(int currentUserId)
+        public AssessmentDetail CreateNewAssessmentForImport(int? currentUserId, string accessKey)
         {
             DateTime nowUTC = DateTime.Now;
             AssessmentDetail newAssessment = new AssessmentDetail
@@ -114,7 +127,8 @@ namespace CSETWebCore.Business.Assessment
                 AssessmentDate = nowUTC,
                 CreatorId = currentUserId,
                 CreatedDate = nowUTC,
-                LastModifiedDate = nowUTC
+                LastModifiedDate = nowUTC,
+                AssessmentEffectiveDate = nowUTC
             };
 
             // Commit the new assessment
@@ -122,24 +136,123 @@ namespace CSETWebCore.Business.Assessment
             newAssessment.Id = assessment_id;
 
 
+
             // Add the current user to the new assessment as an admin that has already been 'invited'
-            _contactBusiness.AddContactToAssessment(assessment_id, currentUserId, Constants.Constants.AssessmentAdminId, true);
+            if (currentUserId != null)
+            {
+                _contactBusiness.AddContactToAssessment(assessment_id, (int)currentUserId, Constants.Constants.AssessmentAdminId, true);
+            }
+
+            if (accessKey != null)
+            {
+                var aka = new ACCESS_KEY_ASSESSMENT()
+                {
+                    AccessKey = accessKey,
+                    Assessment_Id = assessment_id
+                };
+
+                _context.Add(aka);
+                _context.SaveChanges();
+            }
+
             return newAssessment;
         }
+
 
         /// <summary>
         /// Returns a collection of Assessment objects that are connected to the specified user.
         /// </summary>
         /// <param name="userId"></param>
         /// <returns></returns>
-        public IEnumerable<Assessments_For_User> GetAssessmentsForUser(int userId)
+        public IEnumerable<usp_Assessments_For_UserResult> GetAssessmentsForUser(int userId)
         {
-            List<Assessments_For_User> list = new List<Assessments_For_User>();
+            List<usp_Assessments_For_UserResult> list = new List<usp_Assessments_For_UserResult>();
             list = _context.usp_AssessmentsForUser(userId).ToList();
 
             return list;
         }
 
+
+        /// <summary>
+        /// Returns a collection of Assessment objects that are connected to the specified access key.
+        /// </summary>
+        /// <param name="accessKey"></param>
+        /// <returns></returns>
+        public IEnumerable<usp_Assessments_For_UserResult> GetAssessmentsForAccessKey(string accessKey)
+        {
+            var dbAssessmentList = _context.ACCESS_KEY_ASSESSMENT.Where(x => x.AccessKey == accessKey)
+                .Include(x => x.Assessment)
+                .ThenInclude(x => x.INFORMATION)
+                .ToList();
+
+            var allStandards = _context.SETS.ToList();
+
+            TinyMapper.Bind<ASSESSMENTS, usp_Assessments_For_UserResult>();
+            var list = new List<usp_Assessments_For_UserResult>();
+            foreach (var l in dbAssessmentList)
+            {
+                AssessmentDetail assessment = GetAssessmentDetail(l.Assessment_Id);
+                var aaa = TinyMapper.Map<ASSESSMENTS, usp_Assessments_For_UserResult>(l.Assessment);
+                aaa.AssessmentId = l.Assessment_Id;
+                aaa.AssessmentName = l.Assessment.INFORMATION.Assessment_Name;
+                aaa.SelectedMaturityModel = assessment.MaturityModel?.ModelName ?? "";
+                if (assessment.UseStandard)
+                {
+                    for (int i = 0; i < assessment.Standards.Count; i++)
+                    {
+                        aaa.SelectedStandards += allStandards.Find(s => s.Set_Name == assessment.Standards[i])?.Short_Name + ", ";
+
+                        if (i == assessment.Standards.Count - 1)
+                        {
+                            aaa.SelectedStandards = aaa.SelectedStandards[..^2];
+                        }
+                    }
+                }
+                else 
+                {
+                    aaa.SelectedStandards = "";
+                }
+
+                list.Add(aaa);
+            }
+
+            return list;
+        }
+
+
+        /// <summary>
+        /// Returns a collection of Assessment objects that are connected to the specified user.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public IEnumerable<usp_Assessments_Completion_For_UserResult> GetAssessmentsCompletionForUser(int userId)
+        {
+            List<usp_Assessments_Completion_For_UserResult> list = new List<usp_Assessments_Completion_For_UserResult>();
+            list = _context.usp_AssessmentsCompletionForUser(userId).ToList();
+
+            return list;
+        }
+
+
+        /// <summary>
+        /// Returns a collection of Assessment objects that are connected to the specified access key.
+        /// </summary>
+        /// <param name="userId"></param>
+        /// <returns></returns>
+        public IEnumerable<usp_Assessments_Completion_For_UserResult> GetAssessmentsCompletionForAccessKey(string accessKey)
+        {
+            List<usp_Assessments_Completion_For_UserResult> list = new List<usp_Assessments_Completion_For_UserResult>();
+            list = _context.usp_AssessmentsCompletionForAccessKey(accessKey).ToList();
+
+            return list;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="assessmentId"></param>
+        /// <returns></returns>
         public AnalyticsAssessment GetAnalyticsAssessmentDetail(int assessmentId)
         {
             AnalyticsAssessment assessment = new AnalyticsAssessment();
@@ -172,7 +285,6 @@ namespace CSETWebCore.Business.Assessment
             }
 
 
-
             var result = query.ToList().FirstOrDefault();
             var modeResult = query.Join(_context.STANDARD_SELECTION, x => x.Assessment_Id, y => y.Assessment_Id, (x, y) => y)
                 .FirstOrDefault();
@@ -187,7 +299,7 @@ namespace CSETWebCore.Business.Assessment
                     AssessmentCreatorId = tmpGuid.ToString(),
                     Assessment_Date = _utilities.UtcToLocal(result.Assessment_Date),
                     Assessment_GUID = result.Assessment_GUID.ToString(),
-                    LastAccessedDate = _utilities.UtcToLocal((DateTime)result.LastAccessedDate),
+                    LastModifiedDate = _utilities.UtcToLocal((DateTime)result.LastModifiedDate),
                     Mode = modeResult?.Application_Mode
                 };
             }
@@ -222,14 +334,19 @@ namespace CSETWebCore.Business.Assessment
                 assessment.FacilityName = result.ii.Facility_Name;
                 assessment.CityOrSiteName = result.ii.City_Or_Site_Name;
                 assessment.StateProvRegion = result.ii.State_Province_Or_Region;
+                assessment.PostalCode = result.ii.Postal_Code;
                 assessment.ExecutiveSummary = result.ii.Executive_Summary;
                 assessment.AssessmentDescription = result.ii.Assessment_Description;
                 assessment.AdditionalNotesAndComments = result.ii.Additional_Notes_And_Comments;
                 assessment.CreatorId = result.aa.AssessmentCreatorId ?? 0;
-                assessment.CreatedDate = _utilities.UtcToLocal(result.aa.AssessmentCreatedDate);
-                assessment.LastModifiedDate = _utilities.UtcToLocal((DateTime)result.aa.LastAccessedDate);
+                assessment.CreatedDate = result.aa.AssessmentCreatedDate; //_utilities.UtcToLocal(result.aa.AssessmentCreatedDate);
+                assessment.LastModifiedDate = result.aa.LastModifiedDate ?? DateTime.Now; //_utilities.UtcToLocal((DateTime)result.aa.LastModifiedDate);
+                assessment.AssessmentEffectiveDate = result.aa.AssessmentEffectiveDate; //_utilities.UtcToLocal(result.aa.AssessmentEffectiveDate);
                 assessment.DiagramMarkup = result.aa.Diagram_Markup;
                 assessment.DiagramImage = result.aa.Diagram_Image;
+
+                assessment.CreatorName = new User.UserBusiness(_context, null)
+                    .GetUserDetail((int)assessment.CreatorId)?.FullName;
 
                 assessment.UseStandard = result.aa.UseStandard;
                 if (assessment.UseStandard)
@@ -244,8 +361,6 @@ namespace CSETWebCore.Business.Assessment
                 {
                     GetMaturityModelDetails(ref assessment);
                 }
-
-                assessment.UseCyote = result.aa.UseCyote;
 
                 assessment.Workflow = result.ii.Workflow;
 
@@ -262,19 +377,38 @@ namespace CSETWebCore.Business.Assessment
                     }
                 }
 
+                assessment.Origin = result.ii.Origin;
+
                 // for older assessments, if no features are set, look for actual data and set them
                 if (!assessment.UseMaturity && !assessment.UseStandard && !assessment.UseDiagram)
                 {
                     DetermineFeaturesFromData(ref assessment);
                 }
 
+                SetAssessmentTypeInfo(assessment);
+
+
+                var ss = _context.STANDARD_SELECTION.Where(x => x.Assessment_Id == assessmentId).FirstOrDefault();
+                if (ss != null && ss.Hidden_Screens != null)
+                {
+                    assessment.HiddenScreens.AddRange(ss.Hidden_Screens.ToLower().Split(","));
+                }
+
                 bool defaultAcet = (app_code == "ACET");
                 assessment.IsAcetOnly = result.ii.IsAcetOnly != null ? result.ii.IsAcetOnly : defaultAcet;
+
+                assessment.BaselineAssessmentId = result.ii.Baseline_Assessment_Id;
+                if (assessment.BaselineAssessmentId != null)
+                {
+                    var baseInfo = _context.INFORMATION.FirstOrDefault(x => x.Id == assessment.BaselineAssessmentId);
+                    assessment.BaselineAssessmentName = baseInfo.Assessment_Name;
+                }
+
 
                 // ACET-specific fields
                 assessment.Charter = string.IsNullOrEmpty(result.aa.Charter) ? "" : result.aa.Charter;
                 assessment.CreditUnion = result.aa.CreditUnionName;
-                assessment.Assets = result.aa.Assets != null ? int.Parse(result.aa.Assets) : 0;
+                assessment.Assets = result.aa.Assets != null ? long.Parse(result.aa.Assets) : 0;
 
 
                 // Fields located on the Overview page
@@ -303,7 +437,7 @@ namespace CSETWebCore.Business.Assessment
             var assessment = _context.ASSESSMENTS.Where(x => x.Assessment_Id == assessmentId).FirstOrDefault();
             if (assessment != null)
             {
-                return assessment.LastAccessedDate ?? DateTime.UtcNow;
+                return assessment.LastModifiedDate ?? DateTime.UtcNow;
             }
 
             return DateTime.UtcNow;
@@ -409,7 +543,7 @@ namespace CSETWebCore.Business.Assessment
         /// <param name="assessment"></param>
         /// <returns></returns>
         public int SaveAssessmentDetail(int assessmentId, AssessmentDetail assessment)
-        {            
+        {
             string app_code = _tokenManager.Payload(Constants.Constants.Token_Scope);
 
             // Add or update the ASSESSMENTS record
@@ -425,18 +559,18 @@ namespace CSETWebCore.Business.Assessment
 
             dbAssessment.Assessment_Id = assessmentId;
             dbAssessment.AssessmentCreatedDate = assessment.CreatedDate;
-            dbAssessment.AssessmentCreatorId = assessment.CreatorId == 0 ? null:assessment.CreatorId;
+            dbAssessment.AssessmentCreatorId = assessment.CreatorId == 0 ? null : assessment.CreatorId;
             dbAssessment.Assessment_Date = assessment.AssessmentDate ?? DateTime.Now;
-            dbAssessment.LastAccessedDate = assessment.LastModifiedDate;
+            dbAssessment.AssessmentEffectiveDate = assessment.AssessmentEffectiveDate ?? DateTime.Now;
+            dbAssessment.LastModifiedDate = assessment.LastModifiedDate;
 
             dbAssessment.UseDiagram = assessment.UseDiagram;
             dbAssessment.UseMaturity = assessment.UseMaturity;
             dbAssessment.UseStandard = assessment.UseStandard;
-            dbAssessment.UseCyote = assessment.UseCyote;
 
             dbAssessment.Charter = string.IsNullOrEmpty(assessment.Charter) ? "00000" : assessment.Charter.PadLeft(5, '0');
             dbAssessment.CreditUnionName = assessment.CreditUnion;
-            dbAssessment.Assets = assessment.Assets != null ? assessment.Assets.ToString() : null;
+            dbAssessment.Assets = assessment.Assets.ToString();
             dbAssessment.MatDetail_targetBandOnly = (app_code == "ACET");
 
             dbAssessment.Diagram_Markup = assessment.DiagramMarkup;
@@ -464,11 +598,14 @@ namespace CSETWebCore.Business.Assessment
 
             if (app_code == "ACET")
             {
-                var creditUnion = string.IsNullOrEmpty(assessment.CreditUnion)
-                    ? string.Empty
-                    : assessment.CreditUnion + " ";
-                assessment.AssessmentName =
-                    app_code + " " + dbAssessment.Charter + " " + creditUnion + dbAssessment.Assessment_Date.ToString("MMddyy");
+                if (assessment.MaturityModel?.ModelName != "ISE")
+                {
+                    var creditUnion = string.IsNullOrEmpty(assessment.CreditUnion)
+                        ? string.Empty
+                        : assessment.CreditUnion + " ";
+                    assessment.AssessmentName =
+                        app_code + " " + dbAssessment.Charter + " " + creditUnion + dbAssessment.Assessment_Date.ToString("MMddyy");
+                }
             }
 
             // add or update the INFORMATION record
@@ -476,11 +613,13 @@ namespace CSETWebCore.Business.Assessment
             dbInformation.Facility_Name = assessment.FacilityName;
             dbInformation.City_Or_Site_Name = assessment.CityOrSiteName;
             dbInformation.State_Province_Or_Region = assessment.StateProvRegion;
+            dbInformation.Postal_Code = assessment.PostalCode;
             dbInformation.Executive_Summary = assessment.ExecutiveSummary;
             dbInformation.Assessment_Description = assessment.AssessmentDescription;
             dbInformation.Additional_Notes_And_Comments = assessment.AdditionalNotesAndComments;
             dbInformation.IsAcetOnly = assessment.IsAcetOnly;
             dbInformation.Workflow = assessment.Workflow;
+            dbInformation.Origin = assessment.Origin;
 
             _context.INFORMATION.Update(dbInformation);
             _context.SaveChanges();
@@ -550,15 +689,6 @@ namespace CSETWebCore.Business.Assessment
 
 
         /// <summary>
-        /// Default a few things
-        /// </summary>
-        private void SetDefaultTsaStuff(AssessmentDetail assessment)
-        {
-            assessment.UseStandard = true;
-        }
-
-
-        /// <summary>
         /// Get all organization types
         /// </summary>
         /// <param></param>
@@ -579,7 +709,7 @@ namespace CSETWebCore.Business.Assessment
         /// <returns></returns>
         public bool IsCurrentUserOnAssessment(int assessmentId)
         {
-            int currentUserId = _tokenManager.GetUserId();
+            var currentUserId = _tokenManager.GetUserId();
 
             int countAC = _context.ASSESSMENT_CONTACTS.Where(ac => ac.Assessment_Id == assessmentId
             && ac.UserId == currentUserId).Count();
@@ -611,5 +741,74 @@ namespace CSETWebCore.Business.Assessment
         //{
         //    throw new NotImplementedException();
         //}
+
+        /// <summary>
+        /// Sets the assessment type title and description.
+        /// </summary>
+        /// <param name="assessment"></param>
+        public void SetAssessmentTypeInfo(AssessmentDetail assessment)
+        {
+            // Check for old assessment with multiple assessment types.
+            bool multipleTypes = (assessment.UseStandard && assessment.Standards.Count > 1)
+                                || (assessment.UseDiagram && assessment.UseMaturity)
+                                || (assessment.UseDiagram && assessment.UseStandard)
+                                || (assessment.UseMaturity && assessment.UseStandard);
+
+            if (assessment.UseMaturity)
+            {
+                // Use shorter names on assessments with multiple types.
+                assessment.TypeTitle += ", " + assessment.MaturityModel.ModelTitle;
+                assessment.TypeDescription = assessment.MaturityModel.ModelDescription;
+            }
+
+            if (assessment.UseStandard)
+            {
+                GatherSetsInfo(assessment.Standards).ForEach(standard =>
+                {
+                    // Use shorter names on assessments with multiple types.
+                    assessment.TypeTitle += ", " + (multipleTypes ? standard.ShortName : standard.FullName);
+                    assessment.TypeDescription = standard.Description;
+                });
+            }
+
+            if (assessment.UseDiagram)
+            {
+                assessment.TypeTitle += ", Network Diagram";
+                assessment.TypeDescription = "A Network Architecture and Diagram Based assessment. This assessment requires that you build " +
+                    "or import an assessment into CSET and creates a question set specifically tailored to your network configuration.";
+            }
+
+            if (assessment.TypeTitle != null)
+                if (assessment.TypeTitle.IndexOf(",") == 0)
+                {
+                    assessment.TypeTitle = assessment.TypeTitle.Substring(2);
+                }
+
+            // Remove description for assessments with multiple types.
+            if (multipleTypes)
+            {
+                assessment.TypeDescription = null;
+            }
+        }
+
+        public List<SetInfo> GatherSetsInfo(List<string> setNames)
+        {
+            var allSets = _context.SETS.ToList();
+            List<SetInfo> processedSets = new List<SetInfo>();
+            foreach (string setName in setNames)
+            {
+                var set = allSets.Find(set => set.Set_Name == setName);
+                processedSets.Add(new SetInfo { FullName = set.Full_Name, ShortName = set.Short_Name, Description = set.Standard_ToolTip });
+            }
+            return processedSets;
+        }
+
+        public class SetInfo
+        {
+            public string FullName { get; set; }
+            public string ShortName { get; set; }
+            public string Description { get; set; }
+        }
+
     }
 }

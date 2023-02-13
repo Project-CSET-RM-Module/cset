@@ -1,6 +1,6 @@
 <!---------------------- 
 
-   Copyright 2022 Battelle Energy Alliance, LLC  
+   Copyright 2023 Battelle Energy Alliance, LLC  
 
   Permission is hereby granted, free of charge, to any person obtaining a copy 
   of this software and associated documentation files (the "Software"), to deal 
@@ -22,6 +22,7 @@
 --------------------------> 
 <div class="white-panel d-flex flex-column justify-content-start flex-11a">
   <h3>Ranked Categories</h3>
+      <p>This graph shows the top areas of concern ranked.  These are calculated from a weighted risk score based on the difficulty of attack.  The attack weights are most heavily weighted for easy attacks to less for more difficult to attack.</p>
   <div id="chart" class="mb-3">
     <canvas id="canvasStandardRank">{{chart}}</canvas>
   </div>
@@ -31,7 +32,7 @@
     </div>
   </div>
   <div class="data" [hidden]="!initialized">
-    <table class="table" style="table-layout: fixed">
+    <table class="table" [class.fs-smaller]="layoutSvc.hp" style="table-layout: fixed">
       <th style="width: 50%">Category</th>
       <th>Rank</th>
       <th class="align-right">Failed</th>

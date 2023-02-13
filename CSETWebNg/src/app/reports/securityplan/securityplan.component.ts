@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -40,6 +40,7 @@ export class SecurityplanComponent implements OnInit {
 
   componentCount = 0;
   networkDiagramImage: SafeHtml;
+  responseResultsByCategory: any;
 
   acetDashboard: AcetDashboard;
 
@@ -98,6 +99,10 @@ export class SecurityplanComponent implements OnInit {
       });
     });
 
+    this.analysisSvc.getStandardsResultsByCategory().subscribe(x => {
+      this.responseResultsByCategory = x;
+    });
+
     this.acetSvc.getAcetDashboard().subscribe(
       (data: AcetDashboard) => {
         this.acetDashboard = data;
@@ -110,5 +115,9 @@ export class SecurityplanComponent implements OnInit {
         console.log('Error getting all documents: ' + (<Error>error).name + (<Error>error).message);
         console.log('Error getting all documents: ' + (<Error>error).stack);
       });
+  }
+
+  usesRAC() {
+    return !!this.responseResultsByCategory?.dataSets.find(e => e.label === 'RAC');
   }
 }

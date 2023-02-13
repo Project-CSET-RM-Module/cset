@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -30,14 +30,14 @@ import { ConfigService } from '../../services/config.service';
   selector: 'app-advisory',
   templateUrl: './advisory.component.html',
   // tslint:disable-next-line:use-host-property-decorator
-  host: {class: 'd-flex flex-column flex-11a'}
+  host: { class: 'd-flex flex-column flex-11a' }
 })
 export class AdvisoryComponent {
   appLongName: string;
   appShortName: string;
   orgLongName: string;
   orgShortName: string;
-  showIntellectualPropertyRightsAssertion: boolean;
+  showIntellectualPropertyRightsAssertion = false;
   intellectualPropertyRightsDistributionRequestEntity: string;
   constructor(
     public configSvc: ConfigService,
@@ -46,6 +46,7 @@ export class AdvisoryComponent {
   ) {
     switch (configSvc.installationMode) {
       case '':
+      case 'CSET':
         this.appLongName = 'Cyber Security Evaluation Tool';
         this.appShortName = 'CSET';
         this.orgLongName = 'Cybersecurity & Infrastructure Security Agency';
@@ -67,13 +68,21 @@ export class AdvisoryComponent {
         this.orgShortName = 'TSA';
         this.showIntellectualPropertyRightsAssertion = false;
         break;
-      case 'CYOTE':
-        this.appLongName = 'Cybersecurity for the Operational Technology Environment';
-        this.appShortName = 'CyOTE';
-        this.orgLongName = 'U.S. Department of Energy';
-        this.orgShortName = 'DOE';
+      case 'CF':
+        this.appLongName = 'Cyber Security Evaluation Tool';
+        this.appShortName = 'CSET';
+        this.orgLongName = 'Cyber Florida';
+        this.orgShortName = 'CF';
         this.showIntellectualPropertyRightsAssertion = false;
-          break;
+        break;
+      case 'RRA':
+        this.appLongName = 'Ransomware Readiness Assessment';
+        this.appShortName = 'RRA';
+        this.orgLongName = 'Cybersecurity & Infrastructure Security Agency';
+        this.orgShortName = 'CISA';
+        // this.showIntellectualPropertyRightsAssertion = true;
+        // this.intellectualPropertyRightsDistributionRequestEntity = 'the CSET Program Office';
+        break;
     }
   }
 

@@ -1,4 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -43,12 +49,7 @@ namespace CSETWebCore.Api.Controllers
             if (String.IsNullOrWhiteSpace(searchRequest.term))
                 return Ok(new List<ResourceNode>());
 
-            Lucene.Net.Store.Directory fsDir = FSDirectory.Open(new DirectoryInfo(Path.Combine(CSETGlobalProperties.Static_Application_Path, "LuceneIndex")));
-
-            IndexReader reader = IndexReader.Open(fsDir, true);
-            Searcher searcher = new IndexSearcher(reader);
-            Analyzer analyzer = new StandardAnalyzer(Lucene.Net.Util.Version.LUCENE_29);
-            CSETGlobalProperties props = new CSETGlobalProperties();
+            CSETGlobalProperties props = new CSETGlobalProperties(_context);
             SearchDocs search = new SearchDocs(props, new ResourceLibraryRepository(_context, props));
             return Ok(search.Search(searchRequest));
         }
@@ -57,7 +58,8 @@ namespace CSETWebCore.Api.Controllers
         [Route("api/ShowResourceLibrary")]
         public IActionResult ShowResourceLibrary()
         {
-            var buildDocuments = new QuestionInformationTabData(_html, _context).GetBuildDocuments();
+            var refBuilder = new Helpers.ReferencesBuilder(_context);
+            var buildDocuments = refBuilder.GetBuildDocuments();
             return Ok(buildDocuments != null && buildDocuments.Count > 100);
         }
 
@@ -65,7 +67,7 @@ namespace CSETWebCore.Api.Controllers
         [Route("api/ResourceLibrary/tree")]
         public List<SimpleNode> GetTree()
         {
-            IResourceLibraryRepository resource = new ResourceLibraryRepository(_context, new CSETGlobalProperties());
+            IResourceLibraryRepository resource = new ResourceLibraryRepository(_context, new CSETGlobalProperties(_context));
             return resource.GetTreeNodes();
         }
 

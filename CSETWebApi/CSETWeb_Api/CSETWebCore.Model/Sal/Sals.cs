@@ -1,4 +1,10 @@
-﻿namespace CSETWebCore.Model.Sal
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+namespace CSETWebCore.Model.Sal
 {
     public class Sals
     {
@@ -8,7 +14,6 @@
         public string CLevel { get; set; }
         public string ILevel { get; set; }
         public string ALevel { get; set; }
-        public bool SelectedSALOverride { get; set; }
-        public string AssessmentName { get; internal set; }
+        public bool SelectedSALOverride { get; set; }       
     }
 }

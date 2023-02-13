@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -35,12 +35,14 @@ import { AssessmentService } from "../../assessment.service";
 export class ACETFilter {
     domainName: string;
     domainId: number;
-    settings: ACETFilterSetting[];
+    tiers: ACETDomainTiers[] = [];
 }
 
-export class ACETFilterSetting {
-    level: number;
-    value: boolean;
+
+export class ACETDomainTiers {
+    domainName?: string;
+    financial_Level_Id: number;
+    isOn: boolean;
 }
 
 const headers = {
@@ -80,45 +82,73 @@ export class AcetFilteringService {
      * for the specified IRP.
      */
     getStairstepRequired(irp: number): number[] {
-        switch (irp) {
-            case 0:
-                return [];
-            case 1:
-                return [1]; // Baseline
-            case 2:
-                return [1]; // Baseline
-            case 3:
-                return [1, 2]; // Baseline, Evolving
-            case 4:
-                return [1, 2, 3]; // Baseline, Evolving, Intermediate
-            case 5:
-                return [1, 2, 3, 4]; // Baseline, Evolving, Intermediate, Advanced
+        if (this.assessmentSvc.isISE()) {
+            switch (irp) {
+                case 0:
+                    return [];
+                case 1:
+                    return [1]; // SCUEP
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                    return [2]; // CORE
+            }
+        } else {
+            switch (irp) {
+                case 0:
+                    return [];
+                case 1:
+                    return [1]; // Baseline
+                case 2:
+                    return [1]; // Baseline
+                case 3:
+                    return [1, 2]; // Baseline, Evolving
+                case 4:
+                    return [1, 2, 3]; // Baseline, Evolving, Intermediate
+                case 5:
+                    return [1, 2, 3, 4]; // Baseline, Evolving, Intermediate, Advanced
+            }
         }
     }
 
     /**
-     * Returns any levels that are not required but are 
+     * Returns any levels that are not required but are
      * RECOMMENDED for the specified IRP.
      */
     getStairstepRecommended(irp: number): number[] {
-        switch (irp) {
-            case 0:
-                return [];
-            case 1:
-                return [2]; // Evolving
-            case 2:
-                return [2, 3]; // Evolving, Intermediate
-            case 3:
-                return [3, 4]; // Intermediate, Advanced
-            case 4:
-                return [4, 5]; // Advanced, Innovative
-            case 5:
-                return [5]; // Innovative
+        if (this.assessmentSvc.isISE()) {
+            switch (irp) {
+                case 0:
+                    return [];
+                case 1:
+                    return [1]; // SCUEP
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                    return [2]; // CORE
+            }
+        } else {
+            switch (irp) {
+                case 0:
+                    return [];
+                case 1:
+                    return [2]; // Evolving
+                case 2:
+                    return [2, 3]; // Evolving, Intermediate
+                case 3:
+                    return [3, 4]; // Intermediate, Advanced
+                case 4:
+                    return [4, 5]; // Advanced, Innovative
+                case 5:
+                    return [5]; // Innovative
+            }
         }
     }
 
     /**
-    * Indicates if the specified level falls within the 
+    * Indicates if the specified level falls within the
     * risk levels for the IRP of the assessment.
     */
     isRequiredLevel(level: number) {
@@ -147,8 +177,7 @@ export class AcetFilteringService {
             this.domainFilters = [];
 
             this.getFilters().subscribe((x: ACETFilter[]) => {
-
-                const allSettingsFalse = x.every(f => f.settings.every(g => g.value === false));
+                const allSettingsFalse = x.every(f => f.tiers.every(g => g.isOn === false));
 
                 if (!x || x.length === 0 || allSettingsFalse) {
                     // the server has not filter pref set or they have all been set to false
@@ -159,11 +188,19 @@ export class AcetFilteringService {
                     // rebuild domainFilters from what the API gave us
                     this.domainFilters = [];
                     for (const entry of x) {
-                        this.domainFilters.push({
+                        let v: ACETFilter = {
                             domainName: entry.domainName,
                             domainId: entry.domainId,
-                            settings: entry.settings
-                        });
+                            tiers: []
+                        };
+
+                        for (const tier of entry.tiers) {
+                            v.tiers.push({
+                                financial_Level_Id: tier.financial_Level_Id,
+                                isOn: tier.isOn
+                            });
+                        }
+                        this.domainFilters.push(v);
                     }
                 }
 
@@ -187,27 +224,27 @@ export class AcetFilteringService {
         const dmf = this.domainFilters;
 
         this.domains.forEach((d: ACETDomain) => {
-            const settings: ACETFilterSetting[] = [];
+            const settings: ACETDomainTiers[] = [];
             for (let i = 1; i <= 5; i++) {
                 settings.push({
-                    level: i,
-                    value: bands.includes(i)
+                    financial_Level_Id: i,
+                    isOn: bands.includes(i)
                 });
             }
             dmf.push(
                 {
                     domainName: d.domainName,
-                    domainId: 0,
-                    settings: settings
+                    domainId: d.domainId,
+                    tiers: settings
                 });
 
             const dFilter = this.domainFilters.find(f => f.domainName == d.domainName);
 
             let ix = 0;
             let belowBand = true;
-            while (belowBand && ix < dFilter.settings.length) {
-                if (dFilter.settings[ix].value == false) {
-                    dFilter.settings[ix].value == true;
+            while (belowBand && ix < dFilter.tiers.length) {
+                if (dFilter.tiers[ix].isOn == false) {
+                    dFilter.tiers[ix].isOn == true;
                 } else {
                     belowBand = false;
                 }
@@ -231,7 +268,7 @@ export class AcetFilteringService {
             return false;
         }
 
-        return targetFilter.settings.every(s => s.value == false);
+        return targetFilter.tiers.every(x => x.isOn == false);
     }
 
     /**
@@ -252,8 +289,8 @@ export class AcetFilteringService {
      */
     public setQuestionVisibility(q: Question, currentDomainName: string): boolean {
         if (!!this.domainFilters) {
-            const filtersForDomain = this.domainFilters.find(f => f.domainName == currentDomainName).settings;
-            if (filtersForDomain.find(s => s.level == q.maturityLevel && s.value == false)) {
+            const filtersForDomain = this.domainFilters.find(f => f.domainName == currentDomainName)?.tiers.find(t => t.financial_Level_Id == q.maturityLevel);
+            if (filtersForDomain?.isOn == false) {
                 return;
             } else {
                 q.visible = true;
@@ -263,6 +300,27 @@ export class AcetFilteringService {
         }
     }
 
+    /**
+     * Indicates if the ACET question should be visible based on current
+     * filtering.
+     */
+    public setIseQuestionVisibility(q: Question, currentDomainName: string): boolean {
+        if (!!this.domainFilters) {
+            const filtersForDomain = this.domainFilters.find(f => f.domainName == currentDomainName)?.tiers.find(t => t.financial_Level_Id == q.maturityLevel);
+            const filtersForDomain2 = this.domainFilters.find(f => f.domainName == currentDomainName)?.tiers.find(t => t.financial_Level_Id == 2);
+            if (filtersForDomain?.isOn == false) {
+                if (q.maturityLevel == 3 && filtersForDomain2?.isOn == true) {
+                    q.visible = true;
+                } else {
+                    return;
+                }
+            } else {
+                q.visible = true;
+            }
+        } else {
+            q.visible = true;
+        }
+    }
 
     /**
      * Sets the new value in the service's filter map and tells the host page
@@ -270,13 +328,12 @@ export class AcetFilteringService {
      * @param f
      * @param e
      */
-    filterChanged(domainName: string, f: number, e: boolean) {
-        // set all true up to the level they hit, then all false above that
-        this.domainFilters
-            .find(f => f.domainName == domainName)
-            .settings.forEach(s => {
-                s.value = s.level <= f;
-            });
+    filterChanged(domainName: string, f: number) {
+        // set all true up to and including the level the user selected, then all false above that   
+        this.domainFilters.find(f => f.domainName == domainName)?.tiers.forEach(s => {
+            s.isOn = s.financial_Level_Id <= f;
+        });
+
         this.saveFilters(this.domainFilters).subscribe(() => {
             this.filterAcet.emit(true);
         });
@@ -287,14 +344,14 @@ export class AcetFilteringService {
 
 
     /**
-     * 
+     *
      */
     getACETDomains() {
         return this.http.get(this.configSvc.apiUrl + 'ACETDomains');
     }
 
     /**
-     * 
+     *
      */
     getFilters() {
         return this.http.get(this.configSvc.apiUrl + 'acet/filters');
@@ -313,7 +370,7 @@ export class AcetFilteringService {
     }
 
     /**
-     * Sets the state of a group of filters.  
+     * Sets the state of a group of filters.
      */
     saveFilters(filters: ACETFilter[]) {
         return this.http.post(this.configSvc.apiUrl + 'acet/savefilters', filters, headers);

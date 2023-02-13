@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -29,22 +29,45 @@ import { AuthenticationService } from '../services/authentication.service';
 
 @Injectable()
 export class AuthGuard implements CanActivate, CanActivateChild {
-    private parser = new JwtParser();
-    private holdItForAMoment = localStorage.getItem('isAPI_together_With_Web');
-    constructor(private router: Router, private authSvc: AuthenticationService) { }
+  private parser = new JwtParser();
+  private holdItForAMoment = localStorage.getItem('isAPI_together_With_Web');
 
-    canActivateChild(childRoute: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | Observable<boolean> | Promise<boolean> {
-        return this.canActivate(childRoute, state);
-    }
+  /**
+   * 
+   */
+  constructor(
+    private router: Router,
+    private authSvc: AuthenticationService
+  ) { }
 
-    canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-      //console.log("here is my userid:"+  this.parser.decodeToken(this.authSvc.userToken()).userid);
-      if (this.authSvc.userToken() 
-        && this.parser.decodeToken(this.authSvc.userToken()).userid) 
-      {        
-        return true;
-      }      
-      this.router.navigate(['/home/login'], {queryParamsHandling: "preserve"});
+  /**
+   * 
+   */
+  canActivateChild(childRoute: ActivatedRouteSnapshot, state: RouterStateSnapshot): boolean | Observable<boolean> | Promise<boolean> {
+    return this.canActivate(childRoute, state);
+  }
+
+  /**
+   * 
+   */
+  canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+    if (!this.authSvc.hasUserAgreedToPrivacyWarning()) {
+      this.router.navigate(['/home/privacy-warning'], { queryParamsHandling: "preserve" });
       return false;
     }
+
+    if (this.authSvc.userToken()
+      && this.parser.decodeToken(this.authSvc.userToken()).userid) {
+      return true;
+    }
+
+    // check for access key if userid not there
+    if (this.authSvc.userToken()
+      && this.parser.decodeToken(this.authSvc.userToken()).acckey) {
+      return true;
+    }
+
+    this.router.navigate(['/home/login'], { queryParamsHandling: "preserve" });
+    return false;
+  }
 }

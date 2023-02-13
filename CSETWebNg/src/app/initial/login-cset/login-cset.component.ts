@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -31,6 +31,7 @@ import { AssessmentService } from '../../services/assessment.service';
 import { AuthenticationService } from '../../services/authentication.service';
 import { ConfigService } from '../../services/config.service';
 import { EmailService } from '../../services/email.service';
+import { JwtParser } from '../../helpers/jwt-parser';
 
 @Component({
   selector: 'app-login-cset',
@@ -46,8 +47,11 @@ export class LoginCsetComponent implements OnInit {
   isRunningInElectron: boolean;
   assessmentId: number;
   model: any = {};
+  
   loading = false;
   incorrect = false;
+  passwordExpired = false;
+
   private isEjectDialogOpen = false;
   browserIsIE: boolean = false;
 
@@ -63,24 +67,19 @@ export class LoginCsetComponent implements OnInit {
 
   ngOnInit() {
     this.browserIsIE = /msie\s|trident\//i.test(window.navigator.userAgent);
-    this.isRunningInElectron = localStorage.getItem('isRunningInElectron') === 'true' ? true : false;
+    this.isRunningInElectron = this.configSvc.isRunningInElectron;
     if (this.authenticationService.isLocal) {
       this.mode = 'LOCAL';
       this.continueStandAlone();
     } else {
       // reset login status
-      this.authenticationService.logout();
+      //this.authenticationService.logout();
       // default the page as 'login'
       this.mode = 'LOGIN';
-      if (this.route.snapshot.params['eject']) {
-        localStorage.clear();
-        if (!this.isEjectDialogOpen) {
-          this.isEjectDialogOpen = true;
-          this.dialog
-            .open(EjectionComponent)
-            .afterClosed()
-            .subscribe(() => (this.isEjectDialogOpen = false));
-        }
+      this.checkForEjection(this.route.snapshot.queryParams['token']);
+      // Clear token query param to make the url look nicer.
+      if (this.route.snapshot.queryParams['token']) {
+        this.router.navigate([], { queryParams: {} });
       }
     }
     if (this.route.snapshot.params['id']) {
@@ -101,6 +100,9 @@ export class LoginCsetComponent implements OnInit {
    */
   login() {
     this.loading = true;
+    this.incorrect = false;
+    this.passwordExpired = false;
+
     this.authenticationService
       .login(this.model.email, this.model.password)
       .subscribe(
@@ -134,13 +136,50 @@ export class LoginCsetComponent implements OnInit {
 
           this.loading = false;
           console.log('Error logging in: ' + (<Error>error).message);
+
+
+          // see if the password is expired
+          if (error.error.isPasswordExpired) {
+            this.passwordExpired = true;
+            return;
+          }
+
           this.incorrect = true;
         }
       );
   }
 
+  checkForEjection(token: string) {
+    if (this.route.snapshot.params['eject']) {
+
+      let minutesSinceExpiration = 0;
+
+      if (token) {
+        const jwt = new JwtParser();
+        const parsedToken = jwt.decodeToken(token);
+        const expTimeUnix = parsedToken.exp;
+        const nowUtcUnix = Math.floor((new Date()).getTime() / 1000)
+        // divide by 60 to convert seconds to minutes
+        minutesSinceExpiration = (nowUtcUnix - expTimeUnix) / 60;
+      }
+
+      // Only show eject dialog if token has been expired for less than an hour.
+      if (!this.isEjectDialogOpen && minutesSinceExpiration < 60) {
+        this.isEjectDialogOpen = true;
+        this.dialog
+        .open(EjectionComponent)
+        .afterClosed()
+        .subscribe(() => (this.isEjectDialogOpen = false));
+      }
+    }
+  }
+
   continueStandAlone() {
     this.router.navigate(['/home']);
+  }
+
+  refreshWindow() {
+    window.location.reload();
   }
 
   exit() {

@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -22,45 +22,42 @@
 //
 ////////////////////////////////
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { MatDialog } from '@angular/material/dialog';
-import { ActivatedRoute, Router } from '@angular/router';
-import { AlertComponent } from '../../dialogs/alert/alert.component';
-import { EjectionComponent } from '../../dialogs/ejection/ejection.component';
-import { AssessmentService } from '../../services/assessment.service';
-import { AuthenticationService } from '../../services/authentication.service';
+import { NavigationEnd, Router } from '@angular/router';
 import { ConfigService } from '../../services/config.service';
-import { EmailService } from '../../services/email.service';
 import { Title } from '@angular/platform-browser';
+import { Subscription } from 'rxjs';
+import { filter } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   // tslint:disable-next-line:use-host-property-decorator
-  host: {class: 'd-flex flex-column flex-11a'}
+  host: { class: 'd-flex flex-column flex-11a' }
 })
 export class LoginComponent implements OnInit {
 
   constructor(
     public configSvc: ConfigService,
     private titleSvc: Title
-  ) {}
+  ) { 
+  }
 
   ngOnInit() {
-    switch(this.configSvc.installationMode || '')
-    {
-      case 'ACET':
-        this.titleSvc.setTitle('ACET');
-        break;
-      case 'TSA':
-        this.titleSvc.setTitle('CSET-TSA');
-        break;
-      case 'CYOTE':
-        this.titleSvc.setTitle('CSET-CyOTE');
-        break;
-      default:
-        this.titleSvc.setTitle('CSET');
+    this.titleSvc.setTitle(this.configSvc.config.behaviors.defaultTitle);    
+  }
+
+  /**
+   * Returns a boolean indicating if the specified skin/installationMode
+   * is active.  The case of "ACCESS-KEY" is special; it is based
+   * on whether CSET is currently configured to run anonymously.
+   */
+  show(skin: string) {
+    if (skin === 'ACCESS-KEY') {
+      return this.configSvc.config.isRunningAnonymous;
     }
+
+    return !this.configSvc.config.isRunningAnonymous 
+      && (this.configSvc.installationMode ?? 'CSET') === skin;
   }
 
   continueStandAlone() {

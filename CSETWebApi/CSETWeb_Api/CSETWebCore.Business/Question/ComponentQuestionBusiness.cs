@@ -1,4 +1,10 @@
-﻿using CSETWebCore.DataLayer.Model;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using CSETWebCore.DataLayer.Model;
 using CSETWebCore.Interfaces.Helpers;
 using CSETWebCore.Interfaces.Question;
 using CSETWebCore.Model.Question;
@@ -13,7 +19,6 @@ namespace CSETWebCore.Business.Question
 {
     public class ComponentQuestionBusiness
     {
-
         private CSETContext _context;
         private readonly IAssessmentUtil _assessmentUtil;
         private readonly ITokenManager _tokenManager;
@@ -23,6 +28,8 @@ namespace CSETWebCore.Business.Question
         /// 
         /// </summary>
         public List<SubCategoryAnswersPlus> SubCatAnswers;
+
+        List<FullAnswer> Answers;
 
         /// <summary>
         /// 
@@ -51,13 +58,32 @@ namespace CSETWebCore.Business.Question
         {
             int assessmentId = _tokenManager.AssessmentForUser();
 
-            var resp = new QuestionResponse();            
+            var resp = new QuestionResponse();
 
-            var list = _context.usp_Answer_Components_Default(assessmentId).Cast<Answer_Components_Base>().ToList();
+            // Ideally, we would not call this proc each time we fetch the questions.
+            // Is there a quick way to tell if all the diagram answers have already been filled?
+            _context.FillNetworkDiagramQuestions(assessmentId);
 
-            AddResponse(resp, list, "Component Defaults");
+            var list1 = _context.usp_Answer_Components_Default(assessmentId).ToList();
+            var list2 = new List<Answer_Components_Base>();
+            foreach (var component1 in list1)
+            {
+                TinyMapper.Bind<Answer_Components_Default, Answer_Components_Base>();
+                var component2 = TinyMapper.Map<Answer_Components_Default, Answer_Components_Base>(component1);
+                list2.Add(component2);
+            }
+
+            // Get all answers for the assessment
+            var answers = from a in _context.ANSWER.Where(x => x.Assessment_Id == assessmentId && x.Question_Type == "Component")
+                          from b in _context.VIEW_QUESTIONS_STATUS.Where(x => x.Answer_Id == a.Answer_Id).DefaultIfEmpty()
+                          from c in _context.FINDING.Where(x => x.Answer_Id == a.Answer_Id).DefaultIfEmpty()
+                          select new FullAnswer() { a = a, b = b, FindingsExist = c != null };
+
+            //this.questions = query.Distinct().ToList();
+            this.Answers = answers.ToList();
+
+            AddResponse(resp, list2, "Component Defaults");
             BuildOverridesOnly(resp);
-
 
             return resp;
         }
@@ -161,12 +187,20 @@ namespace CSETWebCore.Business.Question
                     Answer = dbQ.Answer_Text,
                     Answer_Id = dbQ.Answer_Id,
                     AltAnswerText = dbQ.Alternate_Justification,
+                    FreeResponseAnswer=dbQ.Free_Response_Answer,
                     Comment = dbQ.Comment,
                     MarkForReview = dbQ.Mark_For_Review ?? false,
                     Reviewed = dbQ.Reviewed ?? false,
-                    Feedback = dbQ.Feedback,
+                    Feedback = dbQ.FeedBack,
                     ComponentGuid = dbQ.Component_Guid ?? Guid.Empty
                 };
+
+                FullAnswer answer = this.Answers.Where(x => x.a.Question_Or_Requirement_Id == qa.QuestionId).FirstOrDefault();
+                if (answer != null)
+                {
+                    TinyMapper.Bind<VIEW_QUESTIONS_STATUS, QuestionAnswer>();
+                    TinyMapper.Map(answer.b, qa);
+                }
 
                 sc.Questions.Add(qa);
             }
@@ -243,12 +277,20 @@ namespace CSETWebCore.Business.Question
                     Answer = dbQ.Answer_Text,
                     Answer_Id = dbQ.Answer_Id,
                     AltAnswerText = dbQ.Alternate_Justification,
+                    FreeResponseAnswer = dbQ.Free_Response_Answer,
                     Comment = dbQ.Comment,
                     MarkForReview = dbQ.Mark_For_Review ?? false,
                     Reviewed = dbQ.Reviewed ?? false,
                     ComponentGuid = dbQ.Component_Guid ?? Guid.Empty,
-                    Feedback = dbQ.Feedback
+                    Feedback = dbQ.FeedBack
                 };
+
+                FullAnswer answer = this.Answers.Where(x => x.a.Question_Or_Requirement_Id == qa.QuestionId).FirstOrDefault();
+                if (answer != null)
+                {
+                    TinyMapper.Bind<VIEW_QUESTIONS_STATUS, QuestionAnswer>();
+                    TinyMapper.Map(answer.b, qa);
+                }
 
                 sc.Questions.Add(qa);
             }
@@ -371,6 +413,7 @@ namespace CSETWebCore.Business.Question
             dbAnswer.Is_Requirement = false;
             dbAnswer.Answer_Text = answer.AnswerText;
             dbAnswer.Alternate_Justification = answer.AltAnswerText;
+            dbAnswer.Free_Response_Answer = answer.FreeResponseAnswer;
             dbAnswer.Comment = answer.Comment;
             dbAnswer.FeedBack = answer.Feedback;
             dbAnswer.Mark_For_Review = answer.MarkForReview;

@@ -1,4 +1,10 @@
-﻿namespace CSETWebCore.Model.Diagram
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+namespace CSETWebCore.Model.Diagram
 {
     [System.CodeDom.Compiler.GeneratedCodeAttribute("xsd", "4.6.1055.0")]
     [System.SerializableAttribute()]
@@ -10,6 +16,8 @@
         private mxGraphModelRootObjectMxCellMxGeometry mxGeometryField;
 
         private string styleField { get; set; }
+
+        private string edgeField { get; set; }
 
         private string parentField { get; set; }
 
@@ -67,6 +75,20 @@
             set
             {
                 this.vertexField = value;
+            }
+        }
+
+        /// <remarks/>
+        [System.Xml.Serialization.XmlAttributeAttribute()]
+        public string edge
+        {
+            get
+            {
+                return this.edgeField;
+            }
+            set
+            {
+                this.edgeField = value;
             }
         }
     }

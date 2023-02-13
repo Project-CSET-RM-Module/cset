@@ -1,10 +1,18 @@
-﻿using Microsoft.AspNetCore.Mvc;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.IO;
 using System.Linq;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System.Text.Json;
+using Newtonsoft.Json.Linq;
+
 
 namespace CSETWebCore.Api.Controllers
 {
@@ -30,6 +38,17 @@ namespace CSETWebCore.Api.Controllers
         {
             try
             {
+                Console.WriteLine("Reading the path test");
+                if(System.IO.File.Exists(Path.Combine(_webHost.ContentRootPath, "WebApp/index.html"))){
+                    Console.WriteLine(Path.Combine(_webHost.ContentRootPath, "WebApp/index.html"));
+                    
+                    //process this as if we are running internally else do what ever used to be the case
+                    //in this case they are running together and we can just replace the config document. 
+                    var jd = processUpdatedJson(HttpContext.Request);
+                    return Ok(jd);
+                }
+                Console.WriteLine("Path didn't exist");
+
                 return Ok(processConfig(HttpContext.Request.Host, HttpContext.Request.Scheme));
             }
             catch (Exception)
@@ -38,11 +57,74 @@ namespace CSETWebCore.Api.Controllers
             }
         }
 
+        Newtonsoft.Json.Linq.JObject processUpdatedJson(HttpRequest context)
+        {
+            string webpath = _webHost.ContentRootPath;
+            if (!webpath.Contains("WebApp"))
+            {
+                webpath = Path.Combine(_webHost.ContentRootPath, "WebApp");
+            }                
+            
+            var path = Path.Combine(webpath, "assets", "settings", "config.json");
+            //if the files are there then assume we are running together
+            //replace and return it. 
+
+            if (System.IO.File.Exists(path))
+            {
+                JObject document = JObject.Parse(System.IO.File.ReadAllText(path));
+
+                document.Add("rewrittenByRedirect", "true");
+
+                JToken element = document["app"];
+
+                element["url"] = context.Host.Host;
+                if (String.IsNullOrWhiteSpace(context.Headers["X-Forwarded-Proto"]))
+                {   
+                    element["protocol"] = context.Scheme;
+                    string port = "443";
+                    if ((context.Host.Port == 80) || (context.Host.Port == 443))
+                        port = "";
+                    else
+                        port = (context.Host.Port == null) ? "" : context.Host.Port.ToString();
+                    element["port"] = port;
+                }
+                else
+                {
+                    element["protocol"] = context.Headers["X-Forwarded-Proto"].ToString();
+                    element["port"] = context.Headers["X-Forwarded-Port"].ToString();
+                }
+
+                element = document["api"];
+                element["url"] = context.Host.Host;
+                if (String.IsNullOrWhiteSpace(context.Headers["X-Forwarded-Proto"]))
+                {
+                    element["protocol"] = context.Scheme;
+                    string port = "443";
+                    if ((context.Host.Port == 80) || (context.Host.Port == 443))
+                        port = "";
+                    else
+                        port = (context.Host.Port==null)?"":context.Host.Port.ToString();
+                    element["port"] = port;
+                }
+                else
+                {
+                    element["protocol"] = context.Headers["X-Forwarded-Proto"].ToString();
+                    element["port"] = context.Headers["X-Forwarded-Port"].ToString();
+                }
+
+                Console.Write(document.ToString());
+                return document;
+            }
+            throw new Exception("Cannot Find config file" + path);
+        }
+
+        
+
 
         private JsonElement processConfig(HostString newBase, string scheme)
         {
             _webHost.WebRootPath = Path.Combine(_webHost.ContentRootPath, "../../../CSETWebNg/src");
-            var path = Path.Combine(_webHost.WebRootPath, "assets/config.json");
+            var path = Path.Combine(_webHost.WebRootPath, "assets/settings/config.json");
             if (System.IO.File.Exists(path))
             {
                 string contents = System.IO.File.ReadAllText(path);
@@ -53,6 +135,7 @@ namespace CSETWebCore.Api.Controllers
                         using (JsonDocument jDoc = JsonDocument.Parse(contents))
                         {
                             JsonElement root = jDoc.RootElement.Clone();
+                            
                             JsonElement overrideVal;
                             if (root.TryGetProperty("override", out overrideVal) != false)
                                 if (overrideVal.ToString().Equals("true", StringComparison.CurrentCultureIgnoreCase))
@@ -60,7 +143,7 @@ namespace CSETWebCore.Api.Controllers
 
                             // get the base appURL 
                             // then change it to include the new port. 
-                            string findString = root.GetProperty("appUrl").ToString();
+                            string findString = root.GetProperty("app").GetProperty("url").ToString();
                             string replaceString = newBase + "/";
 
                             if (findString.SequenceEqual(replaceString))
@@ -90,7 +173,7 @@ namespace CSETWebCore.Api.Controllers
                                 {
                                     element.WriteTo(writer);
                                 }
-                            }
+                            }                           
                             writer.WriteEndObject();    
                         }
                         // create new JsonDocument with edited values

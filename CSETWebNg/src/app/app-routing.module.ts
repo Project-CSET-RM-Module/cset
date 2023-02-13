@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -51,16 +51,17 @@ import { StandardsSummaryComponent } from './assessment/results/analysis/standar
 import { OverviewComponent } from './assessment/results/overview/overview.component';
 import { ReportsComponent } from './assessment/results/reports/reports.component';
 import { ResultsComponent } from './assessment/results/results.component';
+import { ModuleContentLaunchComponent } from './reports/module-content/module-content-launch/module-content-launch.component';
+import { ModuleContentComponent } from './reports/module-content/module-content/module-content.component';
+
 import { AssessGuard } from './guards/assess.guard';
 import { AuthGuard } from './guards/auth.guard';
-import { InitialComponent } from './initial/initial.component';
-import { LandingPageComponent } from './initial/landing-page/landing-page.component';
 import { LoginComponent } from './initial/login/login.component';
 import { ResetPassComponent } from './initial/reset-pass/reset-pass.component';
 import { ResourceLibraryComponent } from './resource-library/resource-library.component';
 import { ImportComponent } from './import/import.component';
-import { MatDetailComponent } from './assessment/results/mat-detail/mat-detail.component';
-import { ACETDashboardComponent } from './assessment/results/dashboard/acet-dashboard.component';
+import { AcetDetailComponent } from './assessment/results/acet-detail/acet-detail.component';
+import { AcetDashboardComponent } from './assessment/results/dashboard/acet-dashboard.component';
 import { AdminComponent } from './assessment/results/admin/admin.component';
 import { SetListComponent } from './builder/custom-set-list/custom-set-list.component';
 import { CustomSetComponent } from './builder/set-detail/set-detail.component';
@@ -81,13 +82,14 @@ import { AggregationGuard } from './guards/aggregation.guard';
 import { AggregationDetailComponent } from './aggregation/aggregation-detail/aggregation-detail.component';
 import { TrendAnalyticsComponent } from './aggregation/trend-analytics/trend-analytics.component';
 import { CompareAnalyticsComponent } from './aggregation/compare-analytics/compare-analytics.component';
-import { AnalyticsComponent } from './assessment/results/analytics/analytics.component';
+//import { AnalyticsComponent } from './assessment/results/analytics/analytics.component';
 import { ReportTestComponent } from './reports/report-test/report-test.component';
 import { LayoutBlankComponent } from './layout/layout-blank/layout-blank.component';
 import { LayoutMainComponent } from './layout/layout-main/layout-main.component';
 import { AcetLayoutMainComponent } from './layout/acet-layout-main/acet-layout-main.component';
 import { TsaLayoutMainComponent } from './layout/tsa-layout-main/tsa-layout-main.component';
-import { CyoteLayoutMainComponent } from './layout/cyote-layout-main/cyote-layout-main.component';
+import { RraLayoutMainComponent } from './layout/rra-layout-main/rra-layout-main.component';
+import { CfLayoutMainComponent } from './layout/cf-layout-main/cf-layout-main.component';
 import { DetailComponent } from './reports/detail/detail.component';
 import { DiscoveryTearoutsComponent } from './reports/discovery-tearouts/discovery-tearouts.component';
 import { ExecutiveComponent } from './reports/executive/executive.component';
@@ -101,12 +103,13 @@ import { ModelSelectComponent } from './assessment/prepare/maturity/model-select
 import { CmmcLevelsComponent } from './assessment/prepare/maturity/cmmc-levels/cmmc-levels.component';
 import { MaturityQuestionsComponent } from './assessment/questions/maturity-questions/maturity-questions.component';
 import { MaturityQuestionsAcetComponent } from './assessment/questions/maturity-questions/maturity-questions-acet.component';
+import { MaturityQuestionsIseComponent } from './assessment/questions/maturity-questions/maturity-questions-ise.component';
 import { DiagramQuestionsComponent } from './assessment/questions/diagram-questions/diagram-questions.component';
 import { CmmcLevelResultsComponent } from './assessment/results/mat-cmmc/cmmc-level-results/cmmc-level-results.component';
 import { CmmcGapsComponent } from './assessment/results/mat-cmmc/cmmc-gaps/cmmc-gaps.component';
 import { CmmcComplianceComponent } from './assessment/results/mat-cmmc/cmmc-compliance/cmmc-compliance.component';
 import { CmmcLevelDrilldownComponent } from './assessment/results/mat-cmmc/cmmc-level-drilldown/cmmc-level-drilldown.component';
-
+import { CsiComponent } from './assessment/prepare/csi/csi.component';
 
 
 import { TutorialCmmcComponent } from './assessment/prepare/maturity/tutorial-cmmc/tutorial-cmmc.component';
@@ -117,12 +120,15 @@ import { TutorialEdmComponent } from './assessment/prepare/maturity/tutorial-edm
 
 import { AcetExecutiveComponent } from './reports/acet-executive/acet-executive.component';
 import { AcetDeficencyComponent } from './reports/acet-deficency/acet-deficency.component';
-import { AcetCommentsmarkedComponent} from './reports/acet-commentsmarked/acet-commentsmarked.component';
-import { AcetCompensatingcontrolsComponent} from './reports/acet-compensatingcontrols/acet-compensatingcontrols.component';
-import { AcetAnsweredQuestionsComponent} from './reports/acet-answeredquestions/acet-answeredquestions.component';
+import { AcetCommentsmarkedComponent } from './reports/acet-commentsmarked/acet-commentsmarked.component';
+import { AcetCompensatingcontrolsComponent } from './reports/acet-compensatingcontrols/acet-compensatingcontrols.component';
+import { AcetAnsweredQuestionsComponent } from './reports/acet-answeredquestions/acet-answeredquestions.component';
+import { IseAnsweredQuestionsComponent } from './reports/ise-answeredquestions/ise-answeredquestions.component';
+import { IseMeritComponent } from './reports/ise-merit/ise-merit.component';
 import { EdmComponent } from './reports/edm/edm.component';
 import { EdmDeficiencyComponent } from './reports/edm-deficiency/edm-deficiency.component';
 import { EdmCommentsmarkedComponent } from './reports/edm-commentsmarked/edm-commentsmarked.component';
+import { CisCommentsmarkedComponent } from './reports/cis-commentsmarked/cis-commentsmarked.component';
 import { PlaceholderQuestionsComponent } from './assessment/questions/placeholder-questions/placeholder-questions.component';
 import { RelationshipFormationComponent } from './assessment/results/edm/relationship-formation/relationship-formation.component';
 import { RelationshipManagementComponent } from './assessment/results/edm/relationship-management/relationship-management.component';
@@ -134,10 +140,10 @@ import { CmmcDeficiencyComponent } from './reports/cmmc/cmmc-deficiency/cmmc-def
 import { CmmcCommentsMarkedComponent } from './reports/cmmc/cmmc-comments-marked/cmmc-comments-marked.component';
 import { CmmcAltJustificationsComponent } from './reports/cmmc/cmmc-alt-justifications/cmmc-alt-justifications.component';
 import { TutorialCrrComponent } from './assessment/prepare/maturity/tutorial-crr/tutorial-crr.component';
-import { CrrExecutiveComponent } from './reports/crr/crr-executive/crr-executive.component';
+import { CrrReportComponent } from './reports/crr/crr-report/crr-report.component';
 import { CrrDeficiencyComponent } from './reports/crr/crr-deficiency/crr-deficiency.component';
 import { CrrCommentsMarkedComponent } from './reports/crr/crr-comments-marked/crr-comments-marked.component';
-
+import{TsaAnalyticsComponent} from './initial/tsa-analytics/tsa-analytics.component';
 
 import { RraReportComponent } from './reports/rra/rra-report/rra-report.component';
 import { RraDeficiencyComponent } from './reports/rra/rra-deficiency/rra-deficiency.component';
@@ -150,14 +156,44 @@ import { RraSummaryAllComponent } from './assessment/results/mat-rra/rra-summary
 import { CrrResultsPage } from './assessment/results/crr/crr-results-page/crr-results-page.component';
 import { CrrSummaryResultsComponent } from './assessment/results/crr/crr-summary-results/crr-summary-results.component';
 import { TsaAssessmentCompleteComponent } from './assessment/results/tsa-assessment-complete/tsa-assessment-complete.component';
-import { CyoteAssessmentCompleteComponent } from './assessment/results/cyote-assessment-complete/cyote-assessment-complete.component';
 import { SprsScoreComponent } from './assessment/results/mat-cmmc2/sprs-score/sprs-score.component';
 import { Cmmc2LevelResultsComponent } from './assessment/results/mat-cmmc2/cmmc2-level-results/cmmc2-level-results.component';
 import { Cmmc2DomainResultsComponent } from './assessment/results/mat-cmmc2/cmmc2-domain-results/cmmc2-domain-results.component';
 import { ExecutiveCMMC2Component } from './reports/cmmc2/executive-cmmc2/executive-cmmc2.component';
-import { CyoteQuestionsComponent } from './assessment/questions/cyote-questions/cyote-questions.component';
-import { CyoteResultsComponent } from './assessment/results/analysis/cyote-results/cyote-results.component';
-
+import { VadrDeficiencyComponent } from './reports/vadr/vadr-deficiency/vadr-deficiency.component';
+import { AssessmentInfo2TsaComponent } from './assessment/prepare/assessment-info/assessment-info2-tsa/assessment-info2-tsa.component';
+import { MaturityQuestionsNestedComponent } from './assessment/questions/maturity-questions/nested/maturity-questions-nested/maturity-questions-nested.component';
+import { TutorialCisComponent } from './assessment/prepare/maturity/tutorial-cis/tutorial-cis.component';
+import { VadrReportComponent } from './reports/vadr/vadr-report/vadr-report.component';
+import { OpenEndedQuestionsComponent } from './reports/vadr/open-ended-questions/open-ended-questions.component';
+import { CisSurveyComponent } from './reports/cis/cis-survey/cis-survey.component';
+import { CisRankedDeficiencyComponent } from './reports/cis/cis-ranked-deficiency/cis-ranked-deficiency.component';
+import { ConfigCisComponent } from './assessment/prepare/maturity/config-cis/config-cis.component';
+import { RankedDeficiencyComponent } from './assessment/results/cis/ranked-deficiency/ranked-deficiency.component';
+import { CisSectionScoringComponent } from './reports/cis/cis-section-scoring/cis-section-scoring.component';
+import { SectionScoringComponent } from './assessment/results/cis/section-scoring/section-scoring.component';
+import { MergeExaminationsComponent } from './assessment/merge/merge-examinations.component';
+import { LandingPageTabsComponent } from './initial/landing-page-tabs/landing-page-tabs.component';
+import { Cmmc2DeficiencyComponent } from './reports/cmmc2/cmmc2-deficiency/cmmc2-deficiency.component';
+import { Cmmc2CommentsMarkedComponent } from './reports/cmmc2/cmmc2-comments-marked/cmmc2-comments-marked.component';
+import { ExamProfileComponent } from './assessment/prepare/irp/irp-ise.component';
+import { ExamProfileSummaryComponent } from './assessment/prepare/irp-summary/irp-ise-summary.component';
+import { IseDonutChartComponent } from './reports/ise-donut-chart/ise-donut-chart.component';
+import { PrivacyWarningComponent } from './initial/privacy-warning/privacy-warning.component';
+import { PrivacyWarningRejectComponent } from './initial/privacy-warning-reject/privacy-warning-reject.component';
+import { IseExaminationComponent } from './reports/ise-examination/ise-examination.component';
+import { IseExaminerComponent } from './reports/ise-examiner/ise-examiner.component';
+import { IseDataComponent } from './reports/ise-data/ise-data.component';
+import { AnalyticsCompareComponent } from './assessment/results/analytics-compare/analytics-compare.component';
+import { MvraGapsComponent } from './assessment/results/mat-mvra/mvra-gaps/mvra-gaps.component';
+import { MvraSummaryComponent } from './assessment/results/mat-mvra/mvra-summary/mvra-summary.component';
+import { MvraReportComponent } from './reports/mvra/mvra-report.component';
+import { MvraGapsPageComponent } from './assessment/results/mat-mvra/mvra-gaps-page/mvra-gaps-page.component';
+import { MvraSummaryPageComponent } from './assessment/results/mat-mvra/mvra-summary-page/mvra-summary-page.component';
+import { CpgReportComponent } from './reports/cpg/cpg-report/cpg-report.component';
+import { LogoutComponent } from './initial/logout/logout.component';
+import { CpgSummaryComponent } from './assessment/results/cpg/cpg-summary/cpg-summary.component';
+import { CpgPracticesComponent } from './assessment/results/cpg/cpg-practices/cpg-practices.component';
 import { TutorialCrmpComponent } from './assessment/prepare/maturity/tutorial-crmp/tutorial-crmp.component';
 import { TutorialVbosComponent } from './assessment/prepare/maturity/tutorial-vbos/tutorial-vbos.component';
 import { CrmpSummaryComponent } from './assessment/results/crmp/crmp-summary.component';
@@ -167,21 +203,20 @@ import { VbosSummaryComponent } from './assessment/results/vbos/vbos-summary.com
 const installationMode = localStorage.getItem('installationMode');
 
 // Select the appropriate home commponent for the configured installation mode for this app instance
-var homeComponentForCurrentInstallationMode;
-//  =
-// (installationMode == 'ACET') ? AcetLayoutMainComponent : ((installationMode == 'TSA') ? TsaLayoutMainComponent : LayoutMainComponent),
-//    installationMode == 'ACET' ? AcetLayoutMainComponent :
-//    (isTsaApp ? TsaLayoutMainComponent : ( isCyoteApp ? CyoteLayoutMainComponent : LayoutMainComponent));
+var homeComponentForCurrentInstallationMode: any;
 
-switch(installationMode) {
+switch (installationMode) {
   case 'ACET':
     homeComponentForCurrentInstallationMode = AcetLayoutMainComponent;
     break;
   case 'TSA':
     homeComponentForCurrentInstallationMode = TsaLayoutMainComponent;
     break;
-  case 'CYOTE':
-    homeComponentForCurrentInstallationMode = CyoteLayoutMainComponent;
+  case 'RRA':
+    homeComponentForCurrentInstallationMode = RraLayoutMainComponent;
+    break;
+  case 'CF':
+    homeComponentForCurrentInstallationMode = CfLayoutMainComponent;
     break;
   default:
     homeComponentForCurrentInstallationMode = LayoutMainComponent;
@@ -203,18 +238,21 @@ const appRoutes: Routes = [
     path: 'home',
     component: homeComponentForCurrentInstallationMode,
     children: [
+      { path: 'privacy-warning', component: PrivacyWarningComponent },
+      { path: 'privacy-warning-reject', component: PrivacyWarningRejectComponent },
       { path: 'login/assessment/:id', component: LoginComponent },
       { path: 'login/:eject', component: LoginComponent },
       { path: 'login', component: LoginComponent },
+      { path: 'logout', component: LogoutComponent },
       { path: 'reset-pass', component: ResetPassComponent },
       {
-        path: 'landing-page',
-        component: LandingPageComponent,
+        path: 'landing-page-tabs',
+        component: LandingPageTabsComponent,
         canActivate: [AuthGuard],
         canActivateChild: [AuthGuard]
       },
-      { path: '', redirectTo: 'landing-page', pathMatch: 'full' },
-      { path: '**', redirectTo: 'landing-page' }
+      { path: '', redirectTo: 'landing-page-tabs', pathMatch: 'full' },
+      { path: '**', redirectTo: 'landing-page-tabs' }
     ]
   },
   {
@@ -242,6 +280,8 @@ const appRoutes: Routes = [
       { path: 'trend-analytics/:id', component: TrendAnalyticsComponent },
 
       { path: 'importModule', component: ImportComponent },
+
+      { path: 'module-content-launch', component: ModuleContentLaunchComponent },
 
       { path: 'set-list', component: SetListComponent },
       {
@@ -272,8 +312,16 @@ const appRoutes: Routes = [
         path: 'add-question/:id',
         component: AddQuestionComponent
       },
-
-      { path: 'resource-library', component: ResourceLibraryComponent },
+      {
+        path:'tsa-analytics',
+        component:TsaAnalyticsComponent
+      },
+      { path: 'resource-library', 
+        component: ResourceLibraryComponent },
+      {
+        path: 'examination-merge',
+        component: MergeExaminationsComponent 
+      },
 
       {
         path: 'assessment/:id',
@@ -290,6 +338,7 @@ const appRoutes: Routes = [
               { path: 'info1', component: AssessmentInfoComponent },
               { path: 'info2', component: Assessment2InfoComponent },
               { path: 'info-tsa', component: AssessmentInfoTsaComponent },
+              { path: 'info2-tsa', component: AssessmentInfo2TsaComponent },
               { path: 'model-select', component: ModelSelectComponent },
               { path: 'tutorial-cmmc', component: TutorialCmmcComponent },
               { path: 'tutorial-cmmc2', component: TutorialCmmc2Component },
@@ -298,13 +347,18 @@ const appRoutes: Routes = [
               { path: 'tutorial-rra', component: TutorialRraComponent },
               { path: 'tutorial-crmp', component: TutorialCrmpComponent},
               { path: 'tutorial-vbos', component: TutorialVbosComponent},
+              { path: 'tutorial-cis', component: TutorialCisComponent },
+              { path: 'config-cis', component: ConfigCisComponent },
               { path: 'cmmc-levels', component: CmmcLevelsComponent },
+              { path: 'csi', component: CsiComponent },
               { path: 'sal', component: SalsComponent },
               { path: 'standards', component: StandardsComponent },
               { path: 'framework', component: FrameworkComponent },
               { path: 'required', component: RequiredDocsComponent },
               { path: 'irp', component: IRPComponent },
               { path: 'irp-summary', component: IrpSummaryComponent },
+              { path: 'exam-profile', component: ExamProfileComponent },
+              { path: 'exam-profile-summary', component: ExamProfileSummaryComponent },
               {
                 path: 'diagram',
                 component: DiagramComponent,
@@ -312,7 +366,6 @@ const appRoutes: Routes = [
                 canActivateChild: [AssessGuard],
                 children: [
                   { path: 'info', component: DiagramInfoComponent },
-                  { path: 'inventory', component: DiagramInventoryComponent },
                   { path: '', redirectTo: 'info', pathMatch: 'full' },
                   { path: '**', redirectTo: 'info' }
                 ]
@@ -326,16 +379,10 @@ const appRoutes: Routes = [
           { path: 'placeholder-questions', component: PlaceholderQuestionsComponent },
           { path: 'maturity-questions', component: MaturityQuestionsComponent },
           { path: 'maturity-questions-acet', component: MaturityQuestionsAcetComponent },
+          { path: 'maturity-questions-ise', component: MaturityQuestionsIseComponent },
+          { path: 'maturity-questions/:grp', component: MaturityQuestionsComponent },
+          { path: 'maturity-questions-nested/:sec', component: MaturityQuestionsNestedComponent },
           { path: 'diagram-questions', component: DiagramQuestionsComponent },
-          { path: 'cyote-collect', component: CyoteQuestionsComponent},
-          { path: 'cyote-prioritize', component: CyoteQuestionsComponent},
-          { path: 'cyote-deepdive', component: CyoteQuestionsComponent},
-          { path: 'cyote-conclusion', component: CyoteQuestionsComponent},
-          // children: [
-          //   { path: 'cyote1', component: AssessmentInfoComponent },
-          //   { path: 'cyote2', component: Assessment2InfoComponent },
-          //  ]
-          // },
 
           {
             path: 'results',
@@ -353,6 +400,11 @@ const appRoutes: Routes = [
               { path: 'rra-summary-all', component: RraSummaryAllComponent },
               { path: 'rra-level-results', component: RraLevelResultsComponent },
               { path: 'rra-gaps', component: RraGapsComponent },
+              { path: 'mvra-gaps-page', component: MvraGapsPageComponent },
+              { path: 'mvra-summary-page', component: MvraSummaryPageComponent },
+              { path: 'cpg-summary-page', component: CpgSummaryComponent },
+              { path: 'cpg-practices-page', component: CpgPracticesComponent },
+
               { path: 'analysis', component: AnalysisComponent },
               { path: 'dashboard', component: DashboardComponent },
               { path: 'ranked-questions', component: RankedQuestionsComponent },
@@ -385,16 +437,15 @@ const appRoutes: Routes = [
               { path: 'crr-domain-ta', component: CrrResultsPage },
               { path: 'crr-domain-sa', component: CrrResultsPage },
 
-              { path: 'acet-maturity', component: MatDetailComponent },
-              { path: 'acet-dashboard', component: ACETDashboardComponent },
-
-              { path: 'cyote-results', component: CyoteResultsComponent },
+              { path: 'acet-detail', component: AcetDetailComponent },
+              { path: 'acet-dashboard', component: AcetDashboardComponent },
 
               { path: 'overview', component: OverviewComponent },
               { path: 'reports', component: ReportsComponent },
-              { path: 'analytics', component: AnalyticsComponent },
+              { path: 'analytics-compare', component: AnalyticsCompareComponent },
               { path: 'tsa-assessment-complete', component: TsaAssessmentCompleteComponent },
-              { path: 'cyote-assessment-complete', component: CyoteAssessmentCompleteComponent },
+              { path: 'ranked-deficiency', component: RankedDeficiencyComponent },
+              { path: 'section-scoring', component: SectionScoringComponent },
               { path: 'crmp-summary', component: CrmpSummaryComponent},
               { path: 'vbos-summary', component: VbosSummaryComponent },
              // { path: 'vbos-summary', component: DashboardComponent }
@@ -405,7 +456,7 @@ const appRoutes: Routes = [
           { path: '**', redirectTo: 'prepare' }
         ]
       },
-      { path: '', redirectTo: '/home/landing-page', pathMatch: 'full' }
+      { path: '', redirectTo: '/home/landing-page-tabs', pathMatch: 'full' }
     ]
   },
   // reports routing
@@ -423,28 +474,46 @@ const appRoutes: Routes = [
       { path: 'cmmcDeficiencyReport', component: CmmcDeficiencyComponent },
       { path: 'cmmcCommentsMarked', component: CmmcCommentsMarkedComponent },
       { path: 'cmmcAltJustifications', component: CmmcAltJustificationsComponent },
+      { path: 'cmmc2DeficiencyReport', component: Cmmc2DeficiencyComponent },
+      { path: 'cmmc2CommentsMarked', component: Cmmc2CommentsMarkedComponent },
       { path: 'executivecmmc2', component: ExecutiveCMMC2Component },
-      { path: 'edm', component: EdmComponent},
+      { path: 'edm', component: EdmComponent },
       { path: 'edmDeficiencyReport', component: EdmDeficiencyComponent },
       { path: 'edmCommentsmarked', component: EdmCommentsmarkedComponent },
+      { path: 'cisCommentsmarked', component: CisCommentsmarkedComponent },
       { path: 'acetexecutive', component: AcetExecutiveComponent },
       { path: 'acetgaps', component: AcetDeficencyComponent },
       { path: 'acetcommentsmarked', component: AcetCommentsmarkedComponent },
       { path: 'acetansweredquestions', component: AcetAnsweredQuestionsComponent },
       { path: 'acetcompensatingcontrols', component: AcetCompensatingcontrolsComponent },
-      { path: 'crrExecutive', component: CrrExecutiveComponent },
+      { path: 'iseexamination', component: IseExaminationComponent },
+      { path: 'iseexaminer', component: IseExaminerComponent },
+      { path: 'iseansweredquestions', component: IseAnsweredQuestionsComponent },
+      { path: 'isedonutchart', component: IseDonutChartComponent },
+      { path: 'isemerit', component: IseMeritComponent },
+      { path: 'isedata', component: IseDataComponent },
+      { path: 'crrreport', component: CrrReportComponent },
       { path: 'crrDeficiencyReport', component: CrrDeficiencyComponent },
       { path: 'crrCommentsMarked', component: CrrCommentsMarkedComponent },
       { path: 'rrareport', component: RraReportComponent },
       { path: 'rraDeficiencyReport', component: RraDeficiencyComponent },
+      { path: 'vadrDeficiencyReport', component: VadrDeficiencyComponent },
+      { path: 'vadrOpenEndedReport', component: OpenEndedQuestionsComponent },
+      { path: 'cisSurveyReport', component: CisSurveyComponent },
+      { path: 'cisSectionScoringReport', component: CisSectionScoringComponent },
+      { path: 'cisRankedDeficiencyReport', component:CisRankedDeficiencyComponent },
+      { path: 'vadrReport', component: VadrReportComponent },
+      { path: 'mvraReport', component: MvraReportComponent },
+      { path: 'cpgReport', component: CpgReportComponent },
       { path: 'commentsmfr', component: CommentsMfrComponent },
+      { path: 'module-content', component: ModuleContentComponent },
     ]
   },
   { path: '**', redirectTo: 'home' }
 ];
 
 @NgModule({
-  imports: [RouterModule.forRoot(appRoutes,{ enableTracing: false, relativeLinkResolution: 'legacy' })],
+  imports: [RouterModule.forRoot(appRoutes, { enableTracing: false, relativeLinkResolution: 'legacy' })],
   exports: [RouterModule]
 })
-export class AppRoutingModule {}
+export class AppRoutingModule { }

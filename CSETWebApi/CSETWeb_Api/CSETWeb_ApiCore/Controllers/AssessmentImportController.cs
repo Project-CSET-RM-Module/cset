@@ -1,6 +1,6 @@
 ﻿//////////////////////////////// 
 // 
-//   Copyright 2022 Battelle Energy Alliance, LLC  
+//   Copyright 2023 Battelle Energy Alliance, LLC  
 // 
 // 
 //////////////////////////////// 
@@ -102,8 +102,8 @@ namespace CSETWebCore.Api.Controllers
 
             try
             {
-                var manager = new ImportManager(_tokenManager, _assessmentUtil);
-                await manager.ProcessCSETAssessmentImport(target.ToArray(), _tokenManager.GetUserId(), _context);
+                var manager = new ImportManager(_tokenManager, _assessmentUtil, _context);
+                await manager.ProcessCSETAssessmentImport(target.ToArray(), _tokenManager.GetUserId(), _tokenManager.GetAccessKey(), _context);
             }
             catch (Exception)
             {
@@ -125,7 +125,8 @@ namespace CSETWebCore.Api.Controllers
                 return StatusCode(415);
             }
 
-            var currentUserId = int.Parse(_tokenManager.Payload(Constants.Constants.Token_UserId));
+            var currentUserId = _tokenManager.GetCurrentUserId();
+            var accessKey = _tokenManager.GetAccessKey();
 
             try
             {
@@ -143,8 +144,8 @@ namespace CSETWebCore.Api.Controllers
                     var bytes = target.ToArray();
 
 
-                    var manager = new ImportManager(_tokenManager, _assessmentUtil);
-                    await manager.ProcessCSETAssessmentImport(bytes, currentUserId, _context);
+                    var manager = new ImportManager(_tokenManager, _assessmentUtil, _context);
+                    await manager.ProcessCSETAssessmentImport(bytes, currentUserId, accessKey, _context);
                 }
             }
             catch (Exception e)

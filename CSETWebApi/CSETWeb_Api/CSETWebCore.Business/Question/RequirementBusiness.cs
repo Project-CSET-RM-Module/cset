@@ -1,11 +1,15 @@
-﻿using CSETWebCore.DataLayer.Model;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using CSETWebCore.DataLayer.Model;
 using CSETWebCore.Helpers;
 using CSETWebCore.Interfaces.Helpers;
 using CSETWebCore.Interfaces.Question;
-using CSETWebCore.Model.Maturity;
 using CSETWebCore.Model.Question;
 using Nelibur.ObjectMapper;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +20,7 @@ namespace CSETWebCore.Business.Question
     {
         List<NEW_REQUIREMENT> Requirements;
         List<FullAnswer> Answers;
-        
+
 
         private readonly IAssessmentUtil _assessmentUtil;
         private readonly IQuestionRequirementManager _questionRequirement;
@@ -27,7 +31,7 @@ namespace CSETWebCore.Business.Question
         /// <summary>
         /// Constructor.
         /// </summary>
-        public RequirementBusiness(IAssessmentUtil assessmentUtil, 
+        public RequirementBusiness(IAssessmentUtil assessmentUtil,
             IQuestionRequirementManager questionRequirement, CSETContext context, ITokenManager tokenManager)
         {
             _assessmentUtil = assessmentUtil;
@@ -63,11 +67,11 @@ namespace CSETWebCore.Business.Question
             SetRequirementAssessmentId(_tokenManager.AssessmentForUser());
 
             var q = from rs in _context.REQUIREMENT_SETS
-                from s in _context.SETS.Where(x => x.Set_Name == rs.Set_Name)
-                from r in _context.NEW_REQUIREMENT.Where(x => x.Requirement_Id == rs.Requirement_Id)
-                from rl in _context.REQUIREMENT_LEVELS.Where(x => x.Requirement_Id == r.Requirement_Id)
-                where _questionRequirement.SetNames.Contains(rs.Set_Name)
-                      && rl.Standard_Level == _questionRequirement.StandardLevel
+                    from s in _context.SETS.Where(x => x.Set_Name == rs.Set_Name)
+                    from r in _context.NEW_REQUIREMENT.Where(x => x.Requirement_Id == rs.Requirement_Id)
+                    from rl in _context.REQUIREMENT_LEVELS.Where(x => x.Requirement_Id == r.Requirement_Id)
+                    where _questionRequirement.SetNames.Contains(rs.Set_Name)
+                          && rl.Standard_Level == _questionRequirement.StandardLevel
                     select new { r, rs, s };
             var results = q.Distinct()
                 .OrderBy(x => x.s.Short_Name)
@@ -113,8 +117,7 @@ namespace CSETWebCore.Business.Question
         {
             var response = new QuestionResponse();
 
-
-            foreach (var req in requirements)
+            foreach (var req in requirements.OrderBy(x => x.SetShortName).ToList())
             {
                 var dbR = req.Requirement;
 
@@ -136,47 +139,15 @@ namespace CSETWebCore.Business.Question
 
 
 
-
-                //// see if there's a domain whose 'assessment factor' (category) matches the requirement's category
-                //var targetDomain = domains.Where(d => d.AssessmentFactorName == dbR.Standard_Category).FirstOrDefault();
-                //if (targetDomain != null)
-                //{
-                //    set = response.Domains.Where(s => s.DomainText == targetDomain.DomainName).FirstOrDefault();
-                //    if (set == null)
-                //    {
-                //        set = new Domain()
-                //        {
-                //            DomainText = targetDomain.DomainName,
-                //            DisplayText = targetDomain.DomainName
-                //        };
-                //        response.Domains.Add(set);
-                //    }
-                //}
-
-
-                //// find or create the set (using the Domain class as the set container)
-                //if (set == null)
-                //{
-                //    set = response.Domains.Where(s => s.SetName == req.SetName).FirstOrDefault();
-                //    if (set == null)
-                //    {
-                //        set = new Domain()
-                //        {
-                //            SetShortName = req.SetShortName,
-                //            SetName = req.SetName
-                //        };
-                //        response.Domains.Add(set);
-                //    }
-                //}
-
-
                 // find or create the category
-                var category = response.Categories.Where(cat => cat.GroupHeadingText == dbR.Standard_Category).FirstOrDefault();
+                var category = response.Categories.Where(cat => cat.SetName == req.SetName && cat.GroupHeadingText == dbR.Standard_Category).FirstOrDefault();
                 if (category == null)
                 {
                     category = new QuestionGroup()
                     {
-                        GroupHeadingText = dbR.Standard_Category
+                        GroupHeadingText = dbR.Standard_Category,
+                        SetName = req.SetName,
+                        StandardShortName = req.SetShortName
                     };
                     response.Categories.Add(category);
                 }
@@ -201,16 +172,18 @@ namespace CSETWebCore.Business.Question
 
                 var qa = new QuestionAnswer()
                 {
-                    DisplayNumber = dbR.Requirement_Title,                    
+                    DisplayNumber = dbR.Requirement_Title,
                     QuestionId = dbR.Requirement_Id,
                     QuestionText = dbR.Requirement_Text.Replace("\r\n", "<br/>").Replace("\n", "<br/>").Replace("\r", "<br/>"),
                     Answer = answer?.a.Answer_Text,
                     AltAnswerText = answer?.a.Alternate_Justification,
+                    FreeResponseAnswer = answer?.a.Free_Response_Answer,
                     Comment = answer?.a.Comment,
                     Feedback = answer?.a.FeedBack,
                     MarkForReview = answer?.a.Mark_For_Review ?? false,
                     Reviewed = answer?.a.Reviewed ?? false,
                     SetName = req.SetName,
+                    ShortName = req.SetShortName,
                     Is_Component = answer?.a.Is_Component ?? false,
                     Is_Requirement = answer?.a.Is_Requirement ?? true,
                     QuestionType = answer?.a.Question_Type
@@ -233,10 +206,11 @@ namespace CSETWebCore.Business.Question
             }
 
             response.ApplicationMode = _questionRequirement.ApplicationMode;
+            response.OnlyMode = _context.STANDARD_SELECTION.First(x => x.Assessment_Id == _questionRequirement.AssessmentId).Only_Mode;
+
             response.QuestionCount = _questionRequirement.NumberOfQuestions();
             response.RequirementCount = _questionRequirement.NumberOfRequirements();
 
-            var j = JsonConvert.SerializeObject(response);
             return response;
         }
 
@@ -338,11 +312,13 @@ namespace CSETWebCore.Business.Question
                         QuestionText = dbR.Requirement_Text.Replace("\r\n", "<br/>").Replace("\n", "<br/>").Replace("\r", "<br/>"),
                         Answer = answer?.a.Answer_Text,
                         AltAnswerText = answer?.a.Alternate_Justification,
+                        FreeResponseAnswer = answer?.a.Free_Response_Answer,
                         Comment = answer?.a.Comment,
                         Feedback = answer?.a.FeedBack,
                         MarkForReview = answer?.a.Mark_For_Review ?? false,
                         Reviewed = answer?.a.Reviewed ?? false,
                         SetName = dbRPlus.SetName,
+                        ShortName = dbRPlus.SetShortName,
                         Is_Component = answer?.a.Is_Component ?? false,
                         Is_Requirement = answer?.a.Is_Requirement ?? true
                     };
@@ -453,11 +429,12 @@ namespace CSETWebCore.Business.Question
 
             int tQuestion_ID = 0;
             if (int.TryParse(answer.QuestionNumber, out tQuestion_ID))
-            {             
+            {
                 dbAnswer.Question_Number = tQuestion_ID;
             }
             dbAnswer.Answer_Text = answer.AnswerText;
             dbAnswer.Alternate_Justification = answer.AltAnswerText;
+            dbAnswer.Free_Response_Answer = answer.FreeResponseAnswer;
             dbAnswer.Comment = answer.Comment;
             dbAnswer.FeedBack = answer.Feedback;
             dbAnswer.Mark_For_Review = answer.MarkForReview;
@@ -520,7 +497,7 @@ namespace CSETWebCore.Business.Question
             {
                 LoadParametersList();
             }
-            
+
             List<PARAMETERS> qBaseLevel;
             if (parametersDictionary.TryGetValue(reqId, out qBaseLevel))
             {

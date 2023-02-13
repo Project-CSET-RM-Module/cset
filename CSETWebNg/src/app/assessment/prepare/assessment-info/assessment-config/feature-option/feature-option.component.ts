@@ -1,6 +1,6 @@
-////////////////////////////////
+/////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -22,10 +22,11 @@
 //
 ////////////////////////////////
 import { Component, Input, OnInit } from '@angular/core';
+import { Console } from 'console';
 import { AssessmentService } from '../../../../../services/assessment.service';
 import { ConfigService } from '../../../../../services/config.service';
 import { MaturityService } from '../../../../../services/maturity.service';
-import { NavigationService } from '../../../../../services/navigation.service';
+import { NavigationService } from '../../../../../services/navigation/navigation.service';
 
 @Component({
   selector: 'app-feature-option',
@@ -51,6 +52,12 @@ export class FeatureOptionComponent implements OnInit {
    */
   expandedAcet: boolean;
 
+  /**
+   * Indicates weather or not the record is a new one as going forward
+   * we will only allow for a single assessment feature to be selected
+   * within new assessments
+   */
+  isNotLegacy: boolean;
   constructor(
     public assessSvc: AssessmentService,
     public navSvc: NavigationService,
@@ -59,27 +66,25 @@ export class FeatureOptionComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    this.isNotLegacy = !this.checkIfLegacy();
   }
 
   /**
-  * Sets the selection of a feature and posts the assesment detail to the server.
+  * LEGACY SUBMIT:  Sets the selection of a feature and posts the assesment detail to the server.
   */
-  submit(feature, event: any) {
-    const value = event.srcElement.checked;
+  submitlegacy(feature, event: any) {
 
-    switch (feature.code) {
-      case 'maturity':
-        this.assessSvc.assessment.useMaturity = value;
-        break;
-      case 'standard':
-        this.assessSvc.assessment.useStandard = value;
-        break;
-        case 'diagram':
-          this.assessSvc.assessment.useDiagram = value;
-          break;
-        case 'cyote':
-          this.assessSvc.assessment.useCyote = value;
-          break;
+    const value = event.target.checked;
+
+    if (!this.isNotLegacy) {
+      this.selectFeature(feature, value);
+    }
+
+    if (this.isNotLegacy) {
+      this.setFeatureDefault();
+      this.selectFeature(feature, value);
+    } else {
+      this.isNotLegacy = !this.checkIfLegacy();
     }
 
     // special case for acet-only
@@ -90,7 +95,6 @@ export class FeatureOptionComponent implements OnInit {
         this.assessSvc.setAcetDefaults();
       }
     }
-
 
     if (this.assessSvc.assessment.useMaturity) {
       if (this.assessSvc.assessment.maturityModel == undefined) {
@@ -114,15 +118,72 @@ export class FeatureOptionComponent implements OnInit {
 
     // tell the nav service to refresh the nav tree
     localStorage.removeItem('tree');
-    this.navSvc.buildTree(this.navSvc.getMagic());
+    this.navSvc.buildTree();
   }
 
+  onChange(feature: any, event: any) {
+
+    var checkboxes = (<HTMLInputElement[]><any>document.getElementsByClassName("checkbox-custom"));
+
+    if (!this.isNotLegacy) {
+      this.submitlegacy(feature, event);
+      return
+    }
+
+    for (let i = 0; i < checkboxes.length; i++) {
+      if (checkboxes[i].type == "checkbox") {
+        if (checkboxes[i].name === feature.code) {
+          checkboxes[i].checked = true;
+          this.submitlegacy(feature, event);
+        }
+        else {
+          checkboxes[i].checked = false;
+        }
+      }
+    }
+  }
+
+  setFeatureDefault() {
+    this.assessSvc.assessment.useMaturity = false;
+    this.assessSvc.assessment.useStandard = false;
+    this.assessSvc.assessment.useDiagram = false;
+  }
+
+  checkIfLegacy() {
+    let count = 0;
+    count += this.assessSvc.assessment.useMaturity ? 1 : 0;
+    count += this.assessSvc.assessment.useStandard ? 1 : 0;
+    count += this.assessSvc.assessment.useDiagram ? 1 : 0;
+
+    return count > 1;
+  }
 
   /**
    * Toggles the open/closed style of the description div.
    */
   toggleExpansion() {
     this.expandedDesc = !this.expandedDesc;
+  }
+
+  /**
+   * As of July 2022, value is always 'true'
+   * because the component functions like radio buttons.
+   */
+  selectFeature(feature: any, value: boolean) {
+    switch (feature.code) {
+      case 'maturity':
+        this.assessSvc.assessment.useMaturity = value;
+        //this.navSvc.setWorkflow('maturity');
+        break;
+      case 'standard':
+        this.assessSvc.assessment.useStandard = value;
+        //this.navSvc.setWorkflow('classic');
+        break;
+      case 'diagram':
+        this.assessSvc.assessment.useDiagram = value;
+        //this.navSvc.setWorkflow('diagram');
+        break;
+    }
   }
 
   /**

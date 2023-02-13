@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@ import { ActivatedRoute } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { AssessmentService } from '../../../../services/assessment.service';
 import { AssessmentDetail } from '../../../../models/assessment-info.model';
-import { NavigationService } from '../../../../services/navigation.service';
+import { NavigationService } from '../../../../services/navigation/navigation.service';
 import { ConfigService } from '../../../../services/config.service';
 
 
@@ -41,7 +41,7 @@ export class AssessmentDetailComponent implements OnInit {
   assessment: AssessmentDetail = {};
 
   /**
-   * 
+   *
    */
   constructor(
     private assessSvc: AssessmentService,
@@ -58,37 +58,30 @@ export class AssessmentDetailComponent implements OnInit {
 
 
   /**
-   * Called every time this page is loaded.  
+   * Called every time this page is loaded.
    */
   getAssessmentDetail() {
     this.assessment = this.assessSvc.assessment;
 
     // a few things for a brand new assessment
-    if (this.assessSvc.isBrandNew) {
-      // set up some ACET-specific things for an ACET install
-      if (this.configSvc.installationMode === "ACET") {
-        this.assessment.useMaturity = true;
-        this.assessSvc.setAcetDefaults();
+    if (this.assessSvc.isBrandNew) {      
+      // RRA install presets the maturity model
+      if (this.configSvc.installationMode === 'RRA') {
+        this.assessSvc.setRraDefaults();
         this.assessSvc.updateAssessmentDetails(this.assessment);
       }
     }
+
     this.assessSvc.isBrandNew = false;
-
-    this.setCharterPad();
-
     // Null out a 'low date' so that we display a blank
     const assessDate: Date = new Date(this.assessment.assessmentDate);
     if (assessDate.getFullYear() <= 1900) {
       this.assessment.assessmentDate = null;
-    }
-    if (this.configSvc.installationMode === "ACET") {
-      if (this.assessment.assessmentName === "New Assessment")
-        this.createAcetName();
-    }
+    }    
   }
 
   /**
-   * 
+   *
    */
   update(e) {
     // default Assessment Name if it is left empty
@@ -97,46 +90,22 @@ export class AssessmentDetailComponent implements OnInit {
         this.assessment.assessmentName = "(Untitled Assessment)";
       }
     }
-    this.createAcetName();
-    this.setCharterPad();
     this.assessSvc.updateAssessmentDetails(this.assessment);
   }
 
-  /**
-   * 
-   */
-  setCharterPad() {
-    if (!!this.assessment) {
-      this.assessment.charter = this.padLeft(this.assessment.charter, '0', 5);
-    }
+  showAssessmentNameDisclaimer(){
+    return this.configSvc.behaviors.showNameDisclaimer;
   }
 
-  /**
-   * 
-   * @param text 
-   * @param padChar 
-   * @param size 
-   */
-  padLeft(text: string, padChar: string, size: number): string {
-    return (String(padChar).repeat(size) + text).substr((size * -1), size);
+  showFacilityName() {
+    return this.configSvc.behaviors.showFacilityName;
   }
 
-  /**
-   * 
-   */
-  createAcetName() {
-    if (this.configSvc.installationMode === "ACET") {
-      this.assessment.assessmentName = "ACET"
-      if (this.assessment.charter) {
-        this.assessment.assessmentName = this.assessment.assessmentName + " " + this.assessment.charter;
-      }
-      if (this.assessment.creditUnion) {
-        this.assessment.assessmentName = this.assessment.assessmentName + " " + this.assessment.creditUnion;
-      }
-      if (this.assessment.assessmentDate) {
-        let date = new Date(Date.parse(this.assessment.assessmentDate));
-        this.assessment.assessmentName = this.assessment.assessmentName + " " + this.datePipe.transform(date, 'MMddyy');
-      }
-    }
+  showCityName() {
+    return this.configSvc.behaviors.showCityName;
+  }
+
+  showStateName() {
+    return this.configSvc.behaviors.showStateName;
   }
 }

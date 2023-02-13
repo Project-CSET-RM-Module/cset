@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -30,9 +30,11 @@ export interface QuestionResponse {
     categories: Category[];
     maturityTargetLevel: number;
     applicationMode: string;
+    onlyMode: boolean;
     questionCount: number;
     requirementCount: number;
     overallIRP: number;
+    modelId: number;
     modelName: string;
 
     // the answer options to be displayed
@@ -40,19 +42,20 @@ export interface QuestionResponse {
 }
 
 export interface MaturityQuestionResponse {
+    modelId: number;
     modelName: string;
     questionsAlias: string;
+    title: string;
     levels: [];
     maturityTargetLevel: number;
     glossary: GlossaryEntry[];
     groupings: QuestionGrouping[];
-   
+
     // the answer options to be displayed
     answerOptions: string[];
 }
 
-export interface MaturityDomainRemarks
-{
+export interface MaturityDomainRemarks {
     group_Id: number;
     domainRemark: string;
 }
@@ -60,6 +63,7 @@ export interface MaturityDomainRemarks
 export interface QuestionGrouping {
     abbreviation: string;
     domainRemark: string;
+    prefix: string;
     title: string;
     description: string;
     groupingID: number;
@@ -91,7 +95,7 @@ export interface GlossaryEntry {
 
 
 /**
- * Multi-purpose container for domain, standard (requirements mode),  
+ * Multi-purpose container for domain, standard (requirements mode),
  * Standard Questions, Component Defaults or Component Overrides.
  */
 export interface Domain {
@@ -142,10 +146,13 @@ export interface Question {
     answer_Id: number;
     answer: string;
     altAnswerText: string;
+    freeResponseAnswer?: string;
+    answerMemo?: string;
     comment: string;
     feedback: string;
     hasDiscovery: boolean;
     hasDocument: boolean;
+    documentIds: number[];
     markForReview: boolean;
     reviewed: boolean;
     maturityLevel: number;
@@ -160,6 +167,8 @@ export interface Question {
     parentQuestionId: number;
 
     visible: boolean;
+    options: any[];
+    failedIntegrityCheckOptions: IntegrityCheckOption[];
 }
 
 export class Answer {
@@ -169,6 +178,7 @@ export class Answer {
     questionNumber: string;
     answerText: string;
     altAnswerText: string;
+    freeResponseAnswer?: string;
     comment: string;
     feedback: string;
     markForReview: boolean;
@@ -177,6 +187,38 @@ export class Answer {
     is_Requirement: boolean;
     is_Maturity: boolean;
     componentGuid: string;
+    optionId?: number;
+    optionType?: string;
+}
+
+export interface Option {
+    optionId: number;
+    optionType: string;
+    optionText: string;
+    sequence: number;
+    weight: number;
+    isNone: boolean;
+    selected: boolean;
+    answerId?: number;
+    hasAnswerText: boolean;
+    answerText: string;
+    baselineSelected: boolean;
+    baselineAnswerText: string;
+    questionId?: number;
+    freeResponseAnswer?: string;
+    followups: Question[];
+}
+
+export interface IntegrityCheckOption {
+  optionId: number;
+  selected: boolean;
+  parentQuestionText: string;
+  inconsistentOptions: InconsistentOption[];
+}
+
+export interface InconsistentOption {
+  optionId: number;
+  parentQuestionText: string;
 }
 
 export class SubToken {
@@ -184,7 +226,6 @@ export class SubToken {
     token: string;
     substitution: string;
 }
-
 
 export class DefaultParameters {
     defaultParameter: string[];

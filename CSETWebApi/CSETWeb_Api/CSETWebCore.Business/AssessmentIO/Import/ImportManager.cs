@@ -1,6 +1,6 @@
 ﻿//////////////////////////////// 
 // 
-//   Copyright 2022 Battelle Energy Alliance, LLC  
+//   Copyright 2023 Battelle Energy Alliance, LLC  
 // 
 // 
 //////////////////////////////// 
@@ -33,16 +33,18 @@ namespace CSETWebCore.Business.AssessmentIO.Import
     {
         private ITokenManager _token;
         private IAssessmentUtil _assessmentUtil;
+        private CSETContext _context;
 
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="token"></param>
-        public ImportManager(ITokenManager token, IAssessmentUtil assessmentUtil)
+        public ImportManager(ITokenManager token, IAssessmentUtil assessmentUtil, CSETContext context)
         {
             this._token = token;
             this._assessmentUtil = assessmentUtil;
+            this._context = context;
         }
 
 
@@ -52,7 +54,7 @@ namespace CSETWebCore.Business.AssessmentIO.Import
         /// <param name="zipFileFromDatabase"></param>
         /// <param name="currentUserId"></param>
         /// <returns></returns>
-        public async Task ProcessCSETAssessmentImport(byte[] zipFileFromDatabase, int currentUserId, CSETContext context)
+        public async Task ProcessCSETAssessmentImport(byte[] zipFileFromDatabase, int? currentUserId, string accessKey, CSETContext context)
         {
             //* read from db and set as memory stream here.
             using (Stream fs = new MemoryStream(zipFileFromDatabase))
@@ -109,7 +111,7 @@ namespace CSETWebCore.Business.AssessmentIO.Import
                         foreach (var testSet in sets)
                         {
                             setModel.shortName = testSet.Short_Name;
-                            var testSetJson = JsonConvert.SerializeObject(testSet.ToExternalStandard(), Newtonsoft.Json.Formatting.Indented);
+                            var testSetJson = JsonConvert.SerializeObject(testSet.ToExternalStandard(_context), Newtonsoft.Json.Formatting.Indented);
                             if (testSetJson == setJson)
                             {
                                 set = testSet;
@@ -129,12 +131,12 @@ namespace CSETWebCore.Business.AssessmentIO.Import
                                 setModel.shortName = originalSetName + " " + incr;
                                 incr++;
                             }
-                            var setResult = await setModel.ToSet();
+                            var setResult = await setModel.ToSet(_context);
                             if (setResult.IsSuccess)
                             {
                                 context.SETS.Add(setResult.Result);
 
-                                foreach (var question in setResult.Result.NEW_REQUIREMENT.SelectMany(s => s.NEW_QUESTIONs()).Where(s => s.Question_Id != 0).ToList())
+                                foreach (var question in setResult.Result.NEW_REQUIREMENT.SelectMany(s => s.NEW_QUESTIONs(_context)).Where(s => s.Question_Id != 0).ToList())
                                 {
                                     context.Entry(question).State = EntityState.Unchanged;
                                 }
@@ -149,8 +151,8 @@ namespace CSETWebCore.Business.AssessmentIO.Import
                                     throw;
                                 }
 
-                                //Set the GUID at time of export so we are sure it's right!!!
-                                model.jANSWER = model.jANSWER.Where(s => s.Is_Requirement).GroupJoin(setResult.Result.NEW_REQUIREMENT, s => s.Custom_Question_Guid, req => new Guid(new MD5CryptoServiceProvider().ComputeHash(Encoding.Default.GetBytes(originalSetName + "|||" + req.Requirement_Title + "|||" + req.Requirement_Text))).ToString(), (erea, s) =>
+                                //Set the GUID at time of export so we are sure it's right!!!                                
+                                model.jANSWER = model.jANSWER.Where(s => s.Is_Requirement).GroupJoin(setResult.Result.NEW_REQUIREMENT, s => s.Custom_Question_Guid, req => new Guid(MD5.Create().ComputeHash(Encoding.Default.GetBytes(originalSetName + "|||" + req.Requirement_Title + "|||" + req.Requirement_Text))).ToString(), (erea, s) =>
                                 {
                                     var req = s.FirstOrDefault();
                                     if (req != null)
@@ -158,7 +160,7 @@ namespace CSETWebCore.Business.AssessmentIO.Import
                                         erea.Question_Or_Requirement_Id = req.Requirement_Id;
                                     }
                                     return erea;
-                                }).Concat(model.jANSWER.Where(s => !s.Is_Requirement).GroupJoin(setResult.Result.NEW_QUESTION, s => s.Custom_Question_Guid, req => new Guid(new MD5CryptoServiceProvider().ComputeHash(Encoding.Default.GetBytes(req.Simple_Question))).ToString(), (erer, s) =>
+                                }).Concat(model.jANSWER.Where(s => !s.Is_Requirement).GroupJoin(setResult.Result.NEW_QUESTION, s => s.Custom_Question_Guid, req => new Guid(MD5.Create().ComputeHash(Encoding.Default.GetBytes(req.Simple_Question))).ToString(), (erer, s) =>
                                 {
                                     var req = s.FirstOrDefault();
                                     if (req != null)
@@ -176,12 +178,12 @@ namespace CSETWebCore.Business.AssessmentIO.Import
                         }
                     }
 
-                    string email = context.USERS.Where(x => x.UserId == currentUserId).First().PrimaryEmail;
+                    string email = context.USERS.Where(x => x.UserId == currentUserId).FirstOrDefault()?.PrimaryEmail ?? "";
 
 
 
                     Importer import = new Importer();
-                    int newAssessmentId = import.RunImportManualPortion(model, currentUserId, email, context, _token, _assessmentUtil);
+                    int newAssessmentId = import.RunImportManualPortion(model, currentUserId, email, accessKey, context, _token, _assessmentUtil);
                     import.RunImportAutomatic(newAssessmentId, jsonObject, context);
 
 

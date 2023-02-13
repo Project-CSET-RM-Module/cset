@@ -1,4 +1,10 @@
-﻿using System;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using System;
 using System.Data;
 using System.IO;
 using System.Reflection;
@@ -37,13 +43,31 @@ namespace CSETWebCore.DatabaseManager
                                 break;
                         }
                     }
+
+                    reader.Close();
+
+                    if (MDF == null || LDF == null)
+                    { 
+                        Exists = false;
+                    } 
+                    else if (!File.Exists(MDF) || !File.Exists(LDF))
+                    { 
+                        cmd.CommandText = "EXEC sp_detach_db '" + DatabaseCode + "', 'true'";
+                        cmd.ExecuteNonQuery();
+                        Exists = false;
+                    }
                 }
 
-                if (MDF == null || LDF == null)
-                    Exists = false;
             }
-            catch
+            catch (SqlException)
             {
+                // We are only concerned here if SQL LocalDb 2019 (uses CurrentMasterConnectionString) is not accessible
+                // (2012 might not be installed, and that's ok--just assume the db does not exist)
+                if (connectionString.Equals(DbManager.CurrentMasterConnectionString))
+                {
+                    throw;
+                }
+
                 Exists = false;
             }
         }

@@ -1,6 +1,6 @@
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -21,93 +21,114 @@
 //  SOFTWARE.
 //
 ////////////////////////////////
-import { HttpClient } from '@angular/common/http';
-import { Injectable, APP_INITIALIZER } from '@angular/core';
-import { environment } from '../../environments/environment';
+import { HttpClient } from "@angular/common/http";
+import { Injectable, APP_INITIALIZER } from "@angular/core";
 
-
+declare var csetGlobalConfig: any;
 
 @Injectable()
 export class ConfigService {
-
-  reportsUrl: string;
   apiUrl: string;
   appUrl: string;
   docUrl: string;
+  
   helpContactEmail: string;
   helpContactPhone: string;
+  
   isRunningInElectron: boolean;
+  isRunningAnonymous = false;
+
   configUrl: string;
   assetsUrl: string;
-  analyticsUrl: string;
+  settingsUrl: string;
   config: any;
 
-  // button labels
-  buttonLabels = {};
-
-  buttonClasses = {};
-
-  // labels for graph legends and report answers
-  answerLabels = {};
+  behaviors: any;
 
   salLabels = {};
 
   private initialized = false;
   isAPI_together_With_Web = false;
 
-  installationMode = '';
+  installationMode = "";
 
+  galleryLayout = "CSET";
+
+  /**
+   * Specifies the mobile ecosystem that the app is running on.
+   * This is set by the build process when building CSET as
+   * a mobile app.  If not being built for mobile, this property
+   * will contain an empty string or "none".
+   */
+  mobileEnvironment = "";
 
   /**
    * Constructor.
    * @param http
    */
-  constructor(private http: HttpClient) {
-
-  }
+  constructor(private http: HttpClient) {}
 
   /**
    *
    */
-  loadConfig() {
-    if (!this.initialized) {
-      this.isRunningInElectron = localStorage.getItem('isRunningInElectron') == 'true';
-      this.assetsUrl = this.isRunningInElectron ? 'assets/' : '/assets/';
-      this.configUrl = this.assetsUrl + 'config.json';
-
-      return this.http.get(this.configUrl)
-        .toPromise()
-        .then((data: any) => {
-          let apiPort = data.api.port != "" ? ":" + data.api.port : "";
-          let appPort = data.app.port != "" ? ":" + data.app.port : "";
-          let apiProtocol = data.api.protocol + "://";
-          let appProtocol = data.app.protocol + "://";
-          if (localStorage.getItem("apiUrl") != null) {
-            this.apiUrl = localStorage.getItem("apiUrl") + "/" + data.api.apiIdentifier + "/";
-          } else {
-            this.apiUrl = apiProtocol + data.api.url + apiPort + "/" + data.api.apiIdentifier + "/";
-          }
-          this.analyticsUrl = data.analyticsUrl;
-          this.appUrl = appProtocol + data.app.appUrl + appPort;
-          this.docUrl = apiProtocol + data.api.url + apiPort + "/" + data.api.documentsIdentifier + "/";
-          if (localStorage.getItem("reportsApiUrl") != null) {
-            this.reportsUrl = localStorage.getItem("reportsApiUrl");
-          } else {
-            this.reportsUrl = data.reportsApi;
-          }
-          this.helpContactEmail = data.helpContactEmail;
-          this.helpContactPhone = data.helpContactPhone;
-          this.config = data;
-
-          this.installationMode = (this.config.installationMode?.toUpperCase() || '');
-
-          this.populateLabelValues();
-
-          this.populateButtonClasses();
-
-          this.initialized = true;
-        }).catch(error => console.log('Failed to load config file: ' + (<Error>error).message));
+  async loadConfig() {
+    if (csetGlobalConfig) {
+      this.config = csetGlobalConfig;
+      if (!this.initialized) {
+        this.isRunningInElectron = localStorage.getItem("isRunningInElectron") == "true";
+        this.setConfigPropertiesForLocalService(csetGlobalConfig);
+      }
+      return;
     }
+    else{
+      console.log("FAILED TO FIND LOCAL CONFIGURATION");
+    }
+
+  }
+
+  /**
+   * 
+   */
+  setConfigPropertiesForLocalService(config: any) {
+    this.isRunningAnonymous = config.isRunningAnonymous;
+    this.assetsUrl = "assets/";
+    this.installationMode = config.installationMode;
+    let apiPort = config.api.port != "" ? ":" + config.api.port : "";
+    let appPort = config.app.port != "" ? ":" + config.app.port : "";
+    let apiProtocol = config.api.protocol + "://";
+    let appProtocol = config.app.protocol + "://";
+    if (localStorage.getItem("apiUrl") != null) {
+      this.apiUrl =
+        localStorage.getItem("apiUrl") + "/" + config.api.apiIdentifier + "/";
+    } else {
+      this.apiUrl =
+        apiProtocol +
+        config.api.url +
+        apiPort +
+        "/" +
+        config.api.apiIdentifier +
+        "/";
+    }
+
+    this.appUrl = appProtocol + config.app.appUrl + appPort;
+    this.docUrl =
+      apiProtocol +
+      config.api.url +
+      apiPort +
+      "/" +
+      config.api.documentsIdentifier +
+      "/";
+    this.helpContactEmail = config.helpContactEmail;
+    this.helpContactPhone = config.helpContactPhone;
+    this.config = config;
+
+    this.galleryLayout = this.config.galleryLayout?.toString() || "CSET";
+    this.mobileEnvironment = this.config.mobileEnvironment;
+    this.behaviors = this.config.behaviors;
+
+    this.populateLabelValues();
+
+    this.initialized = true;
   }
 
   /**
@@ -115,42 +136,47 @@ export class ConfigService {
    */
   populateLabelValues() {
     // Apply any overrides to button and graph labels
-    this.buttonLabels['Y'] = this.config.buttonLabelY;
-    this.buttonLabels['N'] = this.config.buttonLabelN;
-    this.buttonLabels['NA'] = this.config.buttonLabelNA;
-    this.buttonLabels['A'] = this.config.buttonLabelA;
-    if (this.installationMode === 'ACET') {
-      this.buttonLabels['A'] = this.config.buttonLabelA_ACET;
+    this.salLabels["L"] = "Low";
+    this.salLabels["M"] = "Moderate";
+    this.salLabels["H"] = "High";
+    this.salLabels["VH"] = "Very High";
+  }
+  
+  /**
+   * A convenience method so that consumers can quickly know whether
+   * CSET is currently running as a mobile app or not.
+   */
+  isMobile(): boolean {
+    if (
+      this.mobileEnvironment.toUpperCase() == "NONE" ||
+      this.mobileEnvironment == ""
+    ) {
+      return false;
     }
-    this.buttonLabels['I'] = this.config.buttonLabelI;
-
-    this.answerLabels['Y'] = this.config.answerLabelY;
-    this.answerLabels['N'] = this.config.answerLabelN;
-    this.answerLabels['NA'] = this.config.answerLabelNA;
-    this.answerLabels['A'] = this.config.answerLabelA;
-    if (this.installationMode === 'ACET') {
-      this.answerLabels['A'] = this.config.answerLabelA_ACET;
-    }
-    this.answerLabels['U'] = this.config.answerLabelU;
-    this.answerLabels[''] = this.config.answerLabelU;
-    this.answerLabels['I'] = this.config.answerLabelI;
-
-
-    this.salLabels['L'] = "Low";
-    this.salLabels['M'] = "Moderate";
-    this.salLabels['H'] = "High";
-    this.salLabels['VH'] = "Very High";
+    return true;
   }
 
   /**
-   * Associates a CSS class with each answer option.
+   * Determines if the Import button should display or not
    */
-  populateButtonClasses() {
-    this.buttonClasses['Y'] = 'btn-yes';
-    this.buttonClasses['N'] = 'btn-no';
-    this.buttonClasses['NA'] = 'btn-na';
-    this.buttonClasses['A'] = 'btn-alt';
-    this.buttonClasses['I'] = 'btn-inc';
+  showImportButton() {
+    // hide the import button if any Cyber Florida conditions exist
+    if (
+      (this.config.isCyberFlorida ?? false) ||
+      (this.config.galleryLayout ?? "") == "Florida" ||
+      (this.config.installationMode ?? "") == "CF"
+    ) {
+      return false;
+    }
+
+    return true;
+  }
+
+  /**
+   * Determines if the Export All button should display or not
+   */
+  showExportAllButton() {
+    return this.config.debug.showExportAllButton ?? false;
   }
 
   /**
@@ -158,7 +184,7 @@ export class ConfigService {
    * question and requirement IDs for debugging purposes.
    */
   showQuestionAndRequirementIDs() {
-    return this.config.showQuestionAndRequirementIDs || false;
+    return this.config.debug.showQuestionAndRequirementIDs ?? false;
   }
 
   /**
@@ -167,7 +193,7 @@ export class ConfigService {
    * @returns
    */
   showBuildTime() {
-    return this.config.showBuildTime || false;
+    return this.config.debug.showBuildTime ?? false;
   }
 }
 
@@ -180,11 +206,11 @@ export function init() {
     provide: APP_INITIALIZER,
     useFactory: ConfigFactory,
     deps: [ConfigService],
-    multi: true
-  }
+    multi: true,
+  };
 }
 const ConfigModule = {
-  init: init
-}
+  init: init,
+};
 
-export { ConfigModule }
+export { ConfigModule };

@@ -1,4 +1,10 @@
-﻿using System;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using CSETWebCore.DataLayer.Model;
@@ -51,12 +57,12 @@ namespace CSETWebCore.Business.Question
         private readonly CSETContext _context;
         private readonly IAssessmentUtil _assessmentUtil;
         private readonly IAssessmentModeData _assessmentMode;
-        
+
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="assessmentId"></param>
-        public QuestionRequirementManager(CSETContext context, IAssessmentUtil assessmentUtil, 
+        public QuestionRequirementManager(CSETContext context, IAssessmentUtil assessmentUtil,
             IAssessmentModeData assessmentMode)
         {
             _context = context;
@@ -77,16 +83,16 @@ namespace CSETWebCore.Business.Question
         {
             // Get any subcategory answers for the assessment
             SubCatAnswers = (from sca in _context.SUB_CATEGORY_ANSWERS
-                                  join usch in _context.UNIVERSAL_SUB_CATEGORY_HEADINGS on sca.Heading_Pair_Id equals usch.Heading_Pair_Id
-                                  where sca.Assessement_Id == AssessmentId
-                                  select new SubCategoryAnswersPlus()
-                                  {
-                                      AssessmentId = sca.Assessement_Id,
-                                      HeadingId = sca.Heading_Pair_Id,
-                                      AnswerText = sca.Answer_Text,
-                                      GroupHeadingId = usch.Question_Group_Heading_Id,
-                                      SubCategoryId = usch.Universal_Sub_Category_Id
-                                  }).ToList();
+                             join usch in _context.UNIVERSAL_SUB_CATEGORY_HEADINGS on sca.Heading_Pair_Id equals usch.Heading_Pair_Id
+                             where sca.Assessement_Id == AssessmentId
+                             select new SubCategoryAnswersPlus()
+                             {
+                                 AssessmentId = sca.Assessement_Id,
+                                 HeadingId = sca.Heading_Pair_Id,
+                                 AnswerText = sca.Answer_Text,
+                                 GroupHeadingId = usch.Question_Group_Heading_Id,
+                                 SubCategoryId = usch.Universal_Sub_Category_Id
+                             }).ToList();
         }
 
 
@@ -174,7 +180,7 @@ namespace CSETWebCore.Business.Question
         /// <returns></returns>
         public string GetApplicationMode(int assessmentId)
         {
-           
+
             var mode = _context.STANDARD_SELECTION.Where(x => x.Assessment_Id == assessmentId).Select(x => x.Application_Mode).FirstOrDefault();
 
             if (mode == null)
@@ -221,6 +227,7 @@ namespace CSETWebCore.Business.Question
             dbAnswer.Is_Requirement = false;
             dbAnswer.Answer_Text = answer.AnswerText;
             dbAnswer.Alternate_Justification = answer.AltAnswerText;
+            dbAnswer.Free_Response_Answer = answer.FreeResponseAnswer;
             dbAnswer.Comment = answer.Comment;
             dbAnswer.FeedBack = answer.Feedback;
             dbAnswer.Mark_For_Review = answer.MarkForReview;
@@ -284,6 +291,7 @@ namespace CSETWebCore.Business.Question
             dbAnswer.Question_Number = answer.QuestionNumber != null ? int.Parse(answer.QuestionNumber) : (int?)null;
             dbAnswer.Answer_Text = answer.AnswerText;
             dbAnswer.Alternate_Justification = answer.AltAnswerText;
+            dbAnswer.Free_Response_Answer = answer.FreeResponseAnswer;
             dbAnswer.Comment = answer.Comment;
             dbAnswer.FeedBack = answer.Feedback;
             dbAnswer.Mark_For_Review = answer.MarkForReview;
@@ -313,7 +321,7 @@ namespace CSETWebCore.Business.Question
 
             AddResponse(resp, list, "Component Defaults");
             BuildOverridesOnly(resp);
-        
+
         }
 
         public void BuildOverridesOnly(QuestionResponse resp)
@@ -399,13 +407,14 @@ namespace CSETWebCore.Business.Question
                     Answer = dbQ.Answer_Text,
                     Answer_Id = dbQ.Answer_Id,
                     AltAnswerText = dbQ.Alternate_Justification,
+                    FreeResponseAnswer = dbQ.Free_Response_Answer,
                     Comment = dbQ.Comment,
                     MarkForReview = dbQ.Mark_For_Review ?? false,
                     Reviewed = dbQ.Reviewed ?? false,
                     Is_Component = dbQ.Is_Component,
                     ComponentGuid = dbQ.Component_Guid ?? Guid.Empty,
                     Is_Requirement = dbQ.Is_Requirement,
-                    Feedback = dbQ.Feedback
+                    Feedback = dbQ.FeedBack
                 };
 
                 sc.Questions.Add(qa);
@@ -476,13 +485,14 @@ namespace CSETWebCore.Business.Question
                     Answer = dbQ.Answer_Text,
                     Answer_Id = dbQ.Answer_Id,
                     AltAnswerText = dbQ.Alternate_Justification,
+                    FreeResponseAnswer = dbQ.Free_Response_Answer,
                     Comment = dbQ.Comment,
                     MarkForReview = dbQ.Mark_For_Review ?? false,
                     Reviewed = dbQ.Reviewed ?? false,
                     Is_Component = dbQ.Is_Component,
                     ComponentGuid = dbQ.Component_Guid ?? Guid.Empty,
                     Is_Requirement = dbQ.Is_Requirement,
-                    Feedback = dbQ.Feedback
+                    Feedback = dbQ.FeedBack
                 };
 
                 sc.Questions.Add(qa);
@@ -555,7 +565,7 @@ namespace CSETWebCore.Business.Question
 
             return q.Distinct().Count();
         }
-        
+
 
         /// <summary>
         /// Returns the number of questions that are relevant for the selected standards 

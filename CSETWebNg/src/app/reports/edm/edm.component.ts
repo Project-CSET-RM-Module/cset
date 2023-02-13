@@ -1,7 +1,7 @@
 import { performanceLegend, relationshipFormationG1, relationshipFormationG2, relationshipFormationG3, relationshipFormationG4, relationshipFormationG5, relationshipFormationG6, performanceLegend2, relationshipFormationSummary } from './data';
 ////////////////////////////////
 //
-//   Copyright 2022 Battelle Energy Alliance, LLC
+//   Copyright 2023 Battelle Energy Alliance, LLC
 //
 //  Permission is hereby granted, free of charge, to any person obtaining a copy
 //  of this software and associated documentation files (the "Software"), to deal
@@ -91,7 +91,6 @@ export class EdmComponent implements OnInit, AfterContentInit {
   }
 
   getReportPdf(){
-    console.log(this.el.nativeElement.innerHTML);
     //this.reportSvc.getPdf(this.el.nativeElement.innerHTML);
     this.reportSvc.getPdf(this.el.nativeElement.innerHTML, "None").subscribe(data => {
       saveAs(data, "edm.pdf");

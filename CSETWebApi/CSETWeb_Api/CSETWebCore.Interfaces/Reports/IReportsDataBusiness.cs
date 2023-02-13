@@ -1,4 +1,10 @@
-﻿using CSETWebCore.Business.Reports;
+//////////////////////////////// 
+// 
+//   Copyright 2023 Battelle Energy Alliance, LLC  
+// 
+// 
+//////////////////////////////// 
+using CSETWebCore.Business.Reports;
 using CSETWebCore.DataLayer.Model;
 using CSETWebCore.Model.Diagram;
 using CSETWebCore.Model.Maturity;
@@ -16,6 +22,10 @@ namespace CSETWebCore.Interfaces.Reports
         List<MatRelevantAnswers> GetAlternatesList();
         List<MatRelevantAnswers> GetQuestionsList();
         List<MatAnsweredQuestionDomain> GetAnsweredQuestionList();
+        List<MatAnsweredQuestionDomain> GetIseAnsweredQuestionList();
+        List<MatAnsweredQuestionDomain> GetIseAllQuestionList();
+
+        List<SourceFiles> GetIseSourceFiles();
         List<string> GetDomains();
 
         void BuildSubGroupings(MaturityGrouping g, int? parentID,
@@ -23,7 +33,7 @@ namespace CSETWebCore.Interfaces.Reports
             List<MATURITY_QUESTIONS> questions,
             List<FullAnswer> answers);
 
-        List<BasicReportData.RequirementControl> GetControls();
+        List<BasicReportData.RequirementControl> GetControls(string applicationMode);
         List<List<DiagramZones>> GetDiagramZones();
         List<usp_getFinancialQuestions_Result> GetFinancialQuestions();
         List<StandardQuestions> GetQuestionsForEachStandard();
