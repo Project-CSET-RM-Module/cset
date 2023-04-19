@@ -71,8 +71,20 @@ ngOnInit(): void {
     r.level;
     console.log(r.Grouping_Id);
     console.log(this.level);
+    console.log(r.level_Name);
 
     //capture data here
+    const groupAnswerCounts = []
+
+    for (let i = 0; i <groupAnswerCounts.length; i++) {
+      
+      // find row for grp id key 
+
+      // if found add AC to found else - create new row with AC 
+
+    }
+
+
     this.assetmscore = 2;
     this.configmscore = 3;
     this.accesscscore = 2;
